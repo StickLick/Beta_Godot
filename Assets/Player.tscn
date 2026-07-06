@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bejvob00pd8sr"]
+
+[ext_resource type="Script" uid="uid://biffix5j15efw" path="res://scripts/player.gd" id="1_1fna3"]
+
+[node name="Player" type="CharacterBody2D" unique_id=533525232]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=165594087]
+script = ExtResource("1_1fna3")
+
+[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D" unique_id=608039397]
+polygon = PackedVector2Array(-12, -11, -12, 10, 9, 10, 9, -12)
+script = ExtResource("1_1fna3")
