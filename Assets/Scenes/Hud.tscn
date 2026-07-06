@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bw8cirdg6bvpw"]
+
+[ext_resource type="Script" uid="uid://1mtv3l6x52u4" path="res://scripts/hud.gd" id="1_s617k"]
+
+[node name="Hud" type="CanvasLayer" unique_id=1152050891]
+script = ExtResource("1_s617k")
+
+[node name="UI_Container" type="Control" parent="." unique_id=1219246508]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=1278099814]
+unique_name_in_owner = true
+modulate = Color(1, 0.029999971, 0.029999971, 1)
+offset_right = 329.0
+offset_bottom = 27.0
+
+[node name="TimerLabel" type="Label" parent="." unique_id=337612957]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -26.0
+offset_right = 26.0
+offset_bottom = 23.0
+grow_horizontal = 2
