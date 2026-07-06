@@ -24,6 +24,3 @@ func take_damage(amount: float) -> void:
 func heal(amount: float) -> void:
 	current_health = clampf(current_health + amount, 0.0, max_health)
 	health_changed.emit(current_health, max_health)
-	
-func _on_death() -> void:
-	queue_free()
