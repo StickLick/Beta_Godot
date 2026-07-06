@@ -12,20 +12,11 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+    var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
-	if input_vector != Vector2.ZERO:
-		velocity = velocity.move_toward(input_vector * max_speed, acceleration * delta)
-	else:
-		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+    if input_vector != Vector2.ZERO:
+        velocity = velocity.move_toward(input_vector * max_speed, acceleration * delta)
+    else:
+        velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
-	move_and_slide()
-
-
-func take_damage(amount: float) -> void:
-	health_component.take_damage(amount)
-
-
-func _on_death() -> void:
-	print("Player died")
-	set_physics_process(false)
+    move_and_slide()
