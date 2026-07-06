@@ -8,5 +8,3 @@ extends Area2D
 func _ready() -> void:
 	monitoring = false
 	monitorable = true
-	collision_layer = 2
-	collision_mask = 0

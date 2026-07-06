@@ -14,9 +14,7 @@ signal hit_received(damage: float)
 
 func _ready() -> void:
 	monitoring = true
-	monitorable = true
-	collision_layer = 4
-	collision_mask = 2
+	monitorable = false
 
 	area_entered.connect(_on_area_entered)
 
@@ -28,16 +26,16 @@ func _ready() -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	var hitbox: HitboxComponent = area as HitboxComponent
-	if hitbox == null:
+	if not hitbox:
 		return
 
 	if _is_invulnerable:
 		return
 
-	if hitbox.faction == faction:
+	if _factions_match(hitbox.faction, faction):
 		return
 
-	if hitbox.owner == owner:
+	if hitbox.get_parent() == get_parent() or hitbox.owner == owner or hitbox.get_parent() == self:
 		return
 
 	_apply_damage(hitbox.damage)
@@ -58,6 +56,18 @@ func _on_invulnerability_timeout() -> void:
 
 	for area: Area2D in get_overlapping_areas():
 		var hitbox: HitboxComponent = area as HitboxComponent
-		if hitbox != null and hitbox.faction != faction and hitbox.owner != owner:
-			_apply_damage(hitbox.damage)
-			break
+		if not hitbox:
+			continue
+
+		if _factions_match(hitbox.faction, faction):
+			continue
+
+		if hitbox.get_parent() == get_parent() or hitbox.owner == owner or hitbox.get_parent() == self:
+			continue
+
+		_apply_damage(hitbox.damage)
+		break
+
+
+func _factions_match(faction_a: String, faction_b: String) -> bool:
+	return faction_a.to_lower() == faction_b.to_lower()

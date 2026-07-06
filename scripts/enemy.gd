@@ -5,23 +5,23 @@ extends CharacterBody2D
 
 
 func _ready() -> void:
-    if health_component == null:
-        health_component = $HealthComponent as HealthComponent
+	if health_component == null:
+		health_component = $HealthComponent as HealthComponent
 
-    health_component.health_depleted.connect(_on_death)
+	health_component.health_depleted.connect(_on_death)
 
 
 func _physics_process(_delta: float) -> void:
-    var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-    if player == null:
-        velocity = Vector2.ZERO
-        move_and_slide()
-        return
+	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+	if player == null:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
-    var direction: Vector2 = (player.global_position - global_position).normalized()
-    velocity = direction * speed
-    move_and_slide()
+	var direction: Vector2 = (player.global_position - global_position).normalized()
+	velocity = direction * speed
+	move_and_slide()
 
 
 func _on_death() -> void:
-    queue_free()
+	queue_free()

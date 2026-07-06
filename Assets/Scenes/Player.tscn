@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://biffix5j15efw" path="res://scripts/player.gd" id="1_3e2tf"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="2_b2ifw"]
-[ext_resource type="Script" path="res://scripts/hurtbox_component.gd" id="3_hurtbox"]
-[ext_resource type="Script" path="res://scripts/weapon_component.gd" id="4_weapon"]
-[ext_resource type="Script" path="res://scripts/hitbox_component.gd" id="5_hitbox"]
+[ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="3_hurtbox"]
+[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="4_weapon"]
+[ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="5_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
 size = Vector2(50, 47)
@@ -18,6 +18,7 @@ size = Vector2(50, 20)
 [node name="Player" type="Node2D" unique_id=1339954514]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=887924388]
+collision_layer = 2
 script = ExtResource("1_3e2tf")
 
 [node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D" unique_id=1927185971]
@@ -26,34 +27,40 @@ polygon = PackedVector2Array(-28, -26, -28, 21, 22, 21, 22, -26)
 [node name="HealthComponent" type="Node2D" parent="CharacterBody2D" unique_id=43408329]
 script = ExtResource("2_b2ifw")
 
-[node name="HurtboxComponent" type="Area2D" parent="CharacterBody2D"]
+[node name="HurtboxComponent" type="Area2D" parent="CharacterBody2D" unique_id=1610656656]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
 script = ExtResource("3_hurtbox")
-faction = "player"
-health_component = NodePath("../HealthComponent")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/HurtboxComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/HurtboxComponent" unique_id=1006817211]
 shape = SubResource("RectangleShape2D_hurtbox")
 
-[node name="WeaponComponent" type="Node2D" parent="CharacterBody2D"]
+[node name="WeaponComponent" type="Node2D" parent="CharacterBody2D" unique_id=1811458119]
 script = ExtResource("4_weapon")
 
-[node name="DetectionArea" type="Area2D" parent="CharacterBody2D/WeaponComponent"]
+[node name="DetectionArea" type="Area2D" parent="CharacterBody2D/WeaponComponent" unique_id=129713877]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/DetectionArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/DetectionArea" unique_id=42854914]
 shape = SubResource("CircleShape2D_detection")
 
-[node name="CooldownTimer" type="Timer" parent="CharacterBody2D/WeaponComponent"]
+[node name="CooldownTimer" type="Timer" parent="CharacterBody2D/WeaponComponent" unique_id=1809523123]
 
-[node name="VisualPivot" type="Node2D" parent="CharacterBody2D/WeaponComponent"]
+[node name="VisualPivot" type="Node2D" parent="CharacterBody2D/WeaponComponent" unique_id=1821519261]
 
-[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D/WeaponComponent/VisualPivot"]
+[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D/WeaponComponent/VisualPivot" unique_id=432942546]
 color = Color(0.3, 0.7, 1, 1)
 polygon = PackedVector2Array(0, -6, 50, 0, 0, 6)
 
-[node name="HitboxComponent" type="Area2D" parent="CharacterBody2D/WeaponComponent/VisualPivot"]
+[node name="HitboxComponent" type="Area2D" parent="CharacterBody2D/WeaponComponent/VisualPivot" unique_id=1138488457]
 position = Vector2(25, 0)
+collision_layer = 8
+collision_mask = 0
+monitoring = false
 script = ExtResource("5_hitbox")
-faction = "player"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/VisualPivot/HitboxComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/VisualPivot/HitboxComponent" unique_id=1620867527]
 shape = SubResource("RectangleShape2D_weapon_hitbox")
