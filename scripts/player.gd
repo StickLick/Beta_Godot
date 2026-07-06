@@ -4,6 +4,13 @@ extends CharacterBody2D
 @export var acceleration: float = 1800.0
 @export var friction: float = 1500.0
 
+@onready var health_component: HealthComponent = $HealthComponent
+
+
+func _ready() -> void:
+	health_component.health_depleted.connect(_on_death)
+
+
 func _physics_process(delta: float) -> void:
 	var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
@@ -13,3 +20,12 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
 	move_and_slide()
+
+
+func take_damage(amount: float) -> void:
+	health_component.take_damage(amount)
+
+
+func _on_death() -> void:
+	print("Player died")
+	set_physics_process(false)
