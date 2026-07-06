@@ -25,6 +25,7 @@ max_health = 30.0
 
 [node name="HurtboxComponent" type="Area2D" parent="."]
 script = ExtResource("3_hurtbox")
+faction = "enemy"
 health_component = NodePath("../HealthComponent")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
@@ -32,6 +33,7 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="HitboxComponent" type="Area2D" parent="."]
 script = ExtResource("4_hitbox")
+faction = "enemy"
 damage = 10.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]

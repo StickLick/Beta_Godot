@@ -2,9 +2,10 @@ class_name HurtboxComponent
 extends Area2D
 
 @export var health_component: HealthComponent
+@export var faction: String = "player"
 @export var invulnerability_duration: float = 0.5
 
-var is_invulnerable: bool = false
+var _is_invulnerable: bool = false
 
 var _invulnerability_timer: Timer
 
@@ -19,9 +20,6 @@ func _ready() -> void:
 
 	area_entered.connect(_on_area_entered)
 
-	if health_component == null:
-		health_component = _find_health_component()
-
 	_invulnerability_timer = Timer.new()
 	_invulnerability_timer.one_shot = true
 	_invulnerability_timer.timeout.connect(_on_invulnerability_timeout)
@@ -29,38 +27,37 @@ func _ready() -> void:
 
 
 func _on_area_entered(area: Area2D) -> void:
-	if is_invulnerable:
-		return
-
-	if not area is HitboxComponent:
-		return
-
 	var hitbox: HitboxComponent = area as HitboxComponent
+	if hitbox == null:
+		return
 
+	if _is_invulnerable:
+		return
+
+	if hitbox.faction == faction:
+		return
+
+	if hitbox.owner == owner:
+		return
+
+	_apply_damage(hitbox.damage)
+
+
+func _apply_damage(amount: float) -> void:
 	if health_component == null:
 		return
 
-	health_component.take_damage(hitbox.damage)
-	hit_received.emit(hitbox.damage)
-	_start_invulnerability()
-
-
-func _start_invulnerability() -> void:
-	is_invulnerable = true
+	health_component.take_damage(amount)
+	hit_received.emit(amount)
+	_is_invulnerable = true
 	_invulnerability_timer.start(invulnerability_duration)
 
 
 func _on_invulnerability_timeout() -> void:
-	is_invulnerable = false
+	_is_invulnerable = false
 
-
-func _find_health_component() -> HealthComponent:
-	var parent: Node = get_parent()
-	if parent == null:
-		return null
-
-	for child: Node in parent.get_children():
-		if child is HealthComponent:
-			return child as HealthComponent
-
-	return null
+	for area: Area2D in get_overlapping_areas():
+		var hitbox: HitboxComponent = area as HitboxComponent
+		if hitbox != null and hitbox.faction != faction and hitbox.owner != owner:
+			_apply_damage(hitbox.damage)
+			break
