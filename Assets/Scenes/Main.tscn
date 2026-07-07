@@ -1,12 +1,16 @@
 [gd_scene format=3 uid="uid://cuokqkx774hk4"]
 
+[ext_resource type="Script" uid="uid://dnfux23i2ajeq" path="res://Assets/Scenes/Main.gd" id="1_8bicx"]
 [ext_resource type="PackedScene" uid="uid://luhp1l5cxkek" path="res://Assets/Scenes/Player.tscn" id="1_kwblh"]
 [ext_resource type="PackedScene" uid="uid://bopll1eq6vire" path="res://Assets/Scenes/Enemy.tscn" id="2_enemy"]
 [ext_resource type="PackedScene" uid="uid://bw8cirdg6bvpw" path="res://Assets/Scenes/Hud.tscn" id="3_ygaiq"]
 [ext_resource type="Script" uid="uid://b5fsovmjr3dd" path="res://scripts/enemy_spawner.gd" id="4_spawner"]
-[ext_resource type="Script" uid="uid://boefdtnamgbe8" path="res://Assets/Scenes/difficulty_controller.gd" id="5_gjahs"]
+[ext_resource type="Script" uid="uid://boefdtnamgbe8" path="res://scripts/difficulty_controller.gd" id="5_gjahs"]
+[ext_resource type="PackedScene" uid="uid://cj02tarqi3cnf" path="res://Assets/Scenes/UpgradeMenu.tscn" id="7_fxu2d"]
+[ext_resource type="PackedScene" uid="uid://cqle3lwr3wp84" path="res://Assets/Scenes/UpgradeDesign.tscn" id="8_fxu2d"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
+script = ExtResource("1_8bicx")
 
 [node name="Player" parent="." unique_id=1339954514 groups=["Player"] instance=ExtResource("1_kwblh")]
 
@@ -25,3 +29,6 @@ base_spawn_interval = 5.0
 min_spawn_interval = 1.0
 count_growth_rate = 0.05
 growth_factor = 200.0
+
+[node name="UpgradeMenu" parent="." unique_id=1070606010 instance=ExtResource("7_fxu2d")]
+upgrade_menu_scene = ExtResource("8_fxu2d")

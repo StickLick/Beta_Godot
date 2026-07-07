@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cqle3lwr3wp84"]
+
+[node name="UpgradeDesign" type="Control" unique_id=2094936194]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="UpgradeOptions" type="VBoxContainer" parent="." unique_id=776361265]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0

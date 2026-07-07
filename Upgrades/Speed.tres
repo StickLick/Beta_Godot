@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://ba4lgmsqs3btv"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_jh6nc"]
+
+[resource]
+script = ExtResource("1_jh6nc")
+name = "Скорость + 10"
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-const XP_GEM_SCENE: PackedScene = preload("res://scenes/xp_gem.tscn")
+const XP_GEM_SCENE: PackedScene = preload("res://Assets/Scenes/Xp_gem.tscn")
 
 @export var speed: float = 120.0
 @export var health_component: HealthComponent

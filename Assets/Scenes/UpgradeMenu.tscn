@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://cj02tarqi3cnf"]
+
+[ext_resource type="Script" uid="uid://qyfqmoirdewb" path="res://scripts/UpgradeMenu.gd" id="1_4svoh"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_ujqmm"]
+[ext_resource type="Resource" uid="uid://c0d2q6pu8yffo" path="res://Upgrades/Damage.tres" id="3_cjoxr"]
+[ext_resource type="Resource" uid="uid://c02rpg03n50vk" path="res://Upgrades/MaxHealth.tres" id="4_1cnya"]
+[ext_resource type="Resource" uid="uid://mnshjwksb3iy" path="res://Upgrades/RadiusWeapons.tres" id="5_itudg"]
+[ext_resource type="Resource" uid="uid://cvtx1vdaefbgw" path="res://Upgrades/RadiusXp.tres" id="6_7gsh6"]
+[ext_resource type="Resource" uid="uid://ba4lgmsqs3btv" path="res://Upgrades/Speed.tres" id="7_euifs"]
+
+[node name="UpgradeMenu" type="CanvasLayer" unique_id=1070606010]
+process_mode = 3
+script = ExtResource("1_4svoh")
+all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("3_cjoxr"), ExtResource("4_1cnya"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs")])
+
+[node name="UpgradePanel" type="Panel" parent="." unique_id=1717061613]
+unique_name_in_owner = true
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1882368771]
+offset_right = 40.0
+offset_bottom = 40.0

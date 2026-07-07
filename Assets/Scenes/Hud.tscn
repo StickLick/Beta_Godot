@@ -18,15 +18,16 @@ unique_name_in_owner = true
 modulate = Color(1, 0.029999971, 0.029999971, 1)
 offset_right = 329.0
 offset_bottom = 27.0
+show_percentage = false
 
-[node name="XPBar" type="ProgressBar" parent="."]
+[node name="XPBar" type="ProgressBar" parent="." unique_id=1977171817]
 unique_name_in_owner = true
 modulate = Color(0.2, 0.5, 1, 1)
 offset_top = 32.0
 offset_right = 329.0
 offset_bottom = 59.0
 
-[node name="LevelLabel" type="Label" parent="."]
+[node name="LevelLabel" type="Label" parent="." unique_id=1211333647]
 unique_name_in_owner = true
 offset_left = 340.0
 offset_top = 32.0

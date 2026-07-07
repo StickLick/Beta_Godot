@@ -19,68 +19,66 @@ size = Vector2(50, 20)
 [sub_resource type="CircleShape2D" id="CircleShape2D_magnet"]
 radius = 80.0
 
-[node name="Player" type="Node2D" unique_id=1339954514]
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=887924388]
+[node name="Player" type="CharacterBody2D" unique_id=887924388]
 collision_layer = 2
 script = ExtResource("1_3e2tf")
 
-[node name="GameCamera" type="Camera2D" parent="CharacterBody2D" unique_id=378788898]
+[node name="GameCamera" type="Camera2D" parent="." unique_id=378788898]
 unique_name_in_owner = true
 process_callback = 0
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 script = ExtResource("6_2thea")
 
-[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D" unique_id=1927185971]
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=1927185971]
 polygon = PackedVector2Array(-28, -26, -28, 21, 22, 21, 22, -26)
 
-[node name="HealthComponent" type="Node2D" parent="CharacterBody2D" unique_id=43408329]
+[node name="HealthComponent" type="Node2D" parent="." unique_id=43408329]
 script = ExtResource("2_b2ifw")
 
-[node name="HurtboxComponent" type="Area2D" parent="CharacterBody2D" unique_id=1610656656 node_paths=PackedStringArray("health_component") groups=["Player"]]
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=1610656656 node_paths=PackedStringArray("health_component") groups=["Player"]]
 collision_layer = 2
 collision_mask = 16
 script = ExtResource("3_hurtbox")
 health_component = NodePath("../HealthComponent")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/HurtboxComponent" unique_id=1006817211]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1006817211]
 shape = SubResource("RectangleShape2D_hurtbox")
 
-[node name="WeaponComponent" type="Node2D" parent="CharacterBody2D" unique_id=1811458119]
+[node name="WeaponComponent" type="Node2D" parent="." unique_id=1811458119]
 script = ExtResource("4_weapon")
 
-[node name="DetectionArea" type="Area2D" parent="CharacterBody2D/WeaponComponent" unique_id=129713877]
+[node name="DetectionArea" type="Area2D" parent="WeaponComponent" unique_id=129713877]
 collision_layer = 0
 collision_mask = 4
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/DetectionArea" unique_id=42854914]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponComponent/DetectionArea" unique_id=42854914]
 shape = SubResource("CircleShape2D_detection")
 
-[node name="CooldownTimer" type="Timer" parent="CharacterBody2D/WeaponComponent" unique_id=1809523123]
+[node name="CooldownTimer" type="Timer" parent="WeaponComponent" unique_id=1809523123]
 
-[node name="VisualPivot" type="Node2D" parent="CharacterBody2D/WeaponComponent" unique_id=1821519261]
+[node name="VisualPivot" type="Node2D" parent="WeaponComponent" unique_id=1821519261]
 
-[node name="Polygon2D" type="Polygon2D" parent="CharacterBody2D/WeaponComponent/VisualPivot" unique_id=432942546]
+[node name="Polygon2D" type="Polygon2D" parent="WeaponComponent/VisualPivot" unique_id=432942546]
 color = Color(0.3, 0.7, 1, 1)
 polygon = PackedVector2Array(0, -6, 50, 0, 0, 6)
 
-[node name="HitboxComponent" type="Area2D" parent="CharacterBody2D/WeaponComponent/VisualPivot" unique_id=1138488457]
+[node name="HitboxComponent" type="Area2D" parent="WeaponComponent/VisualPivot" unique_id=1138488457]
 position = Vector2(25, 0)
 collision_layer = 8
 collision_mask = 0
 monitoring = false
 script = ExtResource("5_hitbox")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/VisualPivot/HitboxComponent" unique_id=1620867527]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponComponent/VisualPivot/HitboxComponent" unique_id=1620867527]
 shape = SubResource("RectangleShape2D_weapon_hitbox")
 
-[node name="MagnetArea" type="Area2D" parent="CharacterBody2D" unique_id=215357696]
+[node name="MagnetArea" type="Area2D" parent="." unique_id=215357696]
 unique_name_in_owner = true
 collision_layer = 0
 collision_mask = 32
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/MagnetArea" unique_id=457520969]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MagnetArea" unique_id=457520969]
 shape = SubResource("CircleShape2D_magnet")

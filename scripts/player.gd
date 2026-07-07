@@ -1,5 +1,6 @@
 extends CharacterBody2D
 
+class_name Player
 signal xp_changed(current_xp: int, next_level_xp: int)
 signal level_up(new_level: int)
 
@@ -8,7 +9,7 @@ signal level_up(new_level: int)
 @export var friction: float = 1500.0
 
 var current_level: int = 1
-var current_xp: int = 0
+var current_xp: int = 90
 var xp_to_next_level: int = 100
 
 @onready var health_component: HealthComponent = $HealthComponent
