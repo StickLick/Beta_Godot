@@ -24,4 +24,4 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_death() -> void:
-	queue_free()
+	call_deferred("queue_free")

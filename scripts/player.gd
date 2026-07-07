@@ -15,7 +15,7 @@ func _ready() -> void:
 	hurtbox_component.hit_received.connect(_on_hit_received)
 
 func _on_death() -> void:
-	get_tree().reload_current_scene()
+	get_tree().call_deferred("reload_current_scene")
 
 
 func _on_hit_received(damage: float) -> void:

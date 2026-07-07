@@ -57,10 +57,15 @@ func _apply_damage(amount: float) -> void:
 	if health_component == null:
 		return
 
-	health_component.take_damage(amount)
-	hit_received.emit(amount)
+	# 1. Set invulnerability and start timer FIRST
 	_is_invulnerable = true
-	_invulnerability_timer.start(invulnerability_duration)
+	if _invulnerability_timer and is_inside_tree():
+		_invulnerability_timer.start(invulnerability_duration)
+
+	# 2. Apply damage and emit signal second
+	health_component.take_damage(amount)
+	if is_inside_tree():
+		hit_received.emit(amount)
 
 
 func _on_invulnerability_timeout() -> void:
