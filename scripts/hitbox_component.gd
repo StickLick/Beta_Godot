@@ -6,17 +6,17 @@ extends Area2D
 
 
 func _ready() -> void:
-	monitoring = false
-	monitorable = true
+    monitoring = false
+    monitorable = true
 
-	var parent_name: String = get_parent().name if get_parent() != null else "unknown"
+    var parent_name: String = get_parent().name if get_parent() != null else "unknown"
 
-	if collision_layer == 0:
-		print(
-			"[HITBOX ERROR] Hitbox on node '" + parent_name + "' has no collision layer set in Inspector!"
-		)
+    if collision_layer == 0:
+        print(
+            "[HITBOX ERROR] Hitbox on node '" + parent_name + "' has no collision layer set in Inspector!"
+        )
 
-	if faction == "":
-		print(
-			"[HITBOX WARNING] Hitbox on node '" + parent_name + "' has an empty faction!"
-		)
+    if faction == "":
+        print(
+            "[HITBOX WARNING] Hitbox on node '" + parent_name + "' has an empty faction!"
+        )
