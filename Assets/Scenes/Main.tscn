@@ -3,16 +3,21 @@
 [ext_resource type="PackedScene" uid="uid://luhp1l5cxkek" path="res://Assets/Scenes/Player.tscn" id="1_kwblh"]
 [ext_resource type="PackedScene" uid="uid://bopll1eq6vire" path="res://Assets/Scenes/Enemy.tscn" id="2_enemy"]
 [ext_resource type="PackedScene" uid="uid://bw8cirdg6bvpw" path="res://Assets/Scenes/Hud.tscn" id="3_ygaiq"]
-[ext_resource type="Script" path="res://scripts/enemy_spawner.gd" id="4_spawner"]
+[ext_resource type="Script" uid="uid://b5fsovmjr3dd" path="res://scripts/enemy_spawner.gd" id="4_spawner"]
+[ext_resource type="Script" uid="uid://boefdtnamgbe8" path="res://Assets/Scenes/difficulty_controller.gd" id="5_gjahs"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
 
-[node name="Player" parent="." unique_id=1339954514 instance=ExtResource("1_kwblh")]
+[node name="Player" parent="." unique_id=1339954514 groups=["Player"] instance=ExtResource("1_kwblh")]
 
-[node name="EnemySpawner" type="Node2D" parent="."]
+[node name="EnemySpawner" type="Node2D" parent="." unique_id=50103596 node_paths=PackedStringArray("difficulty_controller")]
 script = ExtResource("4_spawner")
 enemy_scene = ExtResource("2_enemy")
+difficulty_controller = NodePath("../DifficultyController")
 
-[node name="SpawnTimer" type="Timer" parent="EnemySpawner"]
+[node name="SpawnTimer" type="Timer" parent="EnemySpawner" unique_id=396306882]
 
 [node name="Hud" parent="." unique_id=1152050891 instance=ExtResource("3_ygaiq")]
+
+[node name="DifficultyController" type="Node2D" parent="." unique_id=1154629493]
+script = ExtResource("5_gjahs")

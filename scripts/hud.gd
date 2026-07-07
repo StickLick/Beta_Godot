@@ -28,9 +28,9 @@ func _ready() -> void:
         level_label.text = "LVL: " + str(player.current_level)
 
 
-func _process(delta: float) -> void:
-    _elapsed_time += delta
-    timer_label.text = _format_time(_elapsed_time)
+func _process(_delta: float) -> void:
+    # Теперь мы не считаем время здесь, а просто запрашиваем его у GameManager
+    timer_label.text = GameManager.get_time_formatted()
 
 
 func _on_player_health_changed(current: float, max: float) -> void:

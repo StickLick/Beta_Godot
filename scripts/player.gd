@@ -25,6 +25,7 @@ func _ready() -> void:
 
 
 func _on_death() -> void:
+    GameManager.reset_game()
     get_tree().call_deferred("reload_current_scene")
 
 
