@@ -52,24 +52,43 @@ func _spawn_menu(upgrades: Array[Upgrade]) -> void:
         options_vbox.add_child(btn)
 
 func _on_upgrade_selected(upgrade: Upgrade) -> void:
+    
     var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
     if not is_instance_valid(player):
-        push_error("Player node not found in group 'player'.")
         get_tree().paused = false
         return
 
-    # Safely fetch current stat value (defaults to 0.0 if uninitialized)
-    var current_val: float = 0.0
-    if upgrade.stat_to_modify in player:
-        current_val = float(player.get(upgrade.stat_to_modify))
+    var stat_to_modify: String = upgrade.stat_to_modify
+    if stat_to_modify in player:
+        var raw_value: Variant = player.get(stat_to_modify)
+        var current_value: float = float(raw_value) if raw_value != null else 0.0
+        var new_value: float = current_value + float(upgrade.amount)
+        
+        # --- ЛОГИРОВАНИЕ ДЛЯ ТЕСТА ---
+        print("Upgrade: ", stat_to_modify, " | Old: ", current_value, " | New: ", new_value)
+        # -----------------------------
+        
+        player.set(stat_to_modify, new_value)
+    else:
+        print("Ошибка: У игрока нет свойства ", stat_to_modify)
 
-    # Apply modification dynamically
-    player.set(upgrade.stat_to_modify, current_val + upgrade.amount)
-
-    # Resume gameplay and clean up UI
     get_tree().paused = false
     _cleanup_menu()
-
+    
+    #var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+    #if not is_instance_valid(player):
+        #get_tree().paused = false
+        #return
+#
+    #var stat_to_modify: String = upgrade.stat_to_modify
+    #if stat_to_modify in player:
+        #var raw_value: Variant = player.get(stat_to_modify)
+        #var current_value: float = float(raw_value) if raw_value != null else 0.0
+        #player.set(stat_to_modify, current_value + float(upgrade.amount))
+#
+    #get_tree().paused = false
+    #_cleanup_menu()
+#
 func _cleanup_menu() -> void:
     if is_instance_valid(_active_menu):
         _active_menu.queue_free()

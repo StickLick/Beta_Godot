@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cuokqkx774hk4"]
 
-[ext_resource type="Script" uid="uid://dnfux23i2ajeq" path="res://Assets/Scenes/Main.gd" id="1_8bicx"]
+[ext_resource type="Script" uid="uid://dnfux23i2ajeq" path="res://scripts/Main.gd" id="1_8bicx"]
 [ext_resource type="PackedScene" uid="uid://luhp1l5cxkek" path="res://Assets/Scenes/Player.tscn" id="1_kwblh"]
 [ext_resource type="PackedScene" uid="uid://bopll1eq6vire" path="res://Assets/Scenes/Enemy.tscn" id="2_enemy"]
 [ext_resource type="PackedScene" uid="uid://bw8cirdg6bvpw" path="res://Assets/Scenes/Hud.tscn" id="3_ygaiq"]
@@ -24,8 +24,9 @@ difficulty_controller = NodePath("../DifficultyController")
 [node name="Hud" parent="." unique_id=1152050891 instance=ExtResource("3_ygaiq")]
 
 [node name="DifficultyController" type="Node2D" parent="." unique_id=1154629493]
+visible = false
 script = ExtResource("5_gjahs")
-base_spawn_interval = 5.0
+base_spawn_interval = 3.0
 min_spawn_interval = 1.0
 count_growth_rate = 0.05
 growth_factor = 200.0
