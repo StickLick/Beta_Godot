@@ -14,7 +14,19 @@ signal hit_received(damage: float)
 
 func _ready() -> void:
 	monitoring = true
-	monitorable = false
+	monitorable = true
+
+	var parent_name: String = get_parent().name if get_parent() != null else "unknown"
+
+	if health_component == null:
+		print(
+			"[HURTBOX ERROR] Hurtbox on node '" + parent_name + "' has NO HealthComponent assigned in the Inspector!"
+		)
+
+	if collision_mask == 0:
+		print(
+			"[HURTBOX ERROR] Hurtbox on node '" + parent_name + "' has collision mask set to 0 (it will never detect any hitboxes)!"
+		)
 
 	area_entered.connect(_on_area_entered)
 
@@ -32,10 +44,10 @@ func _on_area_entered(area: Area2D) -> void:
 	if _is_invulnerable:
 		return
 
-	if _factions_match(hitbox.faction, faction):
+	if hitbox.get_parent() == get_parent():
 		return
 
-	if hitbox.get_parent() == get_parent() or hitbox.owner == owner or hitbox.get_parent() == self:
+	if hitbox.faction.to_lower() == faction.to_lower():
 		return
 
 	_apply_damage(hitbox.damage)
@@ -59,15 +71,11 @@ func _on_invulnerability_timeout() -> void:
 		if not hitbox:
 			continue
 
-		if _factions_match(hitbox.faction, faction):
+		if hitbox.get_parent() == get_parent():
 			continue
 
-		if hitbox.get_parent() == get_parent() or hitbox.owner == owner or hitbox.get_parent() == self:
+		if hitbox.faction.to_lower() == faction.to_lower():
 			continue
 
 		_apply_damage(hitbox.damage)
 		break
-
-
-func _factions_match(faction_a: String, faction_b: String) -> bool:
-	return faction_a.to_lower() == faction_b.to_lower()

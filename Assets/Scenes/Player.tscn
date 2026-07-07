@@ -27,11 +27,11 @@ polygon = PackedVector2Array(-28, -26, -28, 21, 22, 21, 22, -26)
 [node name="HealthComponent" type="Node2D" parent="CharacterBody2D" unique_id=43408329]
 script = ExtResource("2_b2ifw")
 
-[node name="HurtboxComponent" type="Area2D" parent="CharacterBody2D" unique_id=1610656656]
-collision_layer = 0
+[node name="HurtboxComponent" type="Area2D" parent="CharacterBody2D" unique_id=1610656656 node_paths=PackedStringArray("health_component") groups=["Player"]]
+collision_layer = 2
 collision_mask = 16
-monitorable = false
 script = ExtResource("3_hurtbox")
+health_component = NodePath("../HealthComponent")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/HurtboxComponent" unique_id=1006817211]
 shape = SubResource("RectangleShape2D_hurtbox")
@@ -40,9 +40,9 @@ shape = SubResource("RectangleShape2D_hurtbox")
 script = ExtResource("4_weapon")
 
 [node name="DetectionArea" type="Area2D" parent="CharacterBody2D/WeaponComponent" unique_id=129713877]
-collision_layer = 8
-collision_mask = 0
-monitoring = false
+collision_layer = 0
+collision_mask = 4
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/DetectionArea" unique_id=42854914]
 shape = SubResource("CircleShape2D_detection")
