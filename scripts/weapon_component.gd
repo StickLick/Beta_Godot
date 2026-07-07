@@ -68,7 +68,7 @@ func _perform_swing() -> void:
 	visual_pivot.scale = Vector2.ZERO
 
 	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(visual_pivot, "scale", Vector2(1.2, 1.2), SWING_SCALE_UP_DURATION)
+	tween.tween_property(visual_pivot, "scale", Vector2(1.8, 1.8), SWING_SCALE_UP_DURATION)
 	tween.chain().tween_property(visual_pivot, "scale", Vector2.ZERO, SWING_SCALE_UP_DURATION)
 	tween.chain().tween_callback(_on_swing_finished)
 

@@ -15,6 +15,9 @@ radius = 120.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_weapon_hitbox"]
 size = Vector2(50, 20)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_magnet"]
+radius = 80.0
+
 [node name="Player" type="Node2D" unique_id=1339954514]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=887924388]
@@ -64,3 +67,13 @@ script = ExtResource("5_hitbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/WeaponComponent/VisualPivot/HitboxComponent" unique_id=1620867527]
 shape = SubResource("RectangleShape2D_weapon_hitbox")
+
+[node name="MagnetArea" type="Area2D" parent="CharacterBody2D"]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 32
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/MagnetArea"]
+shape = SubResource("CircleShape2D_magnet")

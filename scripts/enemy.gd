@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+const XP_GEM_SCENE: PackedScene = preload("res://scenes/xp_gem.tscn")
+
 @export var speed: float = 120.0
 @export var health_component: HealthComponent
 
@@ -24,4 +26,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_death() -> void:
+	var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
+	gem.global_position = global_position
+	get_tree().current_scene.call_deferred("add_child", gem)
 	call_deferred("queue_free")
