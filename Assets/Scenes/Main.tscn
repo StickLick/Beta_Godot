@@ -21,3 +21,7 @@ difficulty_controller = NodePath("../DifficultyController")
 
 [node name="DifficultyController" type="Node2D" parent="." unique_id=1154629493]
 script = ExtResource("5_gjahs")
+base_spawn_interval = 5.0
+min_spawn_interval = 1.0
+count_growth_rate = 0.05
+growth_factor = 200.0
