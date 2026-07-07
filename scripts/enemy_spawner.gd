@@ -2,7 +2,6 @@ extends Node2D
 
 @export var enemy_scene: PackedScene = null
 @export var spawn_radius: float = 600.0
-@export var min_interval: float = 0.5
 @export var difficulty_controller: Node = null
 
 var _spawn_timer: Timer
@@ -38,7 +37,7 @@ func _on_spawn_timeout() -> void:
         _spawn_enemy()
         
     # Блок для отладки баланса спавна
-    var current_interval = difficulty_controller.get_spawn_interval(difficulty_controller.base_spawn_interval, min_interval)
+    var current_interval = difficulty_controller.get_spawn_interval(difficulty_controller.base_spawn_interval, difficulty_controller.min_spawn_interval)
     var current_count = difficulty_controller.get_spawn_count(1)
     var multiplier = difficulty_controller.get_multiplier()
     
