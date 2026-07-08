@@ -56,6 +56,8 @@ func _on_area_entered(area: Area2D) -> void:
 func _apply_damage(amount: float) -> void:
     if health_component == null:
         return
+        
+    print("DEBUG: Враг получил урон: ", amount)
 
     # 1. Set invulnerability and start timer FIRST
     _is_invulnerable = true

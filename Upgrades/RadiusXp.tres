@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_dnq7m")
+name = "Радиус подбора XP"
+stat_to_modify = "xp_radius"
+amount = 0.2
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -5,8 +5,33 @@ signal xp_changed(current_xp: int, next_level_xp: int)
 signal level_up(new_level: int)
 
 @export var max_speed: float = 250.0
+
+@export var max_health: float = 100:
+    set(value):
+        max_health = value
+        if health_component: # Проверяем, что компонент уже инициализирован
+            health_component.update_max_health(value)
+            
 @export var acceleration: float = 1800.0
 @export var friction: float = 1500.0
+@export var damage_multiplier: float = 1.0
+
+@export var radius_weapons: float = 1.0:
+    set(value):
+        radius_weapons = value
+        var weapons = find_children("*", "WeaponComponent", true)
+        for weapon in weapons:
+            if weapon.has_method("update_weapon_range"):
+                weapon.update_weapon_range(value)
+                
+@export var xp_radius: float = 1.0:
+    set(value):
+        xp_radius = value
+        if magnet_area:
+            # Увеличиваем масштаб коллизии магнита
+            magnet_area.get_node("CollisionShape2D").scale = Vector2.ONE * value
+            
+@export var xp_gain: float = 1.0 # Добавь эту переменную к остальным экспортам
 
 var current_level: int = 1
 var current_xp: int = 90
@@ -48,7 +73,10 @@ func _on_magnet_area_entered(area: Area2D) -> void:
 
 
 func collect_xp(amount: int) -> void:
-    current_xp += amount
+    # Умножаем полученное значение на наш множитель и приводим к целому числу
+    var final_amount: int = int(amount * xp_gain)
+    
+    current_xp += final_amount
 
     while current_xp >= xp_to_next_level:
         current_xp -= xp_to_next_level

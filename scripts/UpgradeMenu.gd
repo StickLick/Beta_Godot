@@ -8,6 +8,12 @@ var _active_menu: Control = null
 
 ## Opens the upgrade selection menu, pauses the game, and handles lifecycle
 func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
+    # --- ДЕТЕКТОР ---
+    print("DEBUG: Пул апгрейдов содержит ", available_upgrades.size(), " элементов:")
+    for upgrade in available_upgrades:
+        print(" - ", upgrade.name)
+    # ----------------
+    
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
@@ -74,21 +80,7 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
 
     get_tree().paused = false
     _cleanup_menu()
-    
-    #var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-    #if not is_instance_valid(player):
-        #get_tree().paused = false
-        #return
-#
-    #var stat_to_modify: String = upgrade.stat_to_modify
-    #if stat_to_modify in player:
-        #var raw_value: Variant = player.get(stat_to_modify)
-        #var current_value: float = float(raw_value) if raw_value != null else 0.0
-        #player.set(stat_to_modify, current_value + float(upgrade.amount))
-#
-    #get_tree().paused = false
-    #_cleanup_menu()
-#
+
 func _cleanup_menu() -> void:
     if is_instance_valid(_active_menu):
         _active_menu.queue_free()

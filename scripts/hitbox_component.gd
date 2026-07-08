@@ -1,7 +1,10 @@
 class_name HitboxComponent
 extends Area2D
 
-@export var damage: float = 10.0
+@export var damage: float = 10.0:
+    set(value):
+        damage = value
+        print("DEBUG: Hitbox изменил урон на: ", value)
 @export var faction: String = "player"
 
 

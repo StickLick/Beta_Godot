@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_cpnpy")
+name = "Радиус оружия"
+stat_to_modify = "radius_weapons"
+amount = 0.2
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

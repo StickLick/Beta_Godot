@@ -24,3 +24,10 @@ func take_damage(amount: float) -> void:
 func heal(amount: float) -> void:
     current_health = clampf(current_health + amount, 0.0, max_health)
     health_changed.emit(current_health, max_health)
+    
+func update_max_health(new_max: float) -> void:
+    var diff = new_max - max_health # Разница между старым и новым максимумом
+    max_health = new_max
+    current_health += diff          # "Лечим" игрока на эту разницу
+    current_health = clampf(current_health, 0.0, max_health)
+    health_changed.emit(current_health, max_health)

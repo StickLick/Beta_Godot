@@ -37,15 +37,15 @@ func _on_spawn_timeout() -> void:
         _spawn_enemy()
         
     # Блок для отладки баланса спавна
-    var current_interval = difficulty_controller.get_spawn_interval(difficulty_controller.base_spawn_interval, difficulty_controller.min_spawn_interval)
-    var current_count = difficulty_controller.get_spawn_count(1)
-    var multiplier = difficulty_controller.get_multiplier()
-    
-    print("--- SPANW DEBUG ---")
-    print("Time: ", GameManager.time_elapsed)
-    print("Interval: ", current_interval)
-    print("Count: ", current_count)
-    print("Multiplier: ", multiplier)
+    #var current_interval = difficulty_controller.get_spawn_interval(difficulty_controller.base_spawn_interval, difficulty_controller.min_spawn_interval)
+    #var current_count = difficulty_controller.get_spawn_count(1)
+    #var multiplier = difficulty_controller.get_multiplier()
+    #
+    #print("--- SPANW DEBUG ---")
+    #print("Time: ", GameManager.time_elapsed)
+    #print("Interval: ", current_interval)
+    #print("Count: ", current_count)
+    #print("Multiplier: ", multiplier)
 
 func _spawn_enemy() -> void:
     if enemy_scene == null or difficulty_controller == null:

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://csxvlg5ehwcw1"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_es067"]
+
+[resource]
+script = ExtResource("1_es067")
+name = "Увеличение опыта"
+stat_to_modify = "xp_gain"
+amount = 3.0
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"
