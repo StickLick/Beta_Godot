@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cj02tarqi3cnf" path="res://Assets/Scenes/UpgradeMenu.tscn" id="7_fxu2d"]
 [ext_resource type="PackedScene" uid="uid://cqle3lwr3wp84" path="res://Assets/Scenes/UpgradeDesign.tscn" id="8_fxu2d"]
 [ext_resource type="Script" uid="uid://rsnrsx4q05di" path="res://scripts/ZoneSystem.gd" id="9_fvpbu"]
+[ext_resource type="PackedScene" uid="uid://br3byvlqrv52u" path="res://Assets/Scenes/Zone.tscn" id="10_f5dhn"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
@@ -37,3 +38,4 @@ upgrade_menu_scene = ExtResource("8_fxu2d")
 
 [node name="ZoneSystem" type="Node" parent="." unique_id=1034062596]
 script = ExtResource("9_fvpbu")
+zone_scene = ExtResource("10_f5dhn")

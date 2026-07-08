@@ -4,6 +4,9 @@ class_name Player
 signal xp_changed(current_xp: int, next_level_xp: int)
 signal level_up(new_level: int)
 
+var active_zones: Array[Area2D] = []
+var applied_zone_speed_modifier: float = 1.0
+
 @export var max_speed: float = 250.0
 
 @export var max_health: float = 100:
@@ -32,6 +35,9 @@ signal level_up(new_level: int)
             magnet_area.get_node("CollisionShape2D").scale = Vector2.ONE * value
             
 @export var xp_gain: float = 1.0 # Добавь эту переменную к остальным экспортам
+
+var mass: float = 100.0
+var stability: float = 100.0
 
 var current_level: int = 1
 var current_xp: int = 90
@@ -92,8 +98,18 @@ func _physics_process(delta: float) -> void:
     var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
     if input_vector != Vector2.ZERO:
-        velocity = velocity.move_toward(input_vector * max_speed, acceleration * delta)
+        velocity = velocity.move_toward(input_vector * max_speed * applied_zone_speed_modifier, acceleration * delta)
     else:
         velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
     move_and_slide()
+    
+func _on_zone_entered(zone: Area2D) -> void:
+    if not active_zones.has(zone):
+        active_zones.append(zone)
+        print("Player entered zone: ", zone.name, " | Active zones count: ", active_zones.size())
+
+func _on_zone_exited(zone: Area2D) -> void:
+    if active_zones.has(zone):
+        active_zones.erase(zone)
+        print("Player exited zone: ", zone.name, " | Active zones count: ", active_zones.size())
