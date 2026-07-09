@@ -7,13 +7,7 @@ extends Node
 var _active_menu: Control = null
 
 ## Opens the upgrade selection menu, pauses the game, and handles lifecycle
-func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
-    # --- ДЕТЕКТОР ---
-    print("DEBUG: Пул апгрейдов содержит ", available_upgrades.size(), " элементов:")
-    for upgrade in available_upgrades:
-        print(" - ", upgrade.name)
-    # ----------------
-    
+func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:    
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
@@ -69,10 +63,6 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
         var raw_value: Variant = player.get(stat_to_modify)
         var current_value: float = float(raw_value) if raw_value != null else 0.0
         var new_value: float = current_value + float(upgrade.amount)
-        
-        # --- ЛОГИРОВАНИЕ ДЛЯ ТЕСТА ---
-        print("Upgrade: ", stat_to_modify, " | Old: ", current_value, " | New: ", new_value)
-        # -----------------------------
         
         player.set(stat_to_modify, new_value)
     else:

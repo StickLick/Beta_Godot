@@ -1,76 +1,114 @@
 extends Node
-
 class_name ZoneSystem
 
 @export var zone_scene: PackedScene
-@export var max_active_zones: int = 5
+@export var max_active_zones: int = 8
 @export var spawn_interval: float = 3.0
 @export var spawn_radius_min: float = 200.0
 @export var spawn_radius_max: float = 500.0
 
+@onready var pressure_manager: Node = get_node_or_null("/root/Main/WorldPressureManager")
+
 var current_zones: Array[Area2D] = []
 var spawn_timer: float = 0.0
+const ZONE_TYPES: Array[String] = ["Acceleration", "Stabilization", "Pressure", "Flux"]
 
 func _ready() -> void:
-    # Запускаем инициализацию чуть позже, чтобы убедиться, что игрок уже в дереве
     call_deferred("_initial_spawn")
 
 func _initial_spawn() -> void:
-    # Ищем игрока динамически через группу
-    var player = get_tree().get_first_node_in_group("player")
-
-    if player == null:
-        push_error("ZoneSystem: Игрок не найден в группе 'player'! Убедитесь, что у игрока есть эта группа.")
-        return
-
-    print("DEBUG: ZoneSystem успешно нашел игрока: ", player.name)
-
-    while current_zones.size() < max_active_zones:
-        _spawn_zone(player)
+    var player: CharacterBody2D = get_tree().get_first_node_in_group("player") as CharacterBody2D
+    if player:
+        while current_zones.size() < max_active_zones:
+            _spawn_zone(player)
 
 func _process(delta: float) -> void:
+    _cleanup_destroyed_zones()
+    _resolve_soft_influence_interactions(delta)
+    
+    var spawn_rate_mod: float = 1.0
+    if pressure_manager and pressure_manager.has_method("get_spawn_rate_multiplier"):
+        spawn_rate_mod = pressure_manager.get_spawn_rate_multiplier()
+        
     spawn_timer += delta
-
-    if spawn_timer >= spawn_interval and current_zones.size() < max_active_zones:
-        # Повторно ищем игрока при спавне по таймеру
-        var player = get_tree().get_first_node_in_group("player")
+    if spawn_timer >= (spawn_interval * spawn_rate_mod) and current_zones.size() < max_active_zones:
+        var player: CharacterBody2D = get_tree().get_first_node_in_group("player") as CharacterBody2D
         if player:
             _spawn_zone(player)
             spawn_timer = 0.0
 
 func _spawn_zone(player: Node2D) -> void:
-    if zone_scene == null:
-        push_error("ZoneSystem: zone_scene не назначен.")
-        return
-
+    if not zone_scene: return
+    
     var zone_instance: Node = zone_scene.instantiate()
-
     if not zone_instance is Area2D:
-        push_error("ZoneSystem: Корень zone_scene должен быть Area2D.")
         zone_instance.queue_free()
         return
-
+        
     var zone: Area2D = zone_instance as Area2D
-
-    # Расчет позиции относительно реальных координат игрока
-    var distance: float = randf_range(spawn_radius_min, spawn_radius_max)
     var angle: float = randf() * TAU
-    zone.global_position = player.global_position + Vector2.from_angle(angle) * distance
-
+    var dist: float = randf_range(spawn_radius_min, spawn_radius_max)
+    zone.global_position = player.global_position + Vector2.from_angle(angle) * dist
+    
+    if "zone_type" in zone:
+        zone.set("zone_type", ZONE_TYPES.pick_random())
+    
     add_child(zone)
     current_zones.append(zone)
-
-    print("DEBUG: Зона создана в точке: ", zone.global_position)
-
-    # Подключение сигналов
-    zone.body_entered.connect(_on_zone_body_entered.bind(zone))
-    zone.body_exited.connect(_on_zone_body_exited.bind(zone))
+    
+    # Используем lambda-функции для сигналов, чтобы избежать проблем с областью видимости
+    zone.body_entered.connect(func(body: Node2D): _on_zone_body_entered(body, zone))
+    zone.body_exited.connect(func(body: Node2D): _on_zone_body_exited(body, zone))
 
 func _on_zone_body_entered(body: Node2D, zone: Area2D) -> void:
-    # Проверяем, что вошел именно игрок, а не что-то другое
     if body.is_in_group("player") and body.has_method("_on_zone_entered"):
-        body._on_zone_entered(zone)
+        body.call("_on_zone_entered", zone)
 
 func _on_zone_body_exited(body: Node2D, zone: Area2D) -> void:
     if body.is_in_group("player") and body.has_method("_on_zone_exited"):
-        body._on_zone_exited(zone)
+        body.call("_on_zone_exited", zone)
+
+func _resolve_soft_influence_interactions(delta: float) -> void:
+    for i in range(current_zones.size()):
+        for j in range(i + 1, current_zones.size()):
+            var z1: Area2D = current_zones[i]
+            var z2: Area2D = current_zones[j]
+            if not is_instance_valid(z1) or not is_instance_valid(z2): continue
+            
+            var dist: float = z1.global_position.distance_to(z2.global_position)
+            var r1: float = z1.get("soft_influence_radius") if "soft_influence_radius" in z1 else 250.0
+            var r2: float = z2.get("soft_influence_radius") if "soft_influence_radius" in z2 else 250.0
+            
+            if dist < (r1 + r2):
+                _exchange_dominance(z1, z2, delta)
+
+func _exchange_dominance(z1: Area2D, z2: Area2D, delta: float) -> void:
+    var t1: String = z1.get("zone_type") if "zone_type" in z1 else "Acceleration"
+    var t2: String = z2.get("zone_type") if "zone_type" in z2 else "Acceleration"
+    var d1: float = z1.get("dominance") if "dominance" in z1 else 1.0
+    var d2: float = z2.get("dominance") if "dominance" in z2 else 1.0
+    var rate: float = 0.1 * delta
+    
+    var z1_wins: bool = (t1 == "Acceleration" and t2 == "Pressure") or \
+                        (t1 == "Pressure" and t2 == "Stabilization") or \
+                        (t1 == "Stabilization" and t2 == "Flux") or \
+                        (t1 == "Flux" and t2 == "Acceleration")
+    
+    if z1_wins:
+        z1.set("dominance", clamp(d1 + rate, 0.5, 2.0))
+        z2.set("dominance", clamp(d2 - rate, 0.5, 2.0))
+    else:
+        z1.set("dominance", clamp(d1 - rate, 0.5, 2.0))
+        z2.set("dominance", clamp(d2 + rate, 0.5, 2.0))
+
+func _cleanup_destroyed_zones() -> void:
+    # 1. Создаем новый типизированный массив
+    var valid_zones: Array[Area2D] = []
+    
+    # 2. Проходим по старому массиву и добавляем только живые объекты
+    for zone in current_zones:
+        if is_instance_valid(zone):
+            valid_zones.append(zone)
+            
+    # 3. Переприсваиваем
+    current_zones = valid_zones
