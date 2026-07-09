@@ -11,55 +11,66 @@ class_name ZoneSystem
 var current_zones: Array[Area2D] = []
 var spawn_timer: float = 0.0
 
-@onready var player_node: Player = get_parent().find_child("Player") as Player
-
-
 func _ready() -> void:
-    if player_node == null:
-        push_error("ZoneSystem: Player node not found.")
-        set_process(false)
+    # Запускаем инициализацию чуть позже, чтобы убедиться, что игрок уже в дереве
+    call_deferred("_initial_spawn")
+
+func _initial_spawn() -> void:
+    # Ищем игрока динамически через группу
+    var player = get_tree().get_first_node_in_group("player")
+
+    if player == null:
+        push_error("ZoneSystem: Игрок не найден в группе 'player'! Убедитесь, что у игрока есть эта группа.")
         return
 
-    while current_zones.size() < max_active_zones:
-        _spawn_zone()
+    print("DEBUG: ZoneSystem успешно нашел игрока: ", player.name)
 
+    while current_zones.size() < max_active_zones:
+        _spawn_zone(player)
 
 func _process(delta: float) -> void:
     spawn_timer += delta
 
     if spawn_timer >= spawn_interval and current_zones.size() < max_active_zones:
-        _spawn_zone()
-        spawn_timer = 0.0
+        # Повторно ищем игрока при спавне по таймеру
+        var player = get_tree().get_first_node_in_group("player")
+        if player:
+            _spawn_zone(player)
+            spawn_timer = 0.0
 
-
-func _spawn_zone() -> void:
+func _spawn_zone(player: Node2D) -> void:
     if zone_scene == null:
-        push_error("ZoneSystem: zone_scene is not assigned.")
+        push_error("ZoneSystem: zone_scene не назначен.")
         return
 
     var zone_instance: Node = zone_scene.instantiate()
+
     if not zone_instance is Area2D:
-        push_error("ZoneSystem: zone_scene root must be an Area2D.")
+        push_error("ZoneSystem: Корень zone_scene должен быть Area2D.")
         zone_instance.queue_free()
         return
 
     var zone: Area2D = zone_instance as Area2D
-    
+
+    # Расчет позиции относительно реальных координат игрока
     var distance: float = randf_range(spawn_radius_min, spawn_radius_max)
     var angle: float = randf() * TAU
-    zone.global_position = player_node.global_position + Vector2.from_angle(angle) * distance
+    zone.global_position = player.global_position + Vector2.from_angle(angle) * distance
 
     add_child(zone)
     current_zones.append(zone)
 
-    # Использование .bind(zone) для передачи ссылки на конкретный экземпляр зоны
+    print("DEBUG: Зона создана в точке: ", zone.global_position)
+
+    # Подключение сигналов
     zone.body_entered.connect(_on_zone_body_entered.bind(zone))
     zone.body_exited.connect(_on_zone_body_exited.bind(zone))
 
 func _on_zone_body_entered(body: Node2D, zone: Area2D) -> void:
-    if body is CharacterBody2D and body.has_method("_on_zone_entered"):
+    # Проверяем, что вошел именно игрок, а не что-то другое
+    if body.is_in_group("player") and body.has_method("_on_zone_entered"):
         body._on_zone_entered(zone)
 
 func _on_zone_body_exited(body: Node2D, zone: Area2D) -> void:
-    if body is CharacterBody2D and body.has_method("_on_zone_exited"):
+    if body.is_in_group("player") and body.has_method("_on_zone_exited"):
         body._on_zone_exited(zone)

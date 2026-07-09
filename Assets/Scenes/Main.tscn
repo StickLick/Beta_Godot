@@ -14,7 +14,7 @@
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
 
-[node name="Player" parent="." unique_id=1339954514 groups=["Player"] instance=ExtResource("1_kwblh")]
+[node name="Player" parent="." unique_id=1339954514 instance=ExtResource("1_kwblh")]
 
 [node name="EnemySpawner" type="Node2D" parent="." unique_id=50103596 node_paths=PackedStringArray("difficulty_controller")]
 script = ExtResource("4_spawner")

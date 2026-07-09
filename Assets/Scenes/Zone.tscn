@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://6rdbdox0yg7x" path="res://icon.svg" id="2_ap1a8"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
-radius = 65.0
+radius = 65.85
 
 [node name="Zone_tscn" type="Area2D" unique_id=2130151364]
 collision_mask = 2
