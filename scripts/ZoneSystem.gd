@@ -14,13 +14,16 @@ var spawn_timer: float = 0.0
 const ZONE_TYPES: Array[String] = ["Acceleration", "Stabilization", "Pressure", "Flux"]
 
 func _ready() -> void:
+    # Используем call_deferred, чтобы избежать проблем при инициализации сцены
     call_deferred("_initial_spawn")
 
 func _initial_spawn() -> void:
-    var player: CharacterBody2D = get_tree().get_first_node_in_group("player") as CharacterBody2D
-    if player:
-        while current_zones.size() < max_active_zones:
-            _spawn_zone(player)
+    var player: Node2D = get_tree().get_first_node_in_group("player")
+    if not player: return
+    
+    # Безопасный спавн без бесконечного цикла
+    for i in range(max_active_zones):
+        _spawn_zone(player)
 
 func _process(delta: float) -> void:
     _cleanup_destroyed_zones()
@@ -31,21 +34,17 @@ func _process(delta: float) -> void:
         spawn_rate_mod = pressure_manager.get_spawn_rate_multiplier()
         
     spawn_timer += delta
-    if spawn_timer >= (spawn_interval * spawn_rate_mod) and current_zones.size() < max_active_zones:
-        var player: CharacterBody2D = get_tree().get_first_node_in_group("player") as CharacterBody2D
-        if player:
-            _spawn_zone(player)
-            spawn_timer = 0.0
+    if spawn_timer >= (spawn_interval * spawn_rate_mod):
+        spawn_timer = 0.0
+        if current_zones.size() < max_active_zones:
+            var player: Node2D = get_tree().get_first_node_in_group("player")
+            if player:
+                _spawn_zone(player)
 
 func _spawn_zone(player: Node2D) -> void:
     if not zone_scene: return
     
-    var zone_instance: Node = zone_scene.instantiate()
-    if not zone_instance is Area2D:
-        zone_instance.queue_free()
-        return
-        
-    var zone: Area2D = zone_instance as Area2D
+    var zone: Area2D = zone_scene.instantiate() as Area2D
     var angle: float = randf() * TAU
     var dist: float = randf_range(spawn_radius_min, spawn_radius_max)
     zone.global_position = player.global_position + Vector2.from_angle(angle) * dist
@@ -53,27 +52,16 @@ func _spawn_zone(player: Node2D) -> void:
     if "zone_type" in zone:
         zone.set("zone_type", ZONE_TYPES.pick_random())
     
-    add_child(zone)
+    # Добавляем в корень сцены, чтобы зоны не зависели от движения ZoneSystem
+    get_tree().current_scene.add_child(zone)
     current_zones.append(zone)
-    
-    # Используем lambda-функции для сигналов, чтобы избежать проблем с областью видимости
-    zone.body_entered.connect(func(body: Node2D): _on_zone_body_entered(body, zone))
-    zone.body_exited.connect(func(body: Node2D): _on_zone_body_exited(body, zone))
-
-func _on_zone_body_entered(body: Node2D, zone: Area2D) -> void:
-    if body.is_in_group("player") and body.has_method("_on_zone_entered"):
-        body.call("_on_zone_entered", zone)
-
-func _on_zone_body_exited(body: Node2D, zone: Area2D) -> void:
-    if body.is_in_group("player") and body.has_method("_on_zone_exited"):
-        body.call("_on_zone_exited", zone)
 
 func _resolve_soft_influence_interactions(delta: float) -> void:
+    # Оптимизированный цикл: проверяем только активные зоны
     for i in range(current_zones.size()):
         for j in range(i + 1, current_zones.size()):
             var z1: Area2D = current_zones[i]
             var z2: Area2D = current_zones[j]
-            if not is_instance_valid(z1) or not is_instance_valid(z2): continue
             
             var dist: float = z1.global_position.distance_to(z2.global_position)
             var r1: float = z1.get("soft_influence_radius") if "soft_influence_radius" in z1 else 250.0
@@ -83,12 +71,13 @@ func _resolve_soft_influence_interactions(delta: float) -> void:
                 _exchange_dominance(z1, z2, delta)
 
 func _exchange_dominance(z1: Area2D, z2: Area2D, delta: float) -> void:
-    var t1: String = z1.get("zone_type") if "zone_type" in z1 else "Acceleration"
-    var t2: String = z2.get("zone_type") if "zone_type" in z2 else "Acceleration"
-    var d1: float = z1.get("dominance") if "dominance" in z1 else 1.0
-    var d2: float = z2.get("dominance") if "dominance" in z2 else 1.0
+    var t1: String = z1.get("zone_type")
+    var t2: String = z2.get("zone_type")
+    var d1: float = z1.get("dominance")
+    var d2: float = z2.get("dominance")
     var rate: float = 0.1 * delta
     
+    # Логика "Камень-Ножницы-Бумага" для зон
     var z1_wins: bool = (t1 == "Acceleration" and t2 == "Pressure") or \
                         (t1 == "Pressure" and t2 == "Stabilization") or \
                         (t1 == "Stabilization" and t2 == "Flux") or \
@@ -102,13 +91,5 @@ func _exchange_dominance(z1: Area2D, z2: Area2D, delta: float) -> void:
         z2.set("dominance", clamp(d2 + rate, 0.5, 2.0))
 
 func _cleanup_destroyed_zones() -> void:
-    # 1. Создаем новый типизированный массив
-    var valid_zones: Array[Area2D] = []
-    
-    # 2. Проходим по старому массиву и добавляем только живые объекты
-    for zone in current_zones:
-        if is_instance_valid(zone):
-            valid_zones.append(zone)
-            
-    # 3. Переприсваиваем
-    current_zones = valid_zones
+    # Удаляем null-ссылки из массива
+    current_zones = current_zones.filter(func(z): return is_instance_valid(z))

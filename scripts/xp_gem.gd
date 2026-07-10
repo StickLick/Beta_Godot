@@ -1,26 +1,35 @@
-class_name XPGem
 extends Area2D
+class_name XPGem
 
-@export var xp_value: int = 10
+@export var mass_amount: float = 0.5
+@export var xp_amount: int = 10 # Добавили значение опыта
 
-var _player: Node2D = null
-var _speed: float = 0.0
-var _max_speed: float = 400.0
-var _acceleration: float = 800.0
+var target_player: CharacterBody2D = null
 
+func _ready() -> void:
+    add_to_group("resources")
+    body_entered.connect(_on_body_entered)
 
-func attract(player_node: Node2D) -> void:
-    _player = player_node
+func _physics_process(delta: float) -> void:
+    if target_player and is_instance_valid(target_player):
+        var direction: Vector2 = (target_player.global_position - global_position).normalized()
+        global_position += direction * 400.0 * delta
+        
+        if global_position.distance_to(target_player.global_position) < 20.0:
+            _collect()
 
+func _on_body_entered(body: Node2D) -> void:
+    if body.is_in_group("player"):
+        target_player = body as CharacterBody2D
 
-func _process(delta: float) -> void:
-    if _player == null or not is_instance_valid(_player):
-        return
+func _collect() -> void:
+    if is_instance_valid(target_player):
+        # Вызываем оба метода
+        if target_player.has_method("collect_mass"):
+            target_player.collect_mass(mass_amount)
+        if target_player.has_method("collect_xp"):
+            target_player.collect_xp(xp_amount)
+    queue_free()
 
-    var direction: Vector2 = (_player.global_position - global_position).normalized()
-    _speed = move_toward(_speed, _max_speed, _acceleration * delta)
-    global_position += direction * _speed * delta
-
-    if global_position.distance_to(_player.global_position) < 15.0:
-        _player.collect_xp(xp_value)
-        queue_free()
+func attract(player: CharacterBody2D) -> void:
+    target_player = player

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b8b65sjodep1m" path="res://scripts/zone.gd" id="1_x574i"]
 [ext_resource type="Texture2D" uid="uid://6rdbdox0yg7x" path="res://icon.svg" id="2_ap1a8"]
+[ext_resource type="PackedScene" uid="uid://c3xqaem2sc3ne" path="res://Assets/Scenes/Xp_gem.tscn" id="2_g2601"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 65.85
@@ -9,6 +10,7 @@ radius = 65.85
 [node name="Zone_tscn" type="Area2D" unique_id=2130151364]
 collision_mask = 2
 script = ExtResource("1_x574i")
+resource_scene = ExtResource("2_g2601")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=643113267]
 modulate = Color(1, 1, 1, 0.039215688)
