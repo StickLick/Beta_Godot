@@ -2,94 +2,95 @@ extends Node
 class_name ZoneSystem
 
 @export var zone_scene: PackedScene
-@export var max_active_zones: int = 8
-@export var spawn_interval: float = 3.0
-@export var spawn_radius_min: float = 200.0
-@export var spawn_radius_max: float = 500.0
-
-@onready var pressure_manager: Node = get_node_or_null("/root/Main/WorldPressureManager")
+@export var camp_scene: PackedScene 
+@export var max_active_zones: int = 4 # Резко уменьшили количество
+@export var spawn_interval: float = 12.0 # Резко увеличили время появления
 
 var current_zones: Array[Area2D] = []
 var spawn_timer: float = 0.0
 const ZONE_TYPES: Array[String] = ["Acceleration", "Stabilization", "Pressure", "Flux"]
 
-func _ready() -> void:
-    # Используем call_deferred, чтобы избежать проблем при инициализации сцены
-    call_deferred("_initial_spawn")
-
-func _initial_spawn() -> void:
-    var player: Node2D = get_tree().get_first_node_in_group("player")
-    if not player: return
-    
-    # Безопасный спавн без бесконечного цикла
-    for i in range(max_active_zones):
-        _spawn_zone(player)
-
 func _process(delta: float) -> void:
     _cleanup_destroyed_zones()
-    _resolve_soft_influence_interactions(delta)
+    _resolve_interactions(delta)
     
-    var spawn_rate_mod: float = 1.0
-    if pressure_manager and pressure_manager.has_method("get_spawn_rate_multiplier"):
-        spawn_rate_mod = pressure_manager.get_spawn_rate_multiplier()
-        
     spawn_timer += delta
-    if spawn_timer >= (spawn_interval * spawn_rate_mod):
+    if spawn_timer >= spawn_interval:
         spawn_timer = 0.0
         if current_zones.size() < max_active_zones:
-            var player: Node2D = get_tree().get_first_node_in_group("player")
-            if player:
-                _spawn_zone(player)
+            var player = get_tree().get_first_node_in_group("player")
+            if player: _spawn_zone(player)
 
-func _spawn_zone(player: Node2D) -> void:
-    if not zone_scene: return
+func _spawn_zone(player: Node2D = null) -> void:
+    if not player: player = get_tree().get_first_node_in_group("player")
+    if not player or not zone_scene: return
     
-    var zone: Area2D = zone_scene.instantiate() as Area2D
-    var angle: float = randf() * TAU
-    var dist: float = randf_range(spawn_radius_min, spawn_radius_max)
+    var zone = zone_scene.instantiate()
+    zone.zone_type = ZONE_TYPES.pick_random()
+    
+    var angle = randf() * TAU
+    var dist = randf_range(400, 800) # Зоны спавнятся дальше
     zone.global_position = player.global_position + Vector2.from_angle(angle) * dist
     
-    if "zone_type" in zone:
-        zone.set("zone_type", ZONE_TYPES.pick_random())
-    
-    # Добавляем в корень сцены, чтобы зоны не зависели от движения ZoneSystem
+    if zone.has_signal("evolved"):
+        zone.evolved.connect(_on_zone_evolved.bind(zone))
+        
     get_tree().current_scene.add_child(zone)
     current_zones.append(zone)
 
-func _resolve_soft_influence_interactions(delta: float) -> void:
-    # Оптимизированный цикл: проверяем только активные зоны
+func _on_zone_evolved(pos: Vector2, _type: String, dom: float, zone_ref: Area2D) -> void:
+    current_zones.erase(zone_ref)
+    
+    # ПРОВЕРКА: Если рядом (в радиусе 400) уже есть лагерь, не создаем новый
+    var existing_camps = get_tree().get_nodes_in_group("camps")
+    for camp in existing_camps:
+        if is_instance_valid(camp) and camp.global_position.distance_to(pos) < 400.0:
+            # Вместо создания нового, просто усиливаем существующий
+            if camp.has_method("upgrade"):
+                camp.upgrade(dom * 50.0) 
+            return
+
+    if not camp_scene: return
+    var camp = camp_scene.instantiate() as Camp
+    camp.global_position = pos
+    
+    var player = get_tree().get_first_node_in_group("player")
+    # Лагерь станет вашим только если вы ДЕЙСТВИТЕЛЬНО рядом в момент фиксации
+    if player and player.global_position.distance_to(pos) < 250.0:
+        camp.alignment = Camp.Alignment.PLAYER
+    else:
+        camp.alignment = Camp.Alignment.RIVAL
+        
+    get_tree().current_scene.add_child(camp)
+
+func _resolve_interactions(delta: float) -> void:
     for i in range(current_zones.size()):
         for j in range(i + 1, current_zones.size()):
-            var z1: Area2D = current_zones[i]
-            var z2: Area2D = current_zones[j]
+            var z1 = current_zones[i]
+            var z2 = current_zones[j]
+            if not is_instance_valid(z1) or not is_instance_valid(z2): continue
             
-            var dist: float = z1.global_position.distance_to(z2.global_position)
-            var r1: float = z1.get("soft_influence_radius") if "soft_influence_radius" in z1 else 250.0
-            var r2: float = z2.get("soft_influence_radius") if "soft_influence_radius" in z2 else 250.0
-            
-            if dist < (r1 + r2):
+            var dist = z1.global_position.distance_to(z2.global_position)
+            if dist < (120.0 * z1.scale.x + 120.0 * z2.scale.x):
                 _exchange_dominance(z1, z2, delta)
 
-func _exchange_dominance(z1: Area2D, z2: Area2D, delta: float) -> void:
-    var t1: String = z1.get("zone_type")
-    var t2: String = z2.get("zone_type")
-    var d1: float = z1.get("dominance")
-    var d2: float = z2.get("dominance")
-    var rate: float = 0.1 * delta
+func _exchange_dominance(z1, z2, delta) -> void:
+    var t1 = z1.zone_type
+    var t2 = z2.zone_type
+    var rate = 0.05 * delta # Скорость борьбы зон замедлена
     
-    # Логика "Камень-Ножницы-Бумага" для зон
-    var z1_wins: bool = (t1 == "Acceleration" and t2 == "Pressure") or \
-                        (t1 == "Pressure" and t2 == "Stabilization") or \
-                        (t1 == "Stabilization" and t2 == "Flux") or \
-                        (t1 == "Flux" and t2 == "Acceleration")
+    var z1_wins = (t1 == "Acceleration" and t2 == "Pressure") or \
+                  (t1 == "Pressure" and t2 == "Stabilization") or \
+                  (t1 == "Stabilization" and t2 == "Flux") or \
+                  (t1 == "Flux" and t2 == "Acceleration")
     
     if z1_wins:
-        z1.set("dominance", clamp(d1 + rate, 0.5, 2.0))
-        z2.set("dominance", clamp(d2 - rate, 0.5, 2.0))
+        z1.dominance += rate
+        z2.dominance -= rate
     else:
-        z1.set("dominance", clamp(d1 - rate, 0.5, 2.0))
-        z2.set("dominance", clamp(d2 + rate, 0.5, 2.0))
+        z1.dominance -= rate
+        z2.dominance += rate
 
 func _cleanup_destroyed_zones() -> void:
-    # Удаляем null-ссылки из массива
     current_zones = current_zones.filter(func(z): return is_instance_valid(z))
+    

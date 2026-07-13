@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://rsnrsx4q05di" path="res://scripts/ZoneSystem.gd" id="9_fvpbu"]
 [ext_resource type="PackedScene" uid="uid://br3byvlqrv52u" path="res://Assets/Scenes/Zone.tscn" id="10_f5dhn"]
 [ext_resource type="Script" uid="uid://c7bc27lbfnev2" path="res://scripts/world_pressure_manager.gd" id="11_una2h"]
+[ext_resource type="PackedScene" uid="uid://lekw153w7kt5" path="res://Assets/Scenes/Camp.tscn" id="11_xycqk"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
@@ -41,6 +42,7 @@ upgrade_menu_scene = ExtResource("8_fxu2d")
 [node name="ZoneSystem" type="Node" parent="." unique_id=1034062596]
 script = ExtResource("9_fvpbu")
 zone_scene = ExtResource("10_f5dhn")
+camp_scene = ExtResource("11_xycqk")
 
 [node name="PressureManager" type="Node" parent="." unique_id=982665985]
 script = ExtResource("11_una2h")

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://lekw153w7kt5"]
+
+[ext_resource type="Script" uid="uid://b3lanynm2o74l" path="res://scripts/camp.gd" id="1_uy357"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
+radius = 150.0
+
+[node name="Camp" type="Area2D" unique_id=995130696]
+collision_mask = 2
+script = ExtResource("1_uy357")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=884473819]
+shape = SubResource("CircleShape2D_gd7ey")
+
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=834252385]
+color = Color(1, 1, 1, 0.03529412)
+polygon = PackedVector2Array(-1, -149, -105, -107, -149, -2, -110, 101, -1, 149, 111, 101, 149, -1, 102, -108)
