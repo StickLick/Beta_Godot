@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dbr1ebk7cd1j1"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_mkaka"]
+
+[resource]
+script = ExtResource("1_mkaka")
+name = "Скорость атаки"
+stat_to_modify = "attack_cooldown"
+amount = -0.2
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

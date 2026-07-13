@@ -1,18 +1,16 @@
 extends Node
 
 @export var upgrade_menu_scene: PackedScene
-@onready var _ui_container: Control = %UpgradePanel # Reference to a Control covering the screen in your UI root
+@onready var _ui_container: Control = %UpgradePanel
 @export var all_available_upgrades: Array[Upgrade]
 
 var _active_menu: Control = null
 
-## Opens the upgrade selection menu, pauses the game, and handles lifecycle
 func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:    
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
 
-    # Pause all gameplay logic while keeping UI responsive
     get_tree().paused = true
 
     if not is_instance_valid(upgrade_menu_scene) or not is_instance_valid(_ui_container):
@@ -20,7 +18,6 @@ func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
         get_tree().paused = false
         return
 
-    # Select 3 unique, random upgrades
     var shuffled_pool: Array[Upgrade] = available_upgrades.duplicate()
     shuffled_pool.shuffle()
     var selected_upgrades: Array[Upgrade] = shuffled_pool.slice(0, 3)
@@ -28,11 +25,9 @@ func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
     _spawn_menu(selected_upgrades)
 
 func _spawn_menu(upgrades: Array[Upgrade]) -> void:
-    # Instantiate and anchor to the UI layer
     _active_menu = upgrade_menu_scene.instantiate() as Control
     _ui_container.add_child(_active_menu)
 
-    # Locate the dynamic container inside the instantiated scene
     var options_vbox: VBoxContainer = _active_menu.get_node("UpgradeOptions")
     if not is_instance_valid(options_vbox):
         push_error("'UpgradeOptions' VBoxContainer not found in menu scene hierarchy.")
@@ -40,7 +35,6 @@ func _spawn_menu(upgrades: Array[Upgrade]) -> void:
         _active_menu.queue_free()
         return
 
-    # Dynamically populate buttons
     for upgrade in upgrades:
         var btn := Button.new()
         btn.text = upgrade.name
@@ -52,21 +46,36 @@ func _spawn_menu(upgrades: Array[Upgrade]) -> void:
         options_vbox.add_child(btn)
 
 func _on_upgrade_selected(upgrade: Upgrade) -> void:
-    
-    var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+    var player: Player = get_tree().get_first_node_in_group("player") as Player
     if not is_instance_valid(player):
         get_tree().paused = false
         return
 
-    var stat_to_modify: String = upgrade.stat_to_modify
-    if stat_to_modify in player:
-        var raw_value: Variant = player.get(stat_to_modify)
-        var current_value: float = float(raw_value) if raw_value != null else 0.0
-        var new_value: float = current_value + float(upgrade.amount)
-        
-        player.set(stat_to_modify, new_value)
-    else:
-        print("Ошибка: У игрока нет свойства ", stat_to_modify)
+    print("--- Applying Upgrade: ", upgrade.name, " ---")
+
+    if player.has_method("apply_custom_upgrade"):
+        player.apply_custom_upgrade(upgrade)
+
+    var stat: String = upgrade.stat_to_modify
+    var applied: bool = false
+
+    if stat in player:
+        var current_val: float = float(player.get(stat))
+        # Важно: для attack_cooldown нам нужно УМЕНЬШЕНИЕ (вычитание), 
+        # убедитесь, что в ресурсе Upgrade.tres стоит отрицательное число для кулдауна.
+        player.set(stat, current_val + float(upgrade.amount))
+        applied = true
+
+    if not applied:
+        var weapons: Array[Node] = player.find_children("*", "WeaponComponent", true)
+        for weapon in weapons:
+            if stat in weapon:
+                var current_val: float = float(weapon.get(stat))
+                weapon.set(stat, current_val + float(upgrade.amount))
+                applied = true
+
+    if not applied:
+        print("[!] Stat '", stat, "' not found anywhere.")
 
     get_tree().paused = false
     _cleanup_menu()

@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cqle3lwr3wp84" path="res://Assets/Scenes/UpgradeDesign.tscn" id="8_fxu2d"]
 [ext_resource type="Script" uid="uid://rsnrsx4q05di" path="res://scripts/ZoneSystem.gd" id="9_fvpbu"]
 [ext_resource type="PackedScene" uid="uid://br3byvlqrv52u" path="res://Assets/Scenes/Zone.tscn" id="10_f5dhn"]
+[ext_resource type="Script" uid="uid://c7bc27lbfnev2" path="res://scripts/world_pressure_manager.gd" id="11_una2h"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
@@ -25,9 +26,10 @@ difficulty_controller = NodePath("../DifficultyController")
 
 [node name="Hud" parent="." unique_id=1152050891 instance=ExtResource("3_ygaiq")]
 
-[node name="DifficultyController" type="Node2D" parent="." unique_id=1154629493]
+[node name="DifficultyController" type="Node2D" parent="." unique_id=1154629493 node_paths=PackedStringArray("pressure_manager")]
 visible = false
 script = ExtResource("5_gjahs")
+pressure_manager = NodePath("../PressureManager")
 base_spawn_interval = 5.0
 min_spawn_interval = 1.0
 count_growth_rate = 0.01
@@ -39,3 +41,6 @@ upgrade_menu_scene = ExtResource("8_fxu2d")
 [node name="ZoneSystem" type="Node" parent="." unique_id=1034062596]
 script = ExtResource("9_fvpbu")
 zone_scene = ExtResource("10_f5dhn")
+
+[node name="PressureManager" type="Node" parent="." unique_id=982665985]
+script = ExtResource("11_una2h")

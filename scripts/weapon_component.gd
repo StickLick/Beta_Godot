@@ -4,7 +4,17 @@ extends Node2D
 const SWING_SCALE_UP_DURATION: float = 0.1
 
 @export var base_damage: float = 15.0
-@export var attack_cooldown: float = 1.0
+
+# Добавлен сеттер для корректного обновления таймера при улучшении
+@export var attack_cooldown: float = 1.0:
+    set(value):
+        var old_val = attack_cooldown
+        # Не даем кулдауну стать слишком маленьким или нулевым
+        attack_cooldown = max(0.05, value)
+        if is_instance_valid(cooldown_timer):
+            cooldown_timer.wait_time = attack_cooldown
+        print("[DEBUG] Attack Cooldown Upgrade: %.2f -> %.2f" % [old_val, attack_cooldown])
+
 @export var rotation_offset_degrees: float = 0.0
 
 @onready var detection_area: Area2D = $DetectionArea
@@ -15,9 +25,10 @@ const SWING_SCALE_UP_DURATION: float = 0.1
 var player: Node2D
 
 func _ready() -> void:
-    # Инициализация ссылки на игрока
+    await get_tree().process_frame
     player = get_tree().get_first_node_in_group("player")
 
+    # Инициализация таймера текущим значением
     cooldown_timer.wait_time = attack_cooldown
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
 
@@ -25,23 +36,19 @@ func _ready() -> void:
 
     var hitbox_shape: CollisionShape2D = hitbox.get_node("CollisionShape2D") as CollisionShape2D
     hitbox_shape.disabled = true
-
     visual_pivot.scale = Vector2.ZERO
 
     detection_area.monitoring = true
     detection_area.collision_mask = 4
 
-    # Применяем настройки радиуса, если игрок уже существует
-    if player and "radius_multiplier" in player:
-        update_weapon_range(player.radius_multiplier)
+    if player and "radius_weapons" in player:
+        update_weapon_range(player.radius_weapons)
 
     cooldown_timer.start()
 
-# Функция обновления радиуса (вызывается из Player.gd)
 func update_weapon_range(new_multiplier: float) -> void:
-    # Если переменная player пуста, пробуем найти игрока еще раз
-    if not player:
-        player = get_tree().get_first_node_in_group("player")
+    if not is_instance_valid(detection_area) or not is_instance_valid(hitbox):
+        return
         
     var detection_shape = detection_area.get_node_or_null("CollisionShape2D")
     if detection_shape:
@@ -57,10 +64,7 @@ func _get_closest_target() -> HurtboxComponent:
 
     for area: Area2D in detection_area.get_overlapping_areas():
         var hurtbox: HurtboxComponent = area as HurtboxComponent
-        if hurtbox == null:
-            continue
-
-        if hurtbox.faction != "enemy":
+        if hurtbox == null or hurtbox.faction != "enemy":
             continue
 
         var distance_sq: float = global_position.distance_squared_to(hurtbox.global_position)
@@ -81,12 +85,12 @@ func _on_cooldown_timeout() -> void:
     _perform_swing()
 
 func _perform_swing() -> void:
-    # Динамически ищем игрока в момент удара, чтобы множитель всегда был актуальным
-    var active_player = get_tree().get_first_node_in_group("player")
+    if not is_instance_valid(player):
+        player = get_tree().get_first_node_in_group("player")
     
     var multiplier: float = 1.0
-    if active_player and "damage_multiplier" in active_player:
-        multiplier = active_player.damage_multiplier
+    if player and "damage_multiplier" in player:
+        multiplier = player.damage_multiplier
     
     hitbox.damage = base_damage * multiplier
 
@@ -100,6 +104,7 @@ func _perform_swing() -> void:
     tween.chain().tween_callback(_on_swing_finished)
 
 func _on_swing_finished() -> void:
-    var hitbox_shape: CollisionShape2D = hitbox.get_node("CollisionShape2D") as CollisionShape2D
-    hitbox_shape.disabled = true
+    if is_instance_valid(hitbox):
+        var hitbox_shape: CollisionShape2D = hitbox.get_node("CollisionShape2D") as CollisionShape2D
+        hitbox_shape.disabled = true
     cooldown_timer.start()

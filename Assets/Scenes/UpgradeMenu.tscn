@@ -8,11 +8,12 @@
 [ext_resource type="Resource" uid="uid://cvtx1vdaefbgw" path="res://Upgrades/RadiusXp.tres" id="6_7gsh6"]
 [ext_resource type="Resource" uid="uid://ba4lgmsqs3btv" path="res://Upgrades/Speed.tres" id="7_euifs"]
 [ext_resource type="Resource" uid="uid://csxvlg5ehwcw1" path="res://Upgrades/XpGain.tres" id="8_ujqmm"]
+[ext_resource type="Resource" uid="uid://dbr1ebk7cd1j1" path="res://Upgrades/AttackCooldown.tres" id="9_cjoxr"]
 
 [node name="UpgradeMenu" type="CanvasLayer" unique_id=1070606010]
 process_mode = 3
 script = ExtResource("1_4svoh")
-all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("3_cjoxr"), ExtResource("4_1cnya"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs"), ExtResource("8_ujqmm")])
+all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("3_cjoxr"), ExtResource("4_1cnya"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs"), ExtResource("8_ujqmm"), ExtResource("9_cjoxr")])
 
 [node name="UpgradePanel" type="Panel" parent="." unique_id=1717061613]
 unique_name_in_owner = true
