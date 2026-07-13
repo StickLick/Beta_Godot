@@ -15,7 +15,6 @@ var _production_timer: float = 0.0
 
 func _ready() -> void:
     add_to_group("camps")
-    # ПРОВЕРЬТЕ: Сигналы должны быть подключены в инспекторе или здесь
     if not body_entered.is_connected(_on_body_entered):
         body_entered.connect(_on_body_entered)
     if not body_exited.is_connected(_on_body_exited):
@@ -36,14 +35,26 @@ func upgrade(mass_amount: float) -> void:
     _upgrade_progress += mass_amount
     var threshold = 100.0 * current_level 
     
-    # ЕСЛИ МАССА ТРАТИТСЯ, ВЫ УВИДИТЕ ЭТО:
-    print("[CAMP DEBUG] Receiving mass: ", mass_amount, " | Total: ", _upgrade_progress, "/", threshold)
-    
     if _upgrade_progress >= threshold:
         _upgrade_progress = 0.0
         current_level += 1
+        print("[CAMP] LVL UP -> ", current_level)
         _apply_level_scale()
-        print("[CAMP] !!! LEVEL UP: ", current_level, " !!!")
+        _refresh_player_buffs()
+
+func _refresh_player_buffs() -> void:
+    for body in get_overlapping_bodies():
+        if body is Player and is_player_alignment():
+            body.apply_complex_camp_buffs(_calculate_buff_package())
+
+func _calculate_buff_package() -> Dictionary:
+    # Усиленные значения: на 1 уровне +20% ко всему, на 5 уровне +60%
+    return {
+        "speed": 0.2 + (current_level * 0.1),
+        "damage": 0.25 + (current_level * 0.1),
+        "stability": 0.4 + (current_level * 0.2),
+        "regen": 1.0 + (current_level * 1.5) # Очень мощный реген
+    }
 
 func _resolve_camp_conflicts(delta: float) -> void:
     var other_camps = get_tree().get_nodes_in_group("camps")
@@ -105,10 +116,13 @@ func _update_visuals() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
     if body is Player: 
-        print("[CAMP INFO] Player entered camp area!") # ОБЯЗАТЕЛЬНО ПОЯВИТСЯ В КОНСОЛИ
         body.current_camp = self
+        if is_player_alignment():
+            print("[CAMP] Player entered union camp LVL ", current_level)
+            body.apply_complex_camp_buffs(_calculate_buff_package())
 
 func _on_body_exited(body: Node2D) -> void:
-    if body is Player and body.current_camp == self: 
-        print("[CAMP INFO] Player exited camp area!")
-        body.current_camp = null
+    if body is Player:
+        if body.current_camp == self:
+            body.current_camp = null
+        body.remove_camp_buffs()
