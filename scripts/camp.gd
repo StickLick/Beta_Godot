@@ -5,13 +5,20 @@ enum Alignment { NEUTRAL, PLAYER, RIVAL }
 
 @export_group("Camp Stats")
 @export var alignment: Alignment = Alignment.NEUTRAL
-@export var current_level: int = 1
-@export var production_interval: float = 6.0
+@export var current_level: int = 1:
+    set(v): current_level = clamp(v, 1, 5)
+@export var unit_spawn_cooldown: float = 8.0
 
-@onready var visual_shape: Polygon2D = $Polygon2D 
+@onready var visual_shape: Polygon2D = $Polygon2D
+
+const UNIT_SCENE = preload("res://Assets/Scenes/Unit.tscn")
+const BULLET_SCENE = preload("res://Assets/Scenes/Bullet.tscn")
 const XP_GEM_SCENE = preload("res://Assets/Scenes/Xp_gem.tscn")
+
+var capture_progress: float = 0.0
+var active_units: Array[Node2D] = []
 var _upgrade_progress: float = 0.0
-var _production_timer: float = 0.0
+var _timers = {"spawn": 0.0, "fire": 0.0, "prod": 0.0}
 
 func _ready() -> void:
     add_to_group("camps")
@@ -19,110 +26,136 @@ func _ready() -> void:
         body_entered.connect(_on_body_entered)
     if not body_exited.is_connected(_on_body_exited):
         body_exited.connect(_on_body_exited)
-        
     _update_visuals()
     _apply_level_scale()
 
 func _process(delta: float) -> void:
-    if alignment == Alignment.PLAYER:
-        _process_production(delta)
-    _resolve_camp_conflicts(delta)
+    active_units = active_units.filter(func(u): return is_instance_valid(u))
+    _handle_capture(delta)
+    if alignment != Alignment.NEUTRAL:
+        _handle_tiers(delta)
 
+# ЭТА ФУНКЦИЯ ИСПРАВЛЯЕТ ОШИБКУ В PLAYER.GD
 func is_player_alignment() -> bool:
     return alignment == Alignment.PLAYER
 
-func upgrade(mass_amount: float) -> void:
-    _upgrade_progress += mass_amount
-    var threshold = 100.0 * current_level 
+func _handle_capture(delta: float) -> void:
+    var player_inside = false
+    var p_ref = null
+    var invaders = 0
     
-    if _upgrade_progress >= threshold:
-        _upgrade_progress = 0.0
+    for body in get_overlapping_bodies():
+        if body is Player: 
+            player_inside = true
+            p_ref = body
+        elif body is Unit and body.alignment != int(alignment):
+            invaders += 1
+
+    if (player_inside or invaders > 0) and alignment != Alignment.PLAYER:
+        var p_bonus = (p_ref.mass / 25.0) if player_inside else 0.0
+        capture_progress += (6.0 + p_bonus + invaders * 2.5) / current_level * delta
+        
+        if capture_progress >= 100:
+            _flip_to(Alignment.PLAYER if player_inside else Alignment.RIVAL)
+    elif capture_progress > 0:
+        capture_progress = max(0, capture_progress - 5.0 * current_level * delta)
+
+func _handle_tiers(delta: float) -> void:
+    if alignment == Alignment.PLAYER:
+        _timers.prod += delta
+        if _timers.prod >= 6.0:
+            _timers.prod = 0; _spawn_gem()
+    
+    if current_level >= 2:
+        _timers.spawn += delta
+        if _timers.spawn >= unit_spawn_cooldown:
+            _timers.spawn = 0
+            if active_units.size() < 10: _spawn_unit()
+            
+    if current_level >= 3:
+        _timers.fire += delta
+        if _timers.fire >= 1.5:
+            _timers.fire = 0; _fire_at_enemy()
+
+func _spawn_unit() -> void:
+    if not UNIT_SCENE: return
+    var u = UNIT_SCENE.instantiate()
+    u.global_position = global_position + Vector2.from_angle(randf()*TAU) * 60
+    u.alignment = int(alignment)
+    u.parent_camp = self
+    get_tree().current_scene.add_child(u)
+    active_units.append(u)
+
+func _fire_at_enemy() -> void:
+    if not BULLET_SCENE: return
+    # Ищем ближайшую цель
+    var targets = get_tree().get_nodes_in_group("enemy")
+    if alignment == Alignment.RIVAL:
+        var p = get_tree().get_first_node_in_group("player")
+        if p: targets.append(p)
+    
+    var closest = null
+    var min_d = 500.0
+    for t in targets:
+        if is_instance_valid(t):
+            var d = global_position.distance_to(t.global_position)
+            if d < min_d: min_d = d; closest = t
+            
+    if closest:
+        var b = BULLET_SCENE.instantiate()
+        b.global_position = global_position
+        b.look_at(closest.global_position)
+        if "faction" in b: b.faction = "player" if alignment == Alignment.PLAYER else "rival"
+        get_tree().current_scene.add_child(b)
+
+func _flip_to(new_alignment: Alignment) -> void:
+    alignment = new_alignment
+    current_level = 1
+    capture_progress = 0
+    _update_visuals()
+    for u in active_units:
+        if is_instance_valid(u): u.flip_alignment(int(alignment))
+    
+    var tween = create_tween()
+    tween.tween_property(self, "scale", Vector2.ONE * 1.4, 0.2)
+    tween.tween_property(self, "scale", Vector2.ONE, 0.2)
+
+func upgrade(amount: float) -> void:
+    _upgrade_progress += amount
+    if _upgrade_progress >= 100.0 * current_level and current_level < 5:
+        _upgrade_progress = 0
         current_level += 1
-        print("[CAMP] LVL UP -> ", current_level)
         _apply_level_scale()
         _refresh_player_buffs()
 
 func _refresh_player_buffs() -> void:
-    for body in get_overlapping_bodies():
-        if body is Player and is_player_alignment():
-            body.apply_complex_camp_buffs(_calculate_buff_package())
-
-func _calculate_buff_package() -> Dictionary:
-    # Усиленные значения: на 1 уровне +20% ко всему, на 5 уровне +60%
-    return {
-        "speed": 0.2 + (current_level * 0.1),
-        "damage": 0.25 + (current_level * 0.1),
-        "stability": 0.4 + (current_level * 0.2),
-        "regen": 1.0 + (current_level * 1.5) # Очень мощный реген
-    }
-
-func _resolve_camp_conflicts(delta: float) -> void:
-    var other_camps = get_tree().get_nodes_in_group("camps")
-    for other in other_camps:
-        if other == self or not is_instance_valid(other): continue
-        var dist = global_position.distance_to(other.global_position)
-        var my_radius = 150.0 * scale.x
-        var other_radius = 150.0 * other.scale.x
-        
-        if dist < (my_radius + other_radius):
-            if other.alignment == alignment: _merge_with(other)
-            else: _fight_with(other, delta)
-
-func _merge_with(other: Camp) -> void:
-    if current_level >= other.current_level:
-        upgrade(other.current_level * 50.0)
-        other.queue_free()
-
-func _fight_with(other: Camp, delta: float) -> void:
-    var power_diff = float(current_level) / float(other.current_level)
-    var damage = 20.0 * delta * power_diff
-    other.reduce_progress(damage)
-    if other.current_level <= 0:
-        upgrade(20.0)
-        other.queue_free()
-
-func reduce_progress(amount: float) -> void:
-    _upgrade_progress -= amount
-    if _upgrade_progress < 0:
-        current_level -= 1
-        _upgrade_progress = 50.0
-        _apply_level_scale()
-        if current_level <= 0: queue_free()
-
-func _process_production(delta: float) -> void:
-    _production_timer += delta
-    if _production_timer >= production_interval:
-        _production_timer = 0.0
-        _spawn_gem()
-
-func _spawn_gem() -> void:
-    if not is_inside_tree(): return
-    var gem = XP_GEM_SCENE.instantiate()
-    gem.global_position = global_position + Vector2.from_angle(randf() * TAU) * 70.0
-    if "xp_amount" in gem: gem.xp_amount = 10 * current_level 
-    get_tree().current_scene.add_child(gem)
+    for b in get_overlapping_bodies():
+        if b is Player and alignment == Alignment.PLAYER:
+            b.apply_complex_camp_buffs({
+                "speed": 0.1 * current_level,
+                "damage": 0.1 * current_level,
+                "stability": 0.2 * current_level,
+                "regen": 1.0 * current_level
+            })
 
 func _apply_level_scale() -> void:
-    var target_scale = Vector2.ONE * (1.0 + (current_level - 1) * 0.2)
-    var tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-    tween.tween_property(self, "scale", target_scale, 0.5)
+    var s = 1.0 + (current_level - 1) * 0.2
+    create_tween().tween_property(self, "scale", Vector2.ONE * s, 0.5)
 
 func _update_visuals() -> void:
-    if not is_instance_valid(visual_shape): return
-    match alignment:
-        Alignment.PLAYER: visual_shape.color = Color(0.1, 0.4, 0.8, 0.4)
-        Alignment.RIVAL: visual_shape.color = Color(0.8, 0.1, 0.1, 0.4)
-        Alignment.NEUTRAL: visual_shape.color = Color(0.3, 0.3, 0.3, 0.4)
+    var c = Color.GRAY
+    if alignment == Alignment.PLAYER: c = Color(0.1, 0.4, 0.8, 0.5)
+    elif alignment == Alignment.RIVAL: c = Color(0.8, 0.1, 0.1, 0.5)
+    if is_instance_valid(visual_shape): visual_shape.color = c
 
-func _on_body_entered(body: Node2D) -> void:
-    if body is Player: 
-        body.current_camp = self
-        if is_player_alignment():
-            print("[CAMP] Player entered union camp LVL ", current_level)
-            body.apply_complex_camp_buffs(_calculate_buff_package())
+func _spawn_gem() -> void:
+    if not XP_GEM_SCENE: return
+    var g = XP_GEM_SCENE.instantiate()
+    g.global_position = global_position + Vector2.from_angle(randf()*TAU)*70
+    get_tree().current_scene.add_child(g)
 
-func _on_body_exited(body: Node2D) -> void:
-    if body is Player:
-        if body.current_camp == self:
-            body.current_camp = null
-        body.remove_camp_buffs()
+func _on_body_entered(body) -> void:
+    if body is Player: body.current_camp = self
+
+func _on_body_exited(body) -> void:
+    if body is Player and body.current_camp == self: body.current_camp = null
