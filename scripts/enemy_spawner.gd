@@ -9,60 +9,39 @@ var _spawn_timer: Timer
 func _ready() -> void:
     if difficulty_controller == null:
         difficulty_controller = get_tree().root.find_child("DifficultyController", true, false)
-        
-    if difficulty_controller == null:
-        push_error("EnemySpawner: DifficultyController NOT FOUND!")
-        return
-        
     _setup_timer()
 
 func _setup_timer() -> void:
     _spawn_timer = Timer.new()
-    _spawn_timer.wait_time = difficulty_controller.base_spawn_interval
+    _spawn_timer.wait_time = 2.0
     _spawn_timer.autostart = true
     _spawn_timer.one_shot = true
     _spawn_timer.timeout.connect(_on_spawn_timeout)
     add_child(_spawn_timer)
 
 func _on_spawn_timeout() -> void:
-    if not is_instance_valid(difficulty_controller):
-        return
-
-    var threat: float = difficulty_controller.get_final_threat_multiplier()
-    var next_interval = difficulty_controller.get_spawn_interval(
-        difficulty_controller.base_spawn_interval, 
-        difficulty_controller.min_spawn_interval
-    )
-    _spawn_timer.wait_time = next_interval
-
-    var spawn_count: int = difficulty_controller.get_spawn_count(1)
-
+    if not is_instance_valid(difficulty_controller): return
+    var threat = difficulty_controller.get_final_threat_multiplier()
+    _spawn_timer.wait_time = difficulty_controller.get_spawn_interval(2.0, 0.5)
+    var spawn_count = difficulty_controller.get_spawn_count(1)
     for i in range(spawn_count):
         _spawn_enemy(threat)
-        
     _spawn_timer.start()
 
 func _spawn_enemy(threat: float) -> void:
-    if enemy_scene == null:
-        return
-
-    var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-    if player == null:
-        return
-
-    var angle: float = randf() * TAU
-    var spawn_offset: Vector2 = Vector2.from_angle(angle) * spawn_radius
-    var target_position: Vector2 = player.position + spawn_offset
-
-    var enemy_instance: Enemy = enemy_scene.instantiate() as Enemy
-    enemy_instance.position = target_position
-    add_child(enemy_instance)
-
-    # Применяем множитель угрозы к статам
-    if "health" in enemy_instance:
-        enemy_instance.health_component.max_health *= threat
-        enemy_instance.health_component.health = enemy_instance.health_component.max_health
+    var player = get_tree().get_first_node_in_group("player")
+    if not player or not enemy_scene: return
+    var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
+    var angle = randf() * TAU
+    var spawn_pos = player.position + Vector2.from_angle(angle) * spawn_radius
+    # Ограничение спавна
+    spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
+    spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
     
-    # МАСШТАБИРОВАНИЕ НАГРАДЫ: Базовые 10 * текущая угроза
-    if "xp_value" in enemy_instance:
-        enemy_instance.xp_value = int(10 * threat)
+    var enemy = enemy_scene.instantiate()
+    enemy.position = spawn_pos
+    add_child(enemy)
+    if "health_component" in enemy:
+        enemy.health_component.max_health *= threat
+        enemy.health_component.current_health = enemy.health_component.max_health
+    if "xp_value" in enemy: enemy.xp_value = int(10 * threat)

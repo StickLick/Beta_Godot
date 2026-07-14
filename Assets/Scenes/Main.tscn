@@ -12,9 +12,11 @@
 [ext_resource type="PackedScene" uid="uid://br3byvlqrv52u" path="res://Assets/Scenes/Zone.tscn" id="10_f5dhn"]
 [ext_resource type="Script" uid="uid://c7bc27lbfnev2" path="res://scripts/world_pressure_manager.gd" id="11_una2h"]
 [ext_resource type="PackedScene" uid="uid://lekw153w7kt5" path="res://Assets/Scenes/Camp.tscn" id="11_xycqk"]
+[ext_resource type="PackedScene" uid="uid://dvlm8a1lty3ec" path="res://Assets/Scenes/RivalBoss.tscn" id="13_obb38"]
 
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
+boss_scene = ExtResource("13_obb38")
 
 [node name="Player" parent="." unique_id=1339954514 instance=ExtResource("1_kwblh")]
 
@@ -56,3 +58,5 @@ script = ExtResource("11_una2h")
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="MapBoundaries" unique_id=1660225964]
 
 [node name="CollisionShape2D4" type="CollisionShape2D" parent="MapBoundaries" unique_id=1352358189]
+
+[connection signal="level_up" from="Player" to="UpgradeMenu" method="_on_player_level_up"]

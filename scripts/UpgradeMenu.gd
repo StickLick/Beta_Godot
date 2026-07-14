@@ -7,6 +7,7 @@ extends Node
 var _active_menu: Control = null
 
 func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:    
+    print("[DEBUG] Opening Upgrade Menu UI...")
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
@@ -28,7 +29,7 @@ func _spawn_menu(upgrades: Array[Upgrade]) -> void:
     _active_menu = upgrade_menu_scene.instantiate() as Control
     _ui_container.add_child(_active_menu)
 
-    var options_vbox: VBoxContainer = _active_menu.get_node("UpgradeOptions")
+    var options_vbox: VBoxContainer = _active_menu.get_node_or_null("UpgradeOptions")
     if not is_instance_valid(options_vbox):
         push_error("'UpgradeOptions' VBoxContainer not found in menu scene hierarchy.")
         get_tree().paused = false
@@ -57,25 +58,28 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
         player.apply_custom_upgrade(upgrade)
 
     var stat: String = upgrade.stat_to_modify
+    var amount: float = float(upgrade.amount)
     var applied: bool = false
 
+    # 1. Применяем к игроку
     if stat in player:
-        var current_val: float = float(player.get(stat))
-        # Важно: для attack_cooldown нам нужно УМЕНЬШЕНИЕ (вычитание), 
-        # убедитесь, что в ресурсе Upgrade.tres стоит отрицательное число для кулдауна.
-        player.set(stat, current_val + float(upgrade.amount))
+        var current_val = player.get(stat)
+        player.set(stat, current_val + amount)
         applied = true
 
+    # 2. Если не нашли, ищем в оружии
     if not applied:
-        var weapons: Array[Node] = player.find_children("*", "WeaponComponent", true)
+        var weapons = player.find_children("*", "WeaponComponent", true)
         for weapon in weapons:
             if stat in weapon:
-                var current_val: float = float(weapon.get(stat))
-                weapon.set(stat, current_val + float(upgrade.amount))
+                var current_val = weapon.get(stat)
+                weapon.set(stat, current_val + amount)
                 applied = true
 
-    if not applied:
-        print("[!] Stat '", stat, "' not found anywhere.")
+    if applied:
+        print("[SUCCESS] Stat '%s' updated successfully." % stat)
+    else:
+        print("[ERROR] Stat '%s' not found on Player or Weapons." % stat)
 
     get_tree().paused = false
     _cleanup_menu()
@@ -84,3 +88,6 @@ func _cleanup_menu() -> void:
     if is_instance_valid(_active_menu):
         _active_menu.queue_free()
         _active_menu = null
+
+func _on_player_level_up(_new_level: int) -> void:
+    open_upgrade_menu(all_available_upgrades)
