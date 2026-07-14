@@ -46,3 +46,13 @@ camp_scene = ExtResource("11_xycqk")
 
 [node name="PressureManager" type="Node" parent="." unique_id=982665985]
 script = ExtResource("11_una2h")
+
+[node name="MapBoundaries" type="StaticBody2D" parent="." unique_id=1372759210]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapBoundaries" unique_id=813139124]
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="MapBoundaries" unique_id=953958433]
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="MapBoundaries" unique_id=1660225964]
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="MapBoundaries" unique_id=1352358189]
