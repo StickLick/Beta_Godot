@@ -2,15 +2,20 @@
 
 [ext_resource type="Script" uid="uid://bo24jnh0i5jy4" path="res://scripts/unit.gd" id="1_kykp8"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_kykp8"]
-[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_b3m76"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="3_b3m76"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_kykp8"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 7.0
 
-[node name="Unit" type="CharacterBody2D" unique_id=1221776637]
-collision_layer = 0
-collision_mask = 0
+[sub_resource type="CircleShape2D" id="CircleShape2D_4ouxv"]
+radius = 7.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fsuuu"]
+radius = 7.0
+
+[node name="Unit" type="CharacterBody2D" unique_id=1221776637 groups=["rival"]]
+collision_layer = 4
 script = ExtResource("1_kykp8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1620627197]
@@ -21,17 +26,24 @@ position = Vector2(-24, 1)
 polygon = PackedVector2Array(19, -10, 19, 8, 33, -1)
 
 [node name="HitboxComponent" type="Area2D" parent="." unique_id=633797733]
-collision_layer = 0
-collision_mask = 4
+collision_layer = 16
+collision_mask = 2
 script = ExtResource("2_kykp8")
 metadata/_custom_type_script = "uid://c2578100uqvx"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1021160278]
+shape = SubResource("CircleShape2D_4ouxv")
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1664580529]
 script = ExtResource("3_b3m76")
 metadata/_custom_type_script = "uid://c4k8m2n7p1qrx"
 
-[node name="HurtboxComponent" type="Area2D" parent="." unique_id=661689333]
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=661689333 node_paths=PackedStringArray("health_component")]
 collision_layer = 4
-collision_mask = 0
+collision_mask = 8
 script = ExtResource("4_kykp8")
+health_component = NodePath("../HealthComponent")
 metadata/_custom_type_script = "uid://beg66r2q1vu01"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=46033132]
+shape = SubResource("CircleShape2D_fsuuu")
