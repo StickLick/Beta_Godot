@@ -12,9 +12,13 @@ var _attack_pulse_timer: float = 0.0
 @onready var hitbox: HitboxComponent = $HitboxComponent
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
 @onready var health_component: HealthComponent = $HealthComponent
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
     add_to_group("units")
+    
+    # Запустить анимацию с названием "Run"
+    animated_sprite.play("Run")
     
     if is_instance_valid(health_component):
         health_component.max_health = max_hp

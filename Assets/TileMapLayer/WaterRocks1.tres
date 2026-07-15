@@ -1,0 +1,29 @@
+[gd_resource type="TileSet" format=3 uid="uid://bmgaasf67e4qo"]
+
+[ext_resource type="Texture2D" uid="uid://cotatvfq4uh6m" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks in the Water/Water Rocks_01.png" id="1_cwt7y"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xxxt7"]
+texture = ExtResource("1_cwt7y")
+0:1/size_in_atlas = Vector2i(4, 3)
+0:1/animation_columns = 16
+0:1/animation_speed = 7.0
+0:1/animation_frame_0/duration = 1.0
+0:1/animation_frame_1/duration = 1.0
+0:1/animation_frame_2/duration = 1.0
+0:1/animation_frame_3/duration = 1.0
+0:1/animation_frame_4/duration = 1.0
+0:1/animation_frame_5/duration = 1.0
+0:1/animation_frame_6/duration = 1.0
+0:1/animation_frame_7/duration = 1.0
+0:1/animation_frame_8/duration = 1.0
+0:1/animation_frame_9/duration = 1.0
+0:1/animation_frame_10/duration = 1.0
+0:1/animation_frame_11/duration = 1.0
+0:1/animation_frame_12/duration = 1.0
+0:1/animation_frame_13/duration = 1.0
+0:1/animation_frame_14/duration = 1.0
+0:1/animation_frame_15/duration = 1.0
+0:1/0 = 0
+
+[resource]
+sources/0 = SubResource("TileSetAtlasSource_xxxt7")

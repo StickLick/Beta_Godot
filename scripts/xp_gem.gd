@@ -6,11 +6,16 @@ class_name XPGem
 @export var xp_amount: int = 10 
 
 var target_player: CharacterBody2D = null
-var is_available: bool = false 
+var is_available: bool = false
+
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+
 
 func _ready() -> void:
     add_to_group("resources")
     _play_spawn_animation()
+    # Запустить анимацию с названием "Gold"
+    animated_sprite.play("Gold")
 
 func _play_spawn_animation() -> void:
     is_available = false

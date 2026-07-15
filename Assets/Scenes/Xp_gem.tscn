@@ -1,20 +1,81 @@
-[gd_scene format=3 uid="uid://c3xp9em2sc3ne"]
+[gd_scene format=3 uid="uid://c3xqaem2sc3ne"]
 
-[ext_resource type="Script" path="res://scripts/xp_gem.gd" id="1_xpgem"]
+[ext_resource type="Script" uid="uid://cc6gtl1nks5ff" path="res://scripts/xp_gem.gd" id="1_xpgem"]
+[ext_resource type="Texture2D" uid="uid://075fy56qjtqq" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Resource/Gold_Resource_Highlight.png" id="2_x8p1c"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gem"]
 radius = 8.0
 
-[node name="XPGem" type="Area2D"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_3nnle"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dxmtg"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2l0cp"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_30ibc"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gd6pj"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mddcy"]
+atlas = ExtResource("2_x8p1c")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3nnle")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dxmtg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2l0cp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_30ibc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gd6pj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mddcy")
+}],
+"loop": 1,
+"name": &"Gold",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="XPGem" type="Area2D" unique_id=1212568146]
 collision_layer = 32
 collision_mask = 0
 monitoring = false
-monitorable = true
 script = ExtResource("1_xpgem")
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=1374609490]
 color = Color(0.2, 0.5, 1, 1)
 polygon = PackedVector2Array(-6, 0, 0, -8, 6, 0, 0, 8)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1665345516]
 shape = SubResource("CircleShape2D_gem")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=480651044]
+scale = Vector2(0.51379395, 0.59167486)
+sprite_frames = SubResource("SpriteFrames_gd7ey")
+animation = &"Gold"
+frame_progress = 0.15478112

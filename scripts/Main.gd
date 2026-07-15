@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var map_rect: Rect2 = Rect2(-2000, -2000, 4000, 4000)
+@export var map_rect: Rect2 = Rect2(-3000, -3000, 6000, 6000)
 @export var boss_scene: PackedScene
 
 var boss_spawned: bool = false
@@ -12,7 +12,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     # Спавн босса (600с = 10 мин)
-    if not boss_spawned and GameManager.time_elapsed >= 5.0:
+    if not boss_spawned and GameManager.time_elapsed >= 60.0:
         _spawn_rival_boss()
 
 func _setup_boundaries() -> void:
