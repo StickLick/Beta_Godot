@@ -4,7 +4,10 @@
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_kykp8"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="3_b3m76"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_kykp8"]
+[ext_resource type="Texture2D" uid="uid://benpsn37484f5" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack1.png" id="5_8l4sl"]
 [ext_resource type="Texture2D" uid="uid://db0uxw86t1k8w" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Run.png" id="5_b3m76"]
+[ext_resource type="Texture2D" uid="uid://da3xhke48ms76" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack2.png" id="6_4eedf"]
+[ext_resource type="Texture2D" uid="uid://cd7s6nsuh1t40" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Idle.png" id="7_wroq2"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 7.0
@@ -14,6 +17,70 @@ radius = 7.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fsuuu"]
 radius = 7.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4qnxh"]
+atlas = ExtResource("5_8l4sl")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ft30"]
+atlas = ExtResource("5_8l4sl")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w8x6f"]
+atlas = ExtResource("5_8l4sl")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0gc2t"]
+atlas = ExtResource("5_8l4sl")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fhhgg"]
+atlas = ExtResource("6_4eedf")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bj8v6"]
+atlas = ExtResource("6_4eedf")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ul8o7"]
+atlas = ExtResource("6_4eedf")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v0i03"]
+atlas = ExtResource("6_4eedf")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1iq51"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r7lbm"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hxodu"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6jmul"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqqqn"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2gtkn"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_un8vj"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_twhvl"]
+atlas = ExtResource("7_wroq2")
+region = Rect2(1344, 0, 192, 192)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0j3b5"]
 atlas = ExtResource("5_b3m76")
@@ -41,6 +108,69 @@ region = Rect2(960, 0, 192, 192)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4qnxh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7ft30")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w8x6f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0gc2t")
+}],
+"loop": 0,
+"name": &"Attack1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fhhgg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bj8v6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ul8o7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v0i03")
+}],
+"loop": 0,
+"name": &"Attack2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1iq51")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r7lbm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hxodu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6jmul")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wqqqn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2gtkn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_un8vj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_twhvl")
+}],
+"loop": 0,
+"name": &"Idle",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0j3b5")
@@ -100,8 +230,6 @@ metadata/_custom_type_script = "uid://beg66r2q1vu01"
 shape = SubResource("CircleShape2D_fsuuu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=332418237]
-scale = Vector2(0.30859375, 0.30859375)
+scale = Vector2(0.49283856, 0.49283856)
 sprite_frames = SubResource("SpriteFrames_gd7ey")
-animation = &"Run"
-frame = 5
-frame_progress = 0.68842626
+animation = &"Attack2"
