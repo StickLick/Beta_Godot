@@ -173,7 +173,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ca55u")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"DownAttack",
 "speed": 5.0
 }, {
@@ -187,7 +187,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_tslcn")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"DownRightAttack",
 "speed": 5.0
 }, {
@@ -242,7 +242,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_v43yl")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"RightAttack",
 "speed": 5.0
 }, {
@@ -279,7 +279,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_jpnj4")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"UpAttack",
 "speed": 5.0
 }, {
@@ -293,7 +293,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dbvur")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"UpRightAttack",
 "speed": 5.0
 }]
@@ -301,6 +301,7 @@ animations = [{
 [node name="Player" type="CharacterBody2D" unique_id=887924388 groups=["Player"]]
 collision_layer = 2
 script = ExtResource("1_3e2tf")
+radius_weapons = 1.5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1875892484]
 shape = SubResource("CircleShape2D_gd7ey")
@@ -343,6 +344,7 @@ shape = SubResource("CircleShape2D_detection")
 [node name="CooldownTimer" type="Timer" parent="WeaponComponent" unique_id=1809523123]
 
 [node name="VisualPivot" type="Node2D" parent="WeaponComponent" unique_id=1821519261]
+visible = false
 
 [node name="Polygon2D" type="Polygon2D" parent="WeaponComponent/VisualPivot" unique_id=432942546]
 color = Color(0.3, 0.7, 1, 1)
@@ -368,6 +370,7 @@ monitorable = false
 shape = SubResource("CircleShape2D_magnet")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=978137426]
+position = Vector2(-7.9999995, -12.999999)
 scale = Vector2(0.9101563, 0.9101563)
 sprite_frames = SubResource("SpriteFrames_gd7ey")
-animation = &"UpAttack"
+animation = &"RightAttack"

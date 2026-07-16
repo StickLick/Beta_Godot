@@ -6,7 +6,6 @@ var player: Node2D
 const SWING_SCALE_UP_DURATION: float = 0.1
 
 @export var base_damage: float = 15.0
-
 @export var attack_cooldown: float = 1.0:
     set(value):
         var old_val = attack_cooldown
@@ -24,6 +23,7 @@ const SWING_SCALE_UP_DURATION: float = 0.1
 
 func _ready() -> void:
     await get_tree().process_frame
+    # Если поиск по группе дает сбой, попробуй заменить на: player = get_parent()
     player = get_tree().get_first_node_in_group("player")
 
     cooldown_timer.wait_time = attack_cooldown
@@ -46,7 +46,6 @@ func update_weapon_range(new_multiplier: float) -> void:
         detection_area.scale = Vector2.ONE * new_multiplier
     if is_instance_valid(hitbox):
         hitbox.scale = Vector2.ONE * new_multiplier
-    print("[WEAPON] Physical range updated to: ", new_multiplier)
 
 func _get_closest_target() -> HurtboxComponent:
     var closest_target: HurtboxComponent = null
@@ -72,9 +71,17 @@ func _on_cooldown_timeout() -> void:
 
     visual_pivot.look_at(target.global_position)
     visual_pivot.rotation += deg_to_rad(rotation_offset_degrees)
-    _perform_swing()
+    
+    # ПЕРЕДАЕМ TARGET В ФУНКЦИЮ АТАКИ
+    _perform_swing(target)
 
-func _perform_swing() -> void:
+# ДОБАВИЛИ АРГУМЕНТ target
+func _perform_swing(target: HurtboxComponent) -> void:
+    # --- ВЫЗОВ АНИМАЦИИ ИГРОКА ---
+    if is_instance_valid(player) and player.has_method("play_attack_animation") and is_instance_valid(target):
+        player.play_attack_animation(target.global_position)
+    # -----------------------------
+
     var multiplier = player.get_final_damage_multiplier() if is_instance_valid(player) else 1.0
     if is_instance_valid(hitbox):
         hitbox.damage = base_damage * multiplier

@@ -1,9 +1,11 @@
 extends CharacterBody2D
 class_name Player
 
+# --- Сигналы ---
 signal xp_changed(current_xp: int, next_level_xp: int)
 signal level_up(new_level: int)
 
+# --- Настройки ---
 @export_group("Base Stats")
 @export var base_mass: float = 100.0
 @export var base_stability: float = 100.0
@@ -35,19 +37,27 @@ var mass: float = 100.0
 const MAX_MASS: float = 500.0
 var camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
 
-@onready var magnet_area: Area2D = %MagnetArea
-@onready var health_component: HealthComponent = $HealthComponent
-@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+# Флаг для анимации
+var is_attacking: bool = false
 
+# Система прокачки
 var current_level: int = 1
 var current_xp: int = 0
 var xp_to_next_level: int = 10
-var current_camp: Node2D = null 
+var current_camp: Node2D = null
+
+@onready var magnet_area: Area2D = %MagnetArea
+@onready var health_component: HealthComponent = $HealthComponent
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
     mass = base_mass
     stability = base_stability
     add_to_group("player")
+    
+    if animated_sprite:
+        animated_sprite.animation_finished.connect(_on_animation_finished)
+    
     if is_instance_valid(health_component):
         health_component.update_max_health(max_health)
         health_component.health_depleted.connect(_on_death)
@@ -64,8 +74,8 @@ func _physics_process(delta: float) -> void:
     var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
     _move_player(delta, input_vector)
     
-    # Анимация движения (если не играется анимация атаки)
-    if not animated_sprite.is_playing() or animated_sprite.animation == "Run" or animated_sprite.animation == "Idle":
+    # БЛОКИРОВКА: если мы атакуем, НЕ меняем анимацию движения
+    if not is_attacking:
         _update_animations(input_vector)
         
     _process_territory_interaction(delta)
@@ -73,11 +83,29 @@ func _physics_process(delta: float) -> void:
     if camp_buffs.regen > 0 and health_component.current_health < max_health:
         health_component.current_health = min(health_component.current_health + camp_buffs.regen * delta, max_health)
 
+# --- ЛОГИКА ОПЫТА (XP) ---
+# Теперь называется collect_xp, чтобы соответствовать XPGem.gd
+func collect_xp(amount: int) -> void:
+    var total_gain = int(amount * xp_gain)
+    current_xp += total_gain
+
+    while current_xp >= xp_to_next_level:
+        current_xp -= xp_to_next_level
+        current_level += 1
+        xp_to_next_level = int(xp_to_next_level * 1.2)
+        level_up.emit(current_level)
+
+    xp_changed.emit(current_xp, xp_to_next_level)
+
 # --- ЛОГИКА АНИМАЦИИ ---
 func play_attack_animation(target_position: Vector2) -> void:
+    is_attacking = true
     var direction = (target_position - global_position).normalized()
     var anim_name = _get_attack_animation_name(direction)
-    animated_sprite.play(anim_name)
+    
+    if animated_sprite.animation != anim_name:
+        animated_sprite.play(anim_name)
+    
     animated_sprite.flip_h = (direction.x < 0)
 
 func _get_attack_animation_name(dir: Vector2) -> String:
@@ -97,6 +125,11 @@ func _update_animations(input_vector: Vector2) -> void:
         animated_sprite.flip_h = (input_vector.x < 0)
     else:
         animated_sprite.play("Idle")
+
+func _on_animation_finished() -> void:
+    var current_anim = animated_sprite.animation
+    if current_anim in ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack"]:
+        is_attacking = false
 
 # --- ДВИЖЕНИЕ ---
 func _move_player(delta: float, input_vector: Vector2) -> void:
