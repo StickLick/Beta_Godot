@@ -6,8 +6,8 @@ extends Node
 
 var _active_menu: Control = null
 
-func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:    
-    print("[DEBUG] Opening Upgrade Menu UI...")
+func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void: 
+    $UpgradePanel.visible = true   
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
@@ -85,6 +85,7 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
     _cleanup_menu()
 
 func _cleanup_menu() -> void:
+    $UpgradePanel.visible = false
     if is_instance_valid(_active_menu):
         _active_menu.queue_free()
         _active_menu = null

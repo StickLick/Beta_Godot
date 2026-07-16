@@ -17,8 +17,8 @@ all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("3_cjoxr"), 
 
 [node name="UpgradePanel" type="Panel" parent="." unique_id=1717061613]
 unique_name_in_owner = true
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 2.0
+offset_bottom = 2.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1882368771]
 offset_right = 40.0
