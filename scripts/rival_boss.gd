@@ -1,13 +1,21 @@
 extends CharacterBody2D
 class_name RivalBoss
 
-@export var speed: float = 140.0
+@export_group("Movement")
+@export var base_speed: float = 140.0
+@export var dash_speed_mult: float = 2.5
+
+@export_group("Combat")
 @export var pulse_interval: float = 4.0
 @export var boss_color: Color = Color(4.0, 0.2, 1.5) 
 
-var damage_reduction: float = 0.0 
+var damage_reduction: float = 0.9
 var _pulse_timer: float = 0.0
+var _dash_timer: float = 0.0
 var is_dead: bool = false
+var is_dashing: bool = false
+var desperation_phase: bool = false
+var current_speed: float = 140.0
 
 @onready var line: Line2D = $Line2D
 @onready var health_component: HealthComponent = $HealthComponent
@@ -18,7 +26,8 @@ var debug_label: Label
 func _ready() -> void:
     add_to_group("enemy")
     modulate = boss_color
-    scale = Vector2(4.0, 4.0)
+    scale = Vector2(4.5, 4.5)
+    current_speed = base_speed
     
     if line == null:
         line = Line2D.new()
@@ -28,23 +37,21 @@ func _ready() -> void:
     line.top_level = true 
     line.clear_points()
 
-    # Подключение урона
+    _setup_debug_ui()
+
     if is_instance_valid(hurtbox):
-        hurtbox.faction = "enemy" 
+        hurtbox.faction = "enemy"
         if not hurtbox.hit_received.is_connected(_on_hit_received):
             hurtbox.hit_received.connect(_on_hit_received)
-
-    # Подключение смерти
+    
     if is_instance_valid(health_component):
         if not health_component.health_depleted.is_connected(_on_death):
             health_component.health_depleted.connect(_on_death)
 
-    _setup_debug_ui()
-
 func _setup_debug_ui() -> void:
     debug_label = Label.new()
     add_child(debug_label)
-    debug_label.position = Vector2(-40, -55)
+    debug_label.position = Vector2(-40, -60)
     debug_label.scale = Vector2(0.4, 0.4)
     debug_label.add_theme_color_override("font_shadow_color", Color.BLACK)
 
@@ -62,40 +69,49 @@ func _physics_process(delta: float) -> void:
 
 func _update_ui() -> void:
     if is_instance_valid(debug_label) and is_instance_valid(health_component):
-        var hp_text = "BOSS HP: %d" % int(health_component.current_health)
-        var shield_pct = int(damage_reduction * 100)
-        var sh_text = "SHIELD: %d%%" % shield_pct if shield_pct > 0 else "SHIELD: BROKEN"
-        
-        debug_label.text = hp_text + "\n" + sh_text
-        debug_label.modulate = Color.CYAN if damage_reduction > 0 else Color.RED
+        var hp_val = int(health_component.current_health)
+        var sh_pct = int(damage_reduction * 100)
+        debug_label.text = "BOSS HP: %d\nSHIELD: %d%%" % [hp_val, sh_pct]
+        debug_label.modulate = Color.CYAN if damage_reduction > 0 else Color.ORANGE_RED
 
 func _update_defense_state() -> void:
-    # Считаем количество живых лагерей соперника
     var rival_camps = get_tree().get_nodes_in_group("camps").filter(
         func(c): return is_instance_valid(c) and c.alignment == 2
     )
     
     var count = rival_camps.size()
     
-    # Динамическая прогрессия щита
-    if count == 0:
-        damage_reduction = 0.0
-        modulate = Color.WHITE
-    elif count == 1:
-        damage_reduction = 0.90 # 90%
+    if count > 0:
+        if count == 1: damage_reduction = 0.90
+        elif count == 2: damage_reduction = 0.95
+        else: damage_reduction = 0.98
         modulate = boss_color
-    elif count == 2:
-        damage_reduction = 0.95 # 95%
-        modulate = boss_color * 1.2
     else:
-        damage_reduction = 0.98 # 98% (почти неуязвим)
-        modulate = boss_color * 1.5
+        damage_reduction = 0.0
+        if not desperation_phase:
+            desperation_phase = true
+            current_speed = base_speed * 1.5
+            modulate = Color(5.0, 1.2, 0.0)
+        
+        _dash_timer += get_process_delta_time()
+        if _dash_timer >= 4.0:
+            _perform_dash()
+            _dash_timer = 0.0
+
+func _perform_dash() -> void:
+    is_dashing = true
+    var t = create_tween()
+    t.tween_callback(func(): is_dashing = false).set_delay(1.0)
 
 func _move_logic(delta: float) -> void:
     var player = get_tree().get_first_node_in_group("player")
     if not player: return
+    
+    var move_speed = current_speed
+    if is_dashing: move_speed *= dash_speed_mult
+    
     var dir = (player.global_position - global_position).normalized()
-    velocity = velocity.move_toward(dir * speed, 600 * delta)
+    velocity = velocity.move_toward(dir * move_speed, 800 * delta)
     move_and_slide()
 
 func _execute_pulse() -> void:
@@ -109,30 +125,45 @@ func _execute_pulse() -> void:
         target.reinforce()
 
 func _visualize_beam(target_pos: Vector2) -> void:
+    if line == null: return
     line.clear_points()
     line.add_point(global_position)
     line.add_point(target_pos)
     var tween = create_tween()
     line.modulate.a = 1.0
-    tween.tween_property(line, "width", 30.0, 0.1)
-    tween.parallel().tween_property(line, "modulate:a", 0.0, 0.4).set_delay(0.1)
-    tween.finished.connect(line.clear_points)
+    line.width = 25.0
+    tween.tween_property(line, "width", 0.0, 0.5)
+    tween.parallel().tween_property(line, "modulate:a", 0.0, 0.5)
 
 func _on_hit_received(base_damage: float) -> void:
     if damage_reduction > 0:
-        var absorbed = base_damage * damage_reduction
-        # Возвращаем поглощенный урон в HealthComponent
-        health_component.current_health += absorbed
-        # print("[BOSS] Shield active. Blocked: ", int(absorbed))
+        health_component.current_health += (base_damage * damage_reduction)
 
 func _on_death() -> void:
     if is_dead: return
     is_dead = true
-    print("--- VICTORY! RIVAL BOSS DESTROYED ---")
     
-    # Эффект смерти
-    var tween = create_tween()
-    tween.set_parallel(true)
-    tween.tween_property(self, "scale", Vector2.ZERO, 1.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-    tween.tween_property(self, "modulate:a", 0.0, 0.8)
-    tween.finished.connect(queue_free)
+    # 1. Останавливаем время и логику ИИ
+    GameManager.stop_game()
+    set_physics_process(false)
+    
+    # 2. Запускаем зум камеры
+    var cam = get_viewport().get_camera_2d()
+    if cam and cam.has_method("death_zoom"):
+        cam.death_zoom(global_position)
+    
+    # 3. Анимация гибели (агония)
+    var death_tween = create_tween()
+    for i in range(8):
+        death_tween.tween_property(self, "modulate", Color(10, 10, 10), 0.05)
+        death_tween.tween_property(self, "modulate", Color.ORANGE_RED, 0.05)
+    
+    death_tween.tween_property(self, "scale", Vector2.ZERO, 1.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+    
+    # 4. Финальный вызов HUD
+    death_tween.chain().tween_callback(func():
+        var hud = get_tree().get_first_node_in_group("hud")
+        if hud and hud.has_method("show_results"):
+            hud.show_results()
+        queue_free()
+    )
