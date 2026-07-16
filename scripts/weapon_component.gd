@@ -1,6 +1,8 @@
 class_name WeaponComponent
 extends Node2D
 
+var player: Node2D
+
 const SWING_SCALE_UP_DURATION: float = 0.1
 
 @export var base_damage: float = 15.0
@@ -19,8 +21,6 @@ const SWING_SCALE_UP_DURATION: float = 0.1
 @onready var cooldown_timer: Timer = $CooldownTimer
 @onready var visual_pivot: Node2D = $VisualPivot
 @onready var hitbox: HitboxComponent = $VisualPivot/HitboxComponent
-
-var player: Player
 
 func _ready() -> void:
     await get_tree().process_frame

@@ -100,7 +100,7 @@ metadata/_custom_type_script = "uid://beg66r2q1vu01"
 shape = SubResource("CircleShape2D_fsuuu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=332418237]
-scale = Vector2(0.26302084, 0.26302084)
+scale = Vector2(0.30859375, 0.30859375)
 sprite_frames = SubResource("SpriteFrames_gd7ey")
 animation = &"Run"
 frame = 5

@@ -17,7 +17,7 @@ var _attack_pulse_timer: float = 0.0
 func _ready() -> void:
     add_to_group("units")
     
-    # Запустить анимацию с названием "Run"
+    # Запустить анимацию
     animated_sprite.play("Run")
     
     if is_instance_valid(health_component):
@@ -42,13 +42,19 @@ func _physics_process(delta: float) -> void:
         var dist = global_position.distance_to(target.global_position)
         
         velocity = dir * speed
-        rotation = lerp_angle(rotation, dir.angle(), 10 * delta)
+        
+        # --- ИСПРАВЛЕНИЕ: Вместо rotation используем flip_h ---
+        # Если юнит движется, меняем направление спрайта
+        if dir.x != 0:
+            animated_sprite.flip_h = (dir.x < 0)
+        # ----------------------------------------------------
+        
         move_and_slide()
         
-        # ПУЛЬСАЦИЯ УРОНА (Чтобы не "засыпали", стоя друг в друге)
+        # ПУЛЬСАЦИЯ УРОНА
         if dist < 60.0:
             _attack_pulse_timer += delta
-            if _attack_pulse_timer >= 0.8: # Каждые 0.8 сек перепроверяем урон
+            if _attack_pulse_timer >= 0.8:
                 _attack_pulse_timer = 0.0
                 _toggle_hitbox()
     else:

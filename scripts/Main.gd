@@ -12,7 +12,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     # Спавн босса (600с = 10 мин)
-    if not boss_spawned and GameManager.time_elapsed >= 60.0:
+    if not boss_spawned and GameManager.time_elapsed >= 600.0:
         _spawn_rival_boss()
 
 func _setup_boundaries() -> void:
