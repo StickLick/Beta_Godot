@@ -4,6 +4,10 @@
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="2_health"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="3_hurtbox"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="4_hitbox"]
+[ext_resource type="Texture2D" uid="uid://cwixblfharriy" path="res://Texture/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Attack1.png" id="5_twsn0"]
+[ext_resource type="Texture2D" uid="uid://bv4br8uxl148" path="res://Texture/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Attack2.png" id="6_u8gsn"]
+[ext_resource type="Texture2D" uid="uid://bqf2g8btf8s6r" path="res://Texture/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Idle.png" id="7_waoeb"]
+[ext_resource type="Texture2D" uid="uid://c8updccdi6so7" path="res://Texture/Tiny Swords (Free Pack)/Units/Red Units/Warrior/Warrior_Run.png" id="8_03yfc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(40, 40)
@@ -11,12 +15,190 @@ size = Vector2(40, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(44, 44)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_ct8q6"]
+atlas = ExtResource("5_twsn0")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jebe6"]
+atlas = ExtResource("5_twsn0")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kuhgf"]
+atlas = ExtResource("5_twsn0")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r1aat"]
+atlas = ExtResource("5_twsn0")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ch1ut"]
+atlas = ExtResource("6_u8gsn")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wbetg"]
+atlas = ExtResource("6_u8gsn")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rf64a"]
+atlas = ExtResource("6_u8gsn")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wiceg"]
+atlas = ExtResource("6_u8gsn")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0gytg"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m1sge"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5k6fg"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n121w"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4eq0m"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyu65"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dsa6h"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(1152, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e0aol"]
+atlas = ExtResource("7_waoeb")
+region = Rect2(1344, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wl2jh"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6bm6k"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nbite"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a848x"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m4q5d"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5fs0o"]
+atlas = ExtResource("8_03yfc")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ct8q6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jebe6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kuhgf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r1aat")
+}],
+"loop": 0,
+"name": &"Attack1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ch1ut")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wbetg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rf64a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wiceg")
+}],
+"loop": 0,
+"name": &"Attack2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0gytg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m1sge")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5k6fg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n121w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4eq0m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pyu65")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dsa6h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e0aol")
+}],
+"loop": 1,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wl2jh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6bm6k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nbite")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a848x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m4q5d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5fs0o")
+}],
+"loop": 1,
+"name": &"Run",
+"speed": 5.0
+}]
+
 [node name="Enemy" type="CharacterBody2D" unique_id=1659451655]
 collision_layer = 4
 collision_mask = 7
 script = ExtResource("1_enemy")
 
 [node name="Polygon2D" type="Polygon2D" parent="." unique_id=2054106966]
+visible = false
 color = Color(0.85, 0.2, 0.2, 1)
 polygon = PackedVector2Array(-20, -20, -20, 20, 20, 20, 20, -20)
 
@@ -43,3 +225,9 @@ faction = "enemy"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1163221071]
 shape = SubResource("RectangleShape2D_hitbox")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1373509504]
+position = Vector2(1.9999999, -3.9999998)
+scale = Vector2(0.6875, 0.6875)
+sprite_frames = SubResource("SpriteFrames_gd7ey")
+animation = &"Attack1"

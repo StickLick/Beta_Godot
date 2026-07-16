@@ -1,6 +1,11 @@
 [gd_scene format=3 uid="uid://lekw153w7kt5"]
 
 [ext_resource type="Script" uid="uid://b3lanynm2o74l" path="res://scripts/camp.gd" id="1_uy357"]
+[ext_resource type="Texture2D" uid="uid://cgixyf1i8q4yk" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Tower.png" id="2_54i4p"]
+[ext_resource type="Texture2D" uid="uid://dvu0hequvtwr2" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House1.png" id="2_xrp82"]
+[ext_resource type="Texture2D" uid="uid://qr3qpkd7w5xc" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Black Buildings/Archery.png" id="3_sdjqj"]
+[ext_resource type="Texture2D" uid="uid://cf034lmytpa76" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png" id="5_wyg3y"]
+[ext_resource type="Texture2D" uid="uid://bjss8rl606m2u" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png" id="6_hvwlx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 150.0
@@ -8,6 +13,7 @@ radius = 150.0
 [node name="Camp" type="Area2D" unique_id=995130696]
 collision_mask = 2
 script = ExtResource("1_uy357")
+level_textures = Array[Texture2D]([ExtResource("2_xrp82"), ExtResource("3_sdjqj"), ExtResource("2_54i4p"), ExtResource("5_wyg3y"), ExtResource("6_hvwlx")])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=884473819]
 shape = SubResource("CircleShape2D_gd7ey")
@@ -15,3 +21,6 @@ shape = SubResource("CircleShape2D_gd7ey")
 [node name="Polygon2D" type="Polygon2D" parent="." unique_id=834252385]
 color = Color(1, 1, 1, 0.03529412)
 polygon = PackedVector2Array(-1, -149, -105, -107, -149, -2, -110, 101, -1, 149, 111, 101, 149, -1, 102, -108)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=540310009]
+position = Vector2(0, -88)

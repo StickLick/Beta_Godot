@@ -8,7 +8,11 @@ enum Alignment { NEUTRAL, PLAYER, RIVAL }
     set(v):
         current_level = clamp(v, 1, 5)
 
-@onready var visual_shape: Polygon2D = $Polygon2D
+# Ссылки на узлы и ресурсы
+@onready var sprite: Sprite2D = $Sprite
+@export var level_textures: Array[Texture2D] = []
+@onready var visual_shape: Polygon2D = $Polygon2D # Оставь, если нужно для подсветки
+
 const UNIT_SCENE = preload("res://Assets/Scenes/Unit.tscn")
 const BULLET_SCENE = preload("res://Assets/Scenes/Bullet.tscn")
 const XP_GEM_SCENE = preload("res://Assets/Scenes/Xp_gem.tscn")
@@ -20,8 +24,10 @@ var _timers = {"spawn": 0.0, "fire": 0.0, "prod": 0.0}
 
 func _ready() -> void:
     add_to_group("camps")
+    
     body_entered.connect(func(b): if b is Player: b.current_camp = self)
     body_exited.connect(func(b): if b is Player and b.current_camp == self: b.current_camp = null)
+    
     _update_visuals()
     _apply_level_scale()
 
@@ -32,13 +38,10 @@ func _process(delta: float) -> void:
         _handle_tiers(delta)
 
 func reinforce() -> void:
-    # Восстанавливаем прогресс уровня
     _upgrade_progress = min(_upgrade_progress + 60.0, 100.0 * current_level)
-    # Мгновенный спавн защитников
     for i in range(2):
         if active_units.size() < 10:
             _spawn_unit()
-    # Вспышка
     var t = create_tween()
     var old = modulate
     modulate = Color(2.5, 2.5, 2.5)
@@ -119,6 +122,7 @@ func _flip_to(new_align: int) -> void:
     var t = create_tween()
     t.tween_property(self, "scale", Vector2.ONE*1.4, 0.2)
     t.tween_property(self, "scale", Vector2.ONE, 0.2)
+    _apply_level_scale()
 
 func upgrade(amount: float) -> void:
     _upgrade_progress += amount
@@ -128,8 +132,13 @@ func upgrade(amount: float) -> void:
         _apply_level_scale()
 
 func _apply_level_scale() -> void:
+    # 1. Масштаб
     var s = 1.0 + (current_level - 1) * 0.2
     create_tween().tween_property(self, "scale", Vector2.ONE * s, 0.5)
+    
+    # 2. Смена текстуры (берем из массива по индексу level - 1)
+    if level_textures.size() >= current_level:
+        sprite.texture = level_textures[current_level - 1]
 
 func _update_visuals() -> void:
     var c = Color.GRAY
