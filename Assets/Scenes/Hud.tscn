@@ -51,6 +51,17 @@ process_mode = 3
 offset_right = 40.0
 offset_bottom = 40.0
 
+[node name="Background" type="ColorRect" parent="ResultsPanel" unique_id=1289090555]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 500.0
+offset_bottom = 922.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5882353)
+
 [node name="StatsLabel" type="Label" parent="ResultsPanel" unique_id=785186436]
 unique_name_in_owner = true
 layout_mode = 0
@@ -58,9 +69,61 @@ offset_right = 40.0
 offset_bottom = 23.0
 
 [node name="RestartButton" type="Button" parent="ResultsPanel/StatsLabel" unique_id=358643569]
+unique_name_in_owner = true
 process_mode = 3
 layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = 225.0
+offset_top = 720.0
+offset_right = 337.2258
+offset_bottom = 769.0
+text = "Рестарт"
+
+[node name="SpecialtyPanel" type="Control" parent="." unique_id=1501142750]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="SpecialtyPanel" unique_id=1388381748]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 500.0
+offset_bottom = 922.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5882353)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SpecialtyPanel" unique_id=1076382064]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -54.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="SpecialtyPanel/VBoxContainer" unique_id=1076250076]
+layout_mode = 2
+text = "ВЫБЕРИТЕ СПЕЦИАЛИЗАЦИЮ"
+horizontal_alignment = 1
+
+[node name="MilitaryButton" type="Button" parent="SpecialtyPanel/VBoxContainer" unique_id=1734070950]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 2
+text = "Военный лагерь"
+
+[node name="IndustryButton" type="Button" parent="SpecialtyPanel/VBoxContainer" unique_id=185586931]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 2
+text = "Индустриальный лагерь"
 
 [connection signal="pressed" from="ResultsPanel/StatsLabel/RestartButton" to="." method="_on_restart_pressed"]

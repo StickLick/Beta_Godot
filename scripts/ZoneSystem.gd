@@ -21,7 +21,7 @@ func _spawn_zone() -> void:
     if not player or not zone_scene: return
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     var spawn_pos = player.global_position + Vector2.from_angle(randf()*TAU) * randf_range(400, 800)
-    # Ограничение спавна зоны
+    
     spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 300, rect.end.x - 300)
     spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 300, rect.end.y - 300)
     
@@ -33,10 +33,15 @@ func _spawn_zone() -> void:
 
 func _on_zone_evolved(pos: Vector2, _type: String, dom: float, zone_ref: Area2D) -> void:
     current_zones.erase(zone_ref)
+    
+    # Логируем захват зоны в статистику
+    GameManager.log_event("zone_captured")
+    
     var existing = get_tree().get_nodes_in_group("camps")
     for c in existing:
         if c.global_position.distance_to(pos) < 400:
             if c.has_method("upgrade"): c.upgrade(dom * 50); return
+            
     if not camp_scene: return
     var camp = camp_scene.instantiate()
     camp.global_position = pos

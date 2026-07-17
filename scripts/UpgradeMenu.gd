@@ -5,13 +5,15 @@ extends Node
 @export var all_available_upgrades: Array[Upgrade]
 
 var _active_menu: Control = null
+var _pending_upgrades: int = 0 # Очередь уровней
 
-func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void: 
-    $UpgradePanel.visible = true   
+## Основной метод открытия меню
+func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:    
     if available_upgrades.size() < 3:
         push_error("Upgrade pool invalid. Requires at least 3 unique upgrades.")
         return
 
+    # Ставим игру на паузу
     get_tree().paused = true
 
     if not is_instance_valid(upgrade_menu_scene) or not is_instance_valid(_ui_container):
@@ -19,6 +21,7 @@ func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
         get_tree().paused = false
         return
 
+    # Выбираем 3 случайных улучшения
     var shuffled_pool: Array[Upgrade] = available_upgrades.duplicate()
     shuffled_pool.shuffle()
     var selected_upgrades: Array[Upgrade] = shuffled_pool.slice(0, 3)
@@ -28,6 +31,9 @@ func open_upgrade_menu(available_upgrades: Array[Upgrade]) -> void:
 func _spawn_menu(upgrades: Array[Upgrade]) -> void:
     _active_menu = upgrade_menu_scene.instantiate() as Control
     _ui_container.add_child(_active_menu)
+    
+    # Убеждаемся, что меню на переднем плане
+    _active_menu.move_to_front()
 
     var options_vbox: VBoxContainer = _active_menu.get_node_or_null("UpgradeOptions")
     if not is_instance_valid(options_vbox):
@@ -61,13 +67,12 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
     var amount: float = float(upgrade.amount)
     var applied: bool = false
 
-    # 1. Применяем к игроку
+    # Применение характеристик
     if stat in player:
         var current_val = player.get(stat)
         player.set(stat, current_val + amount)
         applied = true
 
-    # 2. Если не нашли, ищем в оружии
     if not applied:
         var weapons = player.find_children("*", "WeaponComponent", true)
         for weapon in weapons:
@@ -76,19 +81,30 @@ func _on_upgrade_selected(upgrade: Upgrade) -> void:
                 weapon.set(stat, current_val + amount)
                 applied = true
 
-    if applied:
-        print("[SUCCESS] Stat '%s' updated successfully." % stat)
-    else:
-        print("[ERROR] Stat '%s' not found on Player or Weapons." % stat)
-
-    get_tree().paused = false
+    # Очищаем текущее меню
     _cleanup_menu()
 
+    # ПРОВЕРКА ОЧЕРЕДИ:
+    if _pending_upgrades > 0:
+        print("[UPGRADE] More levels pending. Opening next menu. Remaining: ", _pending_upgrades)
+        _pending_upgrades -= 1
+        open_upgrade_menu(all_available_upgrades)
+    else:
+        # Если уровней больше нет — снимаем паузу
+        print("[UPGRADE] All levels processed. Resuming game.")
+        get_tree().paused = false
+
 func _cleanup_menu() -> void:
-    $UpgradePanel.visible = false
     if is_instance_valid(_active_menu):
         _active_menu.queue_free()
         _active_menu = null
 
+## ЭТОТ МЕТОД ВЫЗЫВАЕТСЯ СИГНАЛОМ ОТ ИГРОКА
 func _on_player_level_up(_new_level: int) -> void:
-    open_upgrade_menu(all_available_upgrades)
+    if _active_menu == null:
+        # Если меню не открыто — открываем
+        open_upgrade_menu(all_available_upgrades)
+    else:
+        # Если меню уже висит на экране — добавляем уровень в очередь
+        _pending_upgrades += 1
+        print("[UPGRADE] Level up during pause! Added to queue. Pending: ", _pending_upgrades)

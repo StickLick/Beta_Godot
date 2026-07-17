@@ -1,6 +1,8 @@
 extends Area2D
 class_name Camp
 
+signal specialty_requested(camp_ref: Camp)
+
 enum Alignment { NEUTRAL, PLAYER, RIVAL }
 enum Specialty { NONE, INDUSTRY, MILITARY }
 
@@ -70,7 +72,6 @@ func _handle_capture(delta: float) -> void:
         capture_progress = max(0, capture_progress - 5.0 * delta)
 
 func _handle_tiers(delta: float) -> void:
-    # Турель (Military стреляет в 2 раза быстрее)
     var fire_rate = 1.5
     if specialty == Specialty.MILITARY: fire_rate = 0.75
     
@@ -78,16 +79,14 @@ func _handle_tiers(delta: float) -> void:
     if _timers.fire >= fire_rate:
         _timers.fire = 0; _fire_at_enemy()
     
-    # Производство ресурсов (Industry работает быстрее)
     if alignment == 1: # PLAYER
         var prod_interval = 6.0
-        if specialty == Specialty.INDUSTRY: prod_interval = 2.4 # -60%
+        if specialty == Specialty.INDUSTRY: prod_interval = 2.4
         
         _timers.prod += delta
         if _timers.prod >= prod_interval:
             _timers.prod = 0; _spawn_gem()
             
-    # Спавн юнитов (Industry НЕ спавнит юнитов)
     if current_level >= 2 and specialty != Specialty.INDUSTRY:
         _timers.spawn += delta
         if _timers.spawn >= 8.0:
@@ -134,23 +133,36 @@ func _flip_to(new_align: int) -> void:
     _apply_level_scale()
 
 func upgrade(amount: float) -> void:
+    # Если достигли порога 3 уровня и нет специализации - просим выбрать
+    if current_level == 3 and specialty == Specialty.NONE:
+        if alignment == Alignment.PLAYER:
+            specialty_requested.emit(self)
+            return
+        else:
+            apply_specialty(Specialty.MILITARY if randf() > 0.5 else Specialty.INDUSTRY)
+            return
+
     _upgrade_progress += amount
-    if _upgrade_progress >= 100.0 * current_level and current_level < 5:
+    var threshold = 100.0 * current_level
+    
+    if _upgrade_progress >= threshold and current_level < 5:
         _upgrade_progress = 0
         current_level += 1
-        if current_level == 3: _auto_choose_specialty()
         _apply_level_scale()
         _update_visuals()
         _refresh_player_buffs()
 
-func _auto_choose_specialty() -> void:
-    if alignment == Alignment.PLAYER:
-        var p = get_tree().get_first_node_in_group("player")
-        specialty = Specialty.MILITARY if p.mass > 150 else Specialty.INDUSTRY
-    else:
-        specialty = Specialty.MILITARY if randf() > 0.5 else Specialty.INDUSTRY
+func apply_specialty(type: Specialty) -> void:
+    specialty = type
+    if specialty == Specialty.MILITARY:
+        unit_cap = 15
+    elif specialty == Specialty.INDUSTRY:
+        for u in active_units: if is_instance_valid(u): u.queue_free()
+        active_units.clear()
     
-    if specialty == Specialty.MILITARY: unit_cap = 15
+    _update_visuals()
+    _upgrade_progress = 0
+    print("[CAMP] Specialty applied: ", Specialty.keys()[specialty])
 
 func _apply_level_scale() -> void:
     var s = 1.0 + (current_level - 1) * 0.2
@@ -162,8 +174,8 @@ func _update_visuals() -> void:
     var c = Color.GRAY
     if alignment == 1: 
         c = Color(0.1, 0.4, 0.8, 0.5)
-        if specialty == Specialty.INDUSTRY: c = Color(1.0, 0.84, 0.0, 0.6) # Gold
-        elif specialty == Specialty.MILITARY: c = Color(0.44, 0.5, 0.56, 0.7) # Steel
+        if specialty == Specialty.INDUSTRY: c = Color(1.0, 0.84, 0.0, 0.7)
+        elif specialty == Specialty.MILITARY: c = Color(0.4, 0.4, 0.45, 0.8)
     elif alignment == 2: 
         c = Color(0.8, 0.1, 0.1, 0.5)
     if is_instance_valid(visual_shape): visual_shape.color = c
