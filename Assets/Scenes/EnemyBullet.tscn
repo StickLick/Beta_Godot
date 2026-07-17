@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dj0gyweqyvqel"]
+
+[ext_resource type="Script" uid="uid://c21kxvnb3q2jj" path="res://scripts/Enemy_bullet.gd" id="1_fpcj7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
+radius = 5.0
+
+[node name="EnemyBullet" type="Area2D" unique_id=1446694245]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("1_fpcj7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=490970922]
+shape = SubResource("CircleShape2D_gd7ey")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=379929152]
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+color = Color(0.6566798, 0.00037638246, 0.6700941, 1)

@@ -1,7 +1,7 @@
 extends Node2D
 
 @export var enemy_scene: PackedScene = null
-@export var spawn_radius: float = 600.0
+@export var spawn_radius: float = 750.0
 @export var difficulty_controller: DifficultyController = null
 
 var _spawn_timer: Timer
@@ -13,7 +13,7 @@ func _ready() -> void:
 
 func _setup_timer() -> void:
     _spawn_timer = Timer.new()
-    _spawn_timer.wait_time = 2.0
+    _spawn_timer.wait_time = 3.0
     _spawn_timer.autostart = true
     _spawn_timer.one_shot = true
     _spawn_timer.timeout.connect(_on_spawn_timeout)
@@ -22,26 +22,47 @@ func _setup_timer() -> void:
 func _on_spawn_timeout() -> void:
     if not is_instance_valid(difficulty_controller): return
     var threat = difficulty_controller.get_final_threat_multiplier()
-    _spawn_timer.wait_time = difficulty_controller.get_spawn_interval(2.0, 0.5)
-    var spawn_count = difficulty_controller.get_spawn_count(1)
+    _spawn_timer.wait_time = difficulty_controller.get_spawn_interval(3.5, 0.8)
+    var spawn_count = int(ceil(difficulty_controller.get_spawn_count(1) * 0.6))
     for i in range(spawn_count):
-        _spawn_enemy(threat)
+        _spawn_logic(threat)
     _spawn_timer.start()
 
-func _spawn_enemy(threat: float) -> void:
+func _spawn_logic(threat: float) -> void:
+    var archetype = _get_random_archetype()
+    if archetype == Enemy.Archetype.SWARMER and randf() < 0.15:
+        for i in range(4):
+            _spawn_enemy(threat, archetype, Vector2(randf_range(-50, 50), randf_range(-50, 50)))
+    else:
+        _spawn_enemy(threat, archetype)
+
+func _spawn_enemy(threat: float, type: Enemy.Archetype, offset: Vector2 = Vector2.ZERO) -> void:
     var player = get_tree().get_first_node_in_group("player")
     if not player or not enemy_scene: return
-    var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     var angle = randf() * TAU
-    var spawn_pos = player.position + Vector2.from_angle(angle) * spawn_radius
-    # Ограничение спавна
+    var spawn_pos = player.position + Vector2.from_angle(angle) * spawn_radius + offset
+    var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
     spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
-    
-    var enemy = enemy_scene.instantiate()
+    var enemy = enemy_scene.instantiate() as Enemy
     enemy.position = spawn_pos
     add_child(enemy)
-    if "health_component" in enemy:
-        enemy.health_component.max_health *= threat
+    enemy.setup_archetype(type)
+    if is_instance_valid(enemy.health_component):
+        enemy.health_component.max_health *= (threat * 0.8)
         enemy.health_component.current_health = enemy.health_component.max_health
-    if "xp_value" in enemy: enemy.xp_value = int(10 * threat)
+
+func _get_random_archetype() -> Enemy.Archetype:
+    var time = GameManager.time_elapsed
+    var roll = randf() * 100.0
+    if time < 150.0:
+        if roll < 97: return Enemy.Archetype.SWARMER
+        return Enemy.Archetype.BREAKER
+    elif time < 360.0:
+        if roll < 60: return Enemy.Archetype.SWARMER
+        if roll < 85: return Enemy.Archetype.BREAKER
+        return Enemy.Archetype.DISRUPTOR
+    else:
+        if roll < 35: return Enemy.Archetype.SWARMER
+        if roll < 65: return Enemy.Archetype.BREAKER
+        return Enemy.Archetype.DISRUPTOR

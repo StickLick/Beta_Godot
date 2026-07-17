@@ -6,13 +6,21 @@
 [ext_resource type="Texture2D" uid="uid://qr3qpkd7w5xc" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Black Buildings/Archery.png" id="3_sdjqj"]
 [ext_resource type="Texture2D" uid="uid://cf034lmytpa76" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png" id="5_wyg3y"]
 [ext_resource type="Texture2D" uid="uid://bjss8rl606m2u" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png" id="6_hvwlx"]
+[ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="7_wyg3y"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="8_hvwlx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 150.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_4ouxv"]
+radius = 100.0
+
 [node name="Camp" type="Area2D" unique_id=995130696]
 collision_mask = 2
 script = ExtResource("1_uy357")
+alignment = null
+specialty = null
+current_level = null
 level_textures = Array[Texture2D]([ExtResource("2_xrp82"), ExtResource("3_sdjqj"), ExtResource("2_54i4p"), ExtResource("5_wyg3y"), ExtResource("6_hvwlx")])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=884473819]
@@ -24,3 +32,18 @@ polygon = PackedVector2Array(-1, -149, -105, -107, -149, -2, -110, 101, -1, 149,
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=540310009]
 position = Vector2(0, -88)
+
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=833300435 node_paths=PackedStringArray("health_component")]
+collision_layer = 2
+collision_mask = 16
+script = ExtResource("7_wyg3y")
+health_component = NodePath("../HealthComponent")
+faction = "enemy"
+metadata/_custom_type_script = "uid://beg66r2q1vu01"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1251613569]
+shape = SubResource("CircleShape2D_4ouxv")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1782742092]
+script = ExtResource("8_hvwlx")
+metadata/_custom_type_script = "uid://c4k8m2n7p1qrx"
