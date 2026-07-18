@@ -5,16 +5,15 @@ extends CanvasLayer
 @onready var xp_bar: ProgressBar = %XPBar
 @onready var level_label: Label = %LevelLabel
 
-@onready var results_panel: Control = get_node_or_null("%ResultsPanel")
-@onready var stats_label: Label = get_node_or_null("%StatsLabel")
-@onready var restart_button: Button = get_node_or_null("%RestartButton")
+@onready var results_panel: Control = %ResultsPanel
+@onready var stats_label: Label = %StatsLabel
+@onready var restart_button: Button = %RestartButton 
 
-@onready var specialty_panel: Control = get_node_or_null("%SpecialtyPanel")
-@onready var industry_button: Button = get_node_or_null("%IndustryButton")
-@onready var military_button: Button = get_node_or_null("%MilitaryButton")
+@onready var specialty_panel: Control = %SpecialtyPanel
+@onready var industry_button: Button = %IndustryButton
+@onready var military_button: Button = %MilitaryButton
 
-# Элементы аномалий
-@onready var anomaly_label: Label = get_node_or_null("%AnomalyLabel")
+@onready var anomaly_label: Label = %AnomalyLabel
 @onready var anomaly_overlay: ColorRect = get_node_or_null("AnomalyOverlay")
 
 var _player_health_component: HealthComponent = null
@@ -24,7 +23,9 @@ func _ready() -> void:
     add_to_group("hud")
     if is_instance_valid(results_panel): results_panel.hide()
     if is_instance_valid(specialty_panel): specialty_panel.hide()
-    if is_instance_valid(anomaly_label): anomaly_label.hide()
+    if is_instance_valid(anomaly_label): 
+        anomaly_label.hide()
+        anomaly_label.modulate.a = 0
         
     if is_instance_valid(industry_button):
         if not industry_button.pressed.is_connected(_on_specialty_selected):
@@ -36,35 +37,62 @@ func _ready() -> void:
         if not restart_button.pressed.is_connected(_on_restart_pressed):
             restart_button.pressed.connect(_on_restart_pressed)
 
-    # ПОДКЛЮЧЕНИЕ АНОМАЛИЙ
     GameManager.anomaly_started.connect(_on_anomaly_started)
+    GameManager.anomaly_warning.connect(_on_anomaly_warning)
     GameManager.anomaly_ended.connect(_on_anomaly_ended)
 
     var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
     if player != null: _setup_player_connections(player)
-        
-    get_tree().node_added.connect(_on_node_added)
+    get_tree().node_added.connect(func(n): if n is Camp: _connect_camp(n))
     for camp in get_tree().get_nodes_in_group("camps"): _connect_camp(camp)
 
-func _on_anomaly_started(type: String, _duration: float) -> void:
+func _on_anomaly_started(type_name: String, _duration: float) -> void:
     if is_instance_valid(anomaly_label):
-        anomaly_label.text = "!!! GLOBAL ANOMALY: " + type + " !!!"
+        anomaly_label.text = type_name
         anomaly_label.show()
+        anomaly_label.modulate = Color.WHITE
+        var lt = create_tween()
+        lt.tween_property(anomaly_label, "modulate:a", 1.0, 0.5)
+        lt.tween_property(anomaly_label, "modulate:a", 0.0, 1.0).set_delay(3.0)
     
     if is_instance_valid(anomaly_overlay):
-        var color = Color(1, 1, 1, 0.2)
-        match type:
-            "OVERDRIVE": color = Color(1.0, 0.8, 0.0, 0.2) # Золотой
-            "SCARCITY": color = Color(0.5, 0.0, 1.0, 0.2)  # Фиолетовый
-            "PRESSURE_WAVE": color = Color(1.0, 0.0, 0.0, 0.2) # Красный
-        
-        var t = create_tween()
-        t.tween_property(anomaly_overlay, "color", color, 1.0)
+        var color = Color(1, 1, 1, 0.1)
+        if "ОХОТА" in type_name: color = Color(0.8, 0, 0, 0.15)
+        elif "ЗАХВАТ" in type_name: color = Color(1, 0.5, 0, 0.15)
+        elif "КОЛЛАПС" in type_name: color = Color(0, 0.4, 0.8, 0.08)
+        elif "ГРАВИТАЦИЯ" in type_name: color = Color(0.5, 0.5, 0.5, 0.1)
+        elif "ДЕФИЦИТ" in type_name: color = Color(0.6, 0, 1, 0.15)
+        elif "ИЗОБИЛИЕ" in type_name: color = Color(1, 0.8, 0, 0.1)
+        elif "ПИР" in type_name: color = Color(0, 0, 0, 0.92)
+        create_tween().tween_property(anomaly_overlay, "color", color, 1.0)
+
+func _on_anomaly_warning(_time_left: float) -> void:
+    if is_instance_valid(anomaly_label):
+        anomaly_label.text = "ЗАВЕРШЕНИЕ СОБЫТИЯ..."
+        anomaly_label.show()
+        # ИСПРАВЛЕНО: set_loops вызывается у Tween
+        var lt = create_tween().set_loops(4)
+        lt.tween_property(anomaly_label, "modulate:a", 0.3, 0.3)
+        lt.tween_property(anomaly_label, "modulate:a", 1.0, 0.3)
+    
+    if is_instance_valid(anomaly_overlay):
+        var ot = create_tween().set_loops(5)
+        ot.tween_property(anomaly_overlay, "color:a", 0.05, 0.5)
+        ot.tween_property(anomaly_overlay, "color:a", 0.15, 0.5)
 
 func _on_anomaly_ended() -> void:
-    if is_instance_valid(anomaly_label): anomaly_label.hide()
+    if is_instance_valid(anomaly_label):
+        anomaly_label.text = "СИСТЕМА СТАБИЛИЗИРОВАНА"
+        anomaly_label.modulate = Color.GREEN
+        var lt = create_tween()
+        lt.tween_property(anomaly_label, "modulate:a", 1.0, 0.2)
+        lt.tween_property(anomaly_label, "modulate:a", 0.0, 0.8).set_delay(1.5)
+        
     if is_instance_valid(anomaly_overlay):
         create_tween().tween_property(anomaly_overlay, "color", Color(0,0,0,0), 1.0)
+
+func _on_restart_pressed() -> void:
+    get_tree().paused = false; GameManager.reset_game(); get_tree().reload_current_scene()
 
 func _on_specialty_selected(type_index: int) -> void:
     if is_instance_valid(_pending_camp): _pending_camp.apply_specialty(type_index as Camp.Specialty)
@@ -79,12 +107,8 @@ func _connect_camp(camp: Camp) -> void:
     if not camp.specialty_requested.is_connected(_on_camp_specialty_requested):
         camp.specialty_requested.connect(_on_camp_specialty_requested)
 
-func _on_node_added(node: Node) -> void:
-    if node is Camp: _connect_camp(node)
-
 func _process(_delta: float) -> void:
-    if "time_elapsed" in GameManager:
-        timer_label.text = _format_time(GameManager.time_elapsed)
+    if "time_elapsed" in GameManager: timer_label.text = _format_time(GameManager.time_elapsed)
 
 func _on_player_health_changed(current: float, max_val: float) -> void:
     health_bar.max_value = max_val
@@ -125,12 +149,11 @@ func show_results() -> void:
         results_panel.show(); results_panel.move_to_front()
         var player = get_tree().get_first_node_in_group("player")
         var final_lvl = player.current_level if player else 0
-        var stats_text = "--- MISSION COMPLETE ---\n\nFinal Level: %d\nZones: %d\nBases: %d\nXP: %d\nTime: %s" % [
-            final_lvl, GameManager.zones_captured, GameManager.rival_camps_destroyed, 
-            GameManager.total_xp_collected, _format_time(GameManager.time_elapsed)
-        ]
+        var stats_text = "--- МИССИЯ ВЫПОЛНЕНА ---\n\n"
+        stats_text += "Уровень: %d\n" % final_lvl
+        stats_text += "Захвачено зон: %d\n" % GameManager.zones_captured
+        stats_text += "Уничтожено баз: %d\n" % GameManager.rival_camps_destroyed
+        stats_text += "Всего опыта: %d\n" % GameManager.total_xp_collected
+        stats_text += "Время: %s" % _format_time(GameManager.time_elapsed)
         stats_label.text = stats_text
         if is_instance_valid(restart_button): restart_button.show()
-
-func _on_restart_pressed() -> void:
-    get_tree().paused = false; GameManager.reset_game(); get_tree().reload_current_scene()

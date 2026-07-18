@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://gkusj2hwwtqt"]
+
+[ext_resource type="Script" uid="uid://bq1ba11fvly18" path="res://scripts/Safe_zone.gd" id="1_n20gb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
+radius = 757.24
+
+[node name="SafeZone" type="Area2D" unique_id=615062430 groups=["safe_zone"]]
+script = ExtResource("1_n20gb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=927401951]
+shape = SubResource("CircleShape2D_gd7ey")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=932965238]
+modulate = Color(1, 1, 1, 0.43529412)

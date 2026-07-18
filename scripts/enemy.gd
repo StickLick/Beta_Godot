@@ -1,15 +1,11 @@
 extends CharacterBody2D
 class_name Enemy
 
-const XP_GEM_SCENE: PackedScene = preload("res://Assets/Scenes/Xp_gem.tscn")
-const ENEMY_BULLET_SCENE: PackedScene = preload("res://Assets/Scenes/EnemyBullet.tscn")
+const XP_GEM_SCENE = preload("res://Assets/Scenes/Xp_gem.tscn")
+const ENEMY_BULLET_SCENE = preload("res://Assets/Scenes/EnemyBullet.tscn")
 
 enum Archetype { SWARMER, BREAKER, DISRUPTOR }
-
-@export_group("Archetype Settings")
 @export var current_archetype: Archetype = Archetype.SWARMER
-
-@export_group("Stats")
 @export var speed: float = 120.0
 @export var xp_value: int = 10
 @export var health_component: HealthComponent
@@ -29,7 +25,9 @@ func _ready() -> void:
     if health_component == null: health_component = $HealthComponent
     if health_component: health_component.health_depleted.connect(_on_death)
     if hurtbox:
-        hurtbox.hit_received.connect(_on_hit_received)
+        hurtbox.hit_received.connect(func(_d): 
+            var t = create_tween(); modulate = Color.RED
+            t.tween_property(self, "modulate", Color.WHITE, 0.1))
         hurtbox.faction = "enemy"
     if hitbox: 
         hitbox.faction = "enemy"
@@ -43,17 +41,9 @@ func _ready() -> void:
 func setup_archetype(type: Archetype) -> void:
     current_archetype = type
     match current_archetype:
-        Archetype.SWARMER:
-            speed = 160.0; xp_value = 5; scale = Vector2.ONE * 0.8
-            if health_component: health_component.max_health = 15.0
-        Archetype.BREAKER:
-            speed = 65.0; xp_value = 50; scale = Vector2.ONE * 2.2
-            modulate = Color.DARK_RED
-            if health_component: health_component.max_health = 250.0
-        Archetype.DISRUPTOR:
-            speed = 130.0; xp_value = 35; scale = Vector2.ONE * 1.1
-            modulate = Color.MEDIUM_PURPLE
-            if health_component: health_component.max_health = 45.0
+        Archetype.SWARMER: speed = 160.0; xp_value = 5; scale = Vector2(0.8, 0.8)
+        Archetype.BREAKER: speed = 65.0; xp_value = 50; scale = Vector2(2.2, 2.2); modulate = Color.DARK_RED
+        Archetype.DISRUPTOR: speed = 130.0; xp_value = 35; scale = Vector2(1.1, 1.1); modulate = Color.MEDIUM_PURPLE
     if health_component: health_component.current_health = health_component.max_health
 
 func _on_animation_finished() -> void:
@@ -67,45 +57,52 @@ func _physics_process(delta: float) -> void:
     
     var dist = global_position.distance_to(target_node.global_position)
     var dir = (target_node.global_position - global_position).normalized()
+    
+    # ЭФФЕКТ ЛЬДА ДЛЯ ВРАГОВ
+    var accel = 10.0
+    if GameManager.get_meta("gravity_active"): 
+        accel = 0.8 # Враги будут очень сильно "пролетать" мимо
+    
     var move_dir = dir
-    var should_attack = false
+    if current_archetype == Archetype.DISRUPTOR:
+        if dist < 280: move_dir = -dir; speed = 180.0
+        elif dist > 400: move_dir = dir; speed = 130.0
+        else: move_dir = Vector2.ZERO
     
-    var reach = 130.0 if target_node is Camp else 55.0
-
-    match current_archetype:
-        Archetype.DISRUPTOR:
-            if dist < 280: move_dir = -dir; speed = 180.0
-            elif dist > 400: move_dir = dir; speed = 130.0
-            else: move_dir = Vector2.ZERO
-            if dist < 450 and attack_cooldown_timer <= 0: should_attack = true
-        Archetype.BREAKER, Archetype.SWARMER:
-            if dist < reach and attack_cooldown_timer <= 0: should_attack = true
+    var final_speed = speed * GameManager.get_meta("enemy_stat_mult")
+    if dist < 25.0 and not GameManager.get_meta("gravity_active"):
+        velocity = velocity.lerp(Vector2.ZERO, delta * 15.0)
+    else:
+        velocity = velocity.lerp(move_dir * final_speed, delta * accel)
     
-    var target_vel = move_dir * speed
-    if is_attacking: target_vel *= 0.3
-    velocity = velocity.lerp(target_vel, delta * 8.0)
-    if should_attack and not is_attacking: _execute_attack()
-    if not is_attacking and dist > 10:
+    var attack_range = 450.0 if current_archetype == Archetype.DISRUPTOR else 65.0
+    if dist < attack_range and attack_cooldown_timer <= 0 and not is_attacking:
+        _execute_attack()
+    
+    if not is_attacking and dist > 20.0:
         if abs(dir.x) > 0.1: animated_sprite.flip_h = (dir.x < 0)
         animated_sprite.play("Run" if velocity.length() > 20 else "Idle")
     move_and_slide()
 
 func _update_target() -> void:
-    # ТОЛЬКО БРЕКЕР ИЩЕТ ЛАГЕРЯ
+    if GameManager.current_anomaly == "HUNT":
+        target_node = get_tree().get_first_node_in_group("player"); return
+        
+    if GameManager.current_anomaly == "SEIZE":
+        var seize_targets = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.has_meta("is_seize_target") and c.get_meta("is_seize_target") == true)
+        if not seize_targets.is_empty():
+            var closest = seize_targets[0]; var min_d = global_position.distance_to(closest.global_position)
+            for c in seize_targets:
+                var d = global_position.distance_to(c.global_position); if d < min_d: min_d = d; closest = c
+            target_node = closest; return
+
     if current_archetype == Archetype.BREAKER:
-        var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return c.alignment == 1)
+        var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
         if not player_camps.is_empty():
-            var closest = player_camps[0]
-            var min_d = global_position.distance_to(closest.global_position)
+            var closest = player_camps[0]; var min_d = global_position.distance_to(closest.global_position)
             for camp in player_camps:
-                var d = global_position.distance_to(camp.global_position)
-                if d < min_d:
-                    min_d = d
-                    closest = camp
-            target_node = closest
-            return
-            
-    # ОСТАЛЬНЫЕ ВСЕГДА АТАКУЮТ ИГРОКА
+                var d = global_position.distance_to(camp.global_position); if d < min_d: min_d = d; closest = camp
+            target_node = closest; return
     target_node = get_tree().get_first_node_in_group("player")
 
 func _execute_attack() -> void:
@@ -130,8 +127,7 @@ func _play_sequential_melee() -> void:
 func _toggle_hitbox() -> void:
     if is_instance_valid(hitbox):
         var original_dmg = hitbox.damage
-        if current_archetype == Archetype.BREAKER and target_node is Camp:
-            hitbox.damage *= 12.0
+        if current_archetype == Archetype.BREAKER and target_node is Camp: hitbox.damage *= 12.0
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape:
             shape.disabled = false
@@ -140,16 +136,11 @@ func _toggle_hitbox() -> void:
                 hitbox.damage = original_dmg
             )
 
-func _on_hit_received(_damage: float) -> void:
-    var t = create_tween(); modulate = Color.RED
-    t.tween_property(self, "modulate", Color.WHITE, 0.1)
-
 func _on_death() -> void:
     var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     var pos = global_position
     pos.x = clamp(pos.x, rect.position.x + 50, rect.end.x - 50)
     pos.y = clamp(pos.y, rect.position.y + 50, rect.end.y - 50)
-    gem.global_position = pos; gem.xp_amount = xp_value
-    get_tree().current_scene.call_deferred("add_child", gem)
-    call_deferred("queue_free")
+    gem.global_position = pos; gem.xp_amount = int(xp_value * GameManager.get_meta("xp_mult"))
+    get_tree().current_scene.call_deferred("add_child", gem); queue_free()
