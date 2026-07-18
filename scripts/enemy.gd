@@ -91,10 +91,21 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
 
 func _update_target() -> void:
+    # ТОЛЬКО БРЕКЕР ИЩЕТ ЛАГЕРЯ
     if current_archetype == Archetype.BREAKER:
-        var camps = get_tree().get_nodes_in_group("camps").filter(func(c): return c.alignment == 1)
-        if not camps.is_empty():
-            target_node = camps[0]; return
+        var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return c.alignment == 1)
+        if not player_camps.is_empty():
+            var closest = player_camps[0]
+            var min_d = global_position.distance_to(closest.global_position)
+            for camp in player_camps:
+                var d = global_position.distance_to(camp.global_position)
+                if d < min_d:
+                    min_d = d
+                    closest = camp
+            target_node = closest
+            return
+            
+    # ОСТАЛЬНЫЕ ВСЕГДА АТАКУЮТ ИГРОКА
     target_node = get_tree().get_first_node_in_group("player")
 
 func _execute_attack() -> void:
@@ -120,7 +131,7 @@ func _toggle_hitbox() -> void:
     if is_instance_valid(hitbox):
         var original_dmg = hitbox.damage
         if current_archetype == Archetype.BREAKER and target_node is Camp:
-            hitbox.damage *= 12.0 # Усиленный урон по новым HP лагеря
+            hitbox.damage *= 12.0
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape:
             shape.disabled = false

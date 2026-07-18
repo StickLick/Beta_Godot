@@ -22,9 +22,9 @@ func _ready() -> void:
     add_to_group("units")
     
     # Подключаем сигнал окончания анимации
-    animated_sprite.animation_finished.connect(_on_animation_finished)
-    
-    animated_sprite.play("Run")
+    if animated_sprite:
+        animated_sprite.animation_finished.connect(_on_animation_finished)
+        animated_sprite.play("Run")
     
     if is_instance_valid(health_component):
         health_component.max_health = max_hp
@@ -37,7 +37,6 @@ func _ready() -> void:
 
 # --- СИГНАЛ ОКОНЧАНИЯ АНИМАЦИИ ---
 func _on_animation_finished() -> void:
-    # Если закончилась одна из атак, сбрасываем флаг
     if animated_sprite.animation in ["Attack1", "Attack2"]:
         is_attacking = false
 
@@ -50,6 +49,11 @@ func _physics_process(delta: float) -> void:
     _find_target()
     
     if is_instance_valid(target):
+        # ПРОВЕРКА ПРИОРИТЕТА: если текущая цель не Брекер, проверяем нет ли их рядом
+        if not (target is Enemy and target.current_archetype == Enemy.Archetype.BREAKER):
+            var breaker = _get_nearby_priority_target()
+            if breaker: target = breaker
+
         var dir = (target.global_position - global_position).normalized()
         var dist = global_position.distance_to(target.global_position)
         
@@ -57,11 +61,10 @@ func _physics_process(delta: float) -> void:
         if dist < 60.0:
             velocity = Vector2.ZERO # Останавливаемся
             
-            # Запускаем атаку, ТОЛЬКО если сейчас не атакуем
             if not is_attacking:
                 _play_sequential_attack()
             
-            # ПУЛЬСАЦИЯ УРОНА
+            # ПУЛЬСАЦИЯ УРОНА (чтобы урон наносился постоянно)
             _attack_pulse_timer += delta
             if _attack_pulse_timer >= 0.8:
                 _attack_pulse_timer = 0.0
@@ -70,7 +73,6 @@ func _physics_process(delta: float) -> void:
             # ЛОГИКА ДВИЖЕНИЯ
             velocity = dir * speed
             
-            # Бежим, только если не заняты атакой
             if not is_attacking:
                 if animated_sprite.animation != "Run":
                     animated_sprite.play("Run")
@@ -83,16 +85,12 @@ func _physics_process(delta: float) -> void:
         if not is_attacking and animated_sprite.animation != "Idle":
             animated_sprite.play("Idle")
 
-# Новая функция последовательной атаки
+# Функция последовательной атаки
 func _play_sequential_attack() -> void:
     is_attacking = true
     var attacks = ["Attack1", "Attack2"]
-    
-    # Выбираем анимацию по индексу
     var anim_name = attacks[attack_index]
     animated_sprite.play(anim_name)
-    
-    # Переключаем индекс: 0 -> 1 -> 0
     attack_index = (attack_index + 1) % 2
 
 func _toggle_hitbox() -> void:
@@ -100,27 +98,51 @@ func _toggle_hitbox() -> void:
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape:
             shape.disabled = true
-            await get_tree().create_timer(0.1).timeout
-            shape.disabled = false
+            get_tree().create_timer(0.1).timeout.connect(func():
+                if is_instance_valid(shape): shape.disabled = false
+            )
 
 func _find_target() -> void:
     if is_instance_valid(target): return
-    var potential = []
     
-    if alignment == 1:
-        for e in get_tree().get_nodes_in_group("enemy"): potential.append(e)
-        for u in get_tree().get_nodes_in_group("units"): if u.alignment == 2: potential.append(u)
-        for c in get_tree().get_nodes_in_group("camps"): if c.alignment == 2: potential.append(c)
-    else:
+    var potential = []
+    if alignment == 1: # Синие юниты ищут врагов
+        potential.append_array(get_tree().get_nodes_in_group("enemy"))
+        for u in get_tree().get_nodes_in_group("units"): 
+            if u.alignment == 2: potential.append(u)
+        for c in get_tree().get_nodes_in_group("camps"): 
+            if c.alignment == 2: potential.append(c)
+    else: # Красные юниты ищут игрока и его союзников
         potential.append(get_tree().get_first_node_in_group("player"))
-        for u in get_tree().get_nodes_in_group("units"): if u.alignment == 1: potential.append(u)
-        for c in get_tree().get_nodes_in_group("camps"): if c.alignment == 1: potential.append(c)
+        for u in get_tree().get_nodes_in_group("units"): 
+            if u.alignment == 1: potential.append(u)
+        for c in get_tree().get_nodes_in_group("camps"): 
+            if c.alignment == 1: potential.append(c)
+
+    # ПРИОРИТЕТ: Фильтруем список, оставляя только Брекеров
+    var breakers = potential.filter(func(t): 
+        return is_instance_valid(t) and t is Enemy and t.current_archetype == Enemy.Archetype.BREAKER
+    )
+    
+    # Если Брекеры есть - выбираем из них, если нет - из общего списка
+    var final_list = breakers if not breakers.is_empty() else potential
 
     var min_d = INF
-    for t in potential:
+    for t in final_list:
         if is_instance_valid(t):
             var d = global_position.distance_to(t.global_position)
-            if d < min_d: min_d = d; target = t
+            if d < min_d:
+                min_d = d
+                target = t
+
+# Вспомогательная функция для поиска Брекера в радиусе 400 пикселей
+func _get_nearby_priority_target() -> Node2D:
+    var enemies = get_tree().get_nodes_in_group("enemy")
+    for e in enemies:
+        if is_instance_valid(e) and e is Enemy and e.current_archetype == Enemy.Archetype.BREAKER:
+            if global_position.distance_to(e.global_position) < 400.0:
+                return e
+    return null
 
 func flip_alignment(new_align: int) -> void:
     alignment = new_align

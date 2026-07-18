@@ -25,6 +25,7 @@ var debug_label: Label
 
 func _ready() -> void:
     add_to_group("enemy")
+    add_to_group("rival_boss") # КРИТИЧНО: Добавили группу для индикатора
     modulate = boss_color
     scale = Vector2(4.5, 4.5)
     current_speed = base_speed

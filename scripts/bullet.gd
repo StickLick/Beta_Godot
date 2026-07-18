@@ -1,10 +1,11 @@
 extends Area2D
 
-var speed = 750.0
-var damage = 10.0
-var faction = "player"
+@export var speed: float = 750.0
+@export var damage: float = 10.0 # Теперь это значение перезаписывается лагерем
+var faction: String = "player"
 
 func _ready() -> void:
+    # Визуал
     var rect = ColorRect.new()
     rect.size = Vector2(6, 6)
     rect.position = Vector2(-3, -3)

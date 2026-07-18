@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bw8cirdg6bvpw"]
 
 [ext_resource type="Script" uid="uid://1mtv3l6x52u4" path="res://scripts/hud.gd" id="1_s617k"]
+[ext_resource type="Script" uid="uid://cwnspr7lr1gie" path="res://scripts/indicator_manager.gd" id="2_u84ry"]
 
 [node name="Hud" type="CanvasLayer" unique_id=1152050891]
 script = ExtResource("1_s617k")
@@ -21,7 +22,7 @@ offset_bottom = 27.0
 
 [node name="XPBar" type="ProgressBar" parent="." unique_id=1977171817]
 unique_name_in_owner = true
-modulate = Color(0.2, 0.5, 1, 1)
+modulate = Color(1, 1, 0.120000005, 1)
 offset_top = 32.0
 offset_right = 329.0
 offset_bottom = 59.0
@@ -125,5 +126,14 @@ unique_name_in_owner = true
 process_mode = 3
 layout_mode = 2
 text = "Индустриальный лагерь"
+
+[node name="IndicatorManager" type="Control" parent="." unique_id=1326807562]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_u84ry")
 
 [connection signal="pressed" from="ResultsPanel/StatsLabel/RestartButton" to="." method="_on_restart_pressed"]
