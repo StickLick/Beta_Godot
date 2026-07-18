@@ -16,7 +16,7 @@ var map_rect: Rect2 = Rect2(-2000, -2000, 4000, 4000)
 
 # Логика аномалий
 var _anomaly_timer: float = 0.0
-const ANOMALY_INTERVAL: float = 180.0 # Каждые 3 минуты
+const ANOMALY_INTERVAL: float = 10.0 # Каждые 3 минуты
 const ANOMALY_DURATION: float = 30.0
 var current_anomaly: String = ""
 

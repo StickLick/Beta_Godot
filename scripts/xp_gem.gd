@@ -1,21 +1,21 @@
 extends Area2D
 class_name XPGem
 
-# Увеличили массу за один кристалл для наглядности
 @export var mass_amount: float = 2.0
 @export var xp_amount: int = 10 
 
 var target_player: CharacterBody2D = null
-var is_available: bool = false
-
-@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-
+var is_available: bool = false 
 
 func _ready() -> void:
     add_to_group("resources")
     _play_spawn_animation()
-    # Запустить анимацию с названием "Gold"
-    animated_sprite.play("Gold")
+    
+    # ЛОГИКА SCARCITY
+    if GameManager.has_meta("scarcity_active") and GameManager.get_meta("scarcity_active"):
+        modulate = Color.MEDIUM_PURPLE
+        # Кристалл исчезнет сам через 5 секунд
+        get_tree().create_timer(5.0).timeout.connect(queue_free)
 
 func _play_spawn_animation() -> void:
     is_available = false
