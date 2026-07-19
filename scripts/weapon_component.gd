@@ -1,18 +1,14 @@
 class_name WeaponComponent
 extends Node2D
 
-var player: Node2D
-
 const SWING_SCALE_UP_DURATION: float = 0.1
-
 @export var base_damage: float = 15.0
+
 @export var attack_cooldown: float = 1.0:
     set(value):
-        var old_val = attack_cooldown
         attack_cooldown = max(0.05, value)
         if is_instance_valid(cooldown_timer):
             cooldown_timer.wait_time = attack_cooldown
-        print("[UPGRADE] Weapon Cooldown: %.2f -> %.2f" % [old_val, attack_cooldown])
 
 @export var rotation_offset_degrees: float = 0.0
 
@@ -21,50 +17,16 @@ const SWING_SCALE_UP_DURATION: float = 0.1
 @onready var visual_pivot: Node2D = $VisualPivot
 @onready var hitbox: HitboxComponent = $VisualPivot/HitboxComponent
 
+var player: Player
+
 func _ready() -> void:
     await get_tree().process_frame
-    # Если поиск по группе дает сбой, попробуй заменить на: player = get_parent()
     player = get_tree().get_first_node_in_group("player")
-
-    cooldown_timer.wait_time = attack_cooldown
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
-
-    if is_instance_valid(hitbox):
-        hitbox.faction = "player"
-        var shape = hitbox.get_node_or_null("CollisionShape2D")
-        if shape: shape.disabled = true
-
-    visual_pivot.scale = Vector2.ZERO
-
-    if player and "radius_weapons" in player:
-        update_weapon_range(player.radius_weapons)
-
     cooldown_timer.start()
 
-func update_weapon_range(new_multiplier: float) -> void:
-    if is_instance_valid(detection_area):
-        detection_area.scale = Vector2.ONE * new_multiplier
-    if is_instance_valid(hitbox):
-        hitbox.scale = Vector2.ONE * new_multiplier
-
-func _get_closest_target() -> HurtboxComponent:
-    var closest_target: HurtboxComponent = null
-    var closest_distance_sq: float = INF
-
-    for area: Area2D in detection_area.get_overlapping_areas():
-        var hurtbox: HurtboxComponent = area as HurtboxComponent
-        if hurtbox == null or (hurtbox.faction != "enemy" and hurtbox.faction != "rival"):
-            continue
-
-        var distance_sq: float = global_position.distance_squared_to(hurtbox.global_position)
-        if distance_sq < closest_distance_sq:
-            closest_distance_sq = distance_sq
-            closest_target = hurtbox
-
-    return closest_target
-
 func _on_cooldown_timeout() -> void:
-    var target: HurtboxComponent = _get_closest_target()
+    var target = _get_closest_target()
     if target == null:
         cooldown_timer.start(0.1)
         return
@@ -72,26 +34,37 @@ func _on_cooldown_timeout() -> void:
     visual_pivot.look_at(target.global_position)
     visual_pivot.rotation += deg_to_rad(rotation_offset_degrees)
     
-    # ПЕРЕДАЕМ TARGET В ФУНКЦИЮ АТАКИ
-    _perform_swing(target)
-
-# ДОБАВИЛИ АРГУМЕНТ target
-func _perform_swing(target: HurtboxComponent) -> void:
-    # --- ВЫЗОВ АНИМАЦИИ ИГРОКА ---
-    if is_instance_valid(player) and player.has_method("play_attack_animation") and is_instance_valid(target):
+    if is_instance_valid(player) and player.has_method("play_attack_animation"):
         player.play_attack_animation(target.global_position)
-    # -----------------------------
+        
+    _perform_swing()
 
+func _get_closest_target() -> Area2D:
+    var closest_target: Area2D = null
+    var closest_distance_sq: float = INF
+    
+    for area in detection_area.get_overlapping_areas():
+        if area.has_method("_apply_damage"):
+            if area.get("faction") == "player": continue
+            var distance_sq = global_position.distance_squared_to(area.global_position)
+            if distance_sq < closest_distance_sq:
+                closest_distance_sq = distance_sq
+                closest_target = area
+    return closest_target
+
+func _perform_swing() -> void:
     var multiplier = player.get_final_damage_multiplier() if is_instance_valid(player) else 1.0
+    
     if is_instance_valid(hitbox):
         hitbox.damage = base_damage * multiplier
+        hitbox.faction = "player"
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape: shape.disabled = false
 
     var tween: Tween = create_tween().set_parallel(true)
     visual_pivot.scale = Vector2.ZERO
     tween.tween_property(visual_pivot, "scale", Vector2(1.8, 1.8), SWING_SCALE_UP_DURATION)
-    tween.chain().tween_property(visual_pivot, "scale", Vector2.ZERO, SWING_SCALE_UP_DURATION)
+    tween.chain().tween_property(visual_pivot, "scale", Vector2(0.0, 0.0), SWING_SCALE_UP_DURATION)
     tween.finished.connect(_on_swing_finished)
 
 func _on_swing_finished() -> void:

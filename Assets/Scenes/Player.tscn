@@ -325,6 +325,7 @@ collision_layer = 2
 collision_mask = 16
 script = ExtResource("3_hurtbox")
 health_component = NodePath("../HealthComponent")
+faction = "player"
 invulnerability_duration = 0.5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1006817211]
@@ -335,7 +336,7 @@ script = ExtResource("4_weapon")
 
 [node name="DetectionArea" type="Area2D" parent="WeaponComponent" unique_id=129713877]
 collision_layer = 0
-collision_mask = 4
+collision_mask = 12
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponComponent/DetectionArea" unique_id=42854914]
@@ -353,7 +354,7 @@ polygon = PackedVector2Array(0, -6, 50, 0, 0, 6)
 [node name="HitboxComponent" type="Area2D" parent="WeaponComponent/VisualPivot" unique_id=1138488457]
 position = Vector2(25, 0)
 collision_layer = 8
-collision_mask = 4
+collision_mask = 12
 monitoring = false
 script = ExtResource("5_hitbox")
 

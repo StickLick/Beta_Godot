@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bnpqo8qy7j3xt"]
+
+[ext_resource type="Script" uid="uid://ddufanybrxagy" path="res://scripts/Gravity_well.gd" id="1_kpmvu"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
+radius = 400.0
+
+[node name="GravityWell" type="Area2D" unique_id=1186793353 groups=["gravity_well"]]
+script = ExtResource("1_kpmvu")
+influence_radius = 1500.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=726201731]
+shape = SubResource("CircleShape2D_gd7ey")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=940626442]
+modulate = Color(0.37150592, 0.0124633135, 0.38450596, 1)

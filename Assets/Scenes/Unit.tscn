@@ -210,6 +210,7 @@ polygon = PackedVector2Array(19, -10, 19, 8, 33, -1)
 collision_layer = 16
 collision_mask = 2
 script = ExtResource("2_kykp8")
+faction = "enemy"
 metadata/_custom_type_script = "uid://c2578100uqvx"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1021160278]
@@ -220,8 +221,8 @@ script = ExtResource("3_b3m76")
 metadata/_custom_type_script = "uid://c4k8m2n7p1qrx"
 
 [node name="HurtboxComponent" type="Area2D" parent="." unique_id=661689333 node_paths=PackedStringArray("health_component")]
-collision_layer = 4
-collision_mask = 8
+collision_layer = 8
+collision_mask = 16
 script = ExtResource("4_kykp8")
 health_component = NodePath("../HealthComponent")
 metadata/_custom_type_script = "uid://beg66r2q1vu01"

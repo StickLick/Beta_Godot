@@ -6,16 +6,14 @@ class_name XPGem
 
 var target_player: CharacterBody2D = null
 var is_available: bool = false 
+var _is_decaying: bool = false
 
 func _ready() -> void:
     add_to_group("resources")
     _play_spawn_animation()
-    
-    # ЛОГИКА SCARCITY
     if GameManager.has_meta("scarcity_active") and GameManager.get_meta("scarcity_active"):
         modulate = Color.MEDIUM_PURPLE
-        # Кристалл исчезнет сам через 5 секунд
-        get_tree().create_timer(5.0).timeout.connect(queue_free)
+        start_decay(4.0)
 
 func _play_spawn_animation() -> void:
     is_available = false
@@ -29,7 +27,6 @@ func _physics_process(delta: float) -> void:
     if target_player == null:
         _check_proximity_to_player()
         return
-
     if is_instance_valid(target_player):
         var direction = (target_player.global_position - global_position).normalized()
         global_position += direction * 750.0 * delta
@@ -43,8 +40,20 @@ func _check_proximity_to_player() -> void:
     if is_instance_valid(player):
         var dist = global_position.distance_to(player.global_position)
         var magnet_range = 200.0 * player.xp_radius
-        if dist < magnet_range:
-            target_player = player
+        if dist < magnet_range: target_player = player
+
+func start_decay(delay: float) -> void:
+    if _is_decaying: return
+    _is_decaying = true
+    # ИСПРАВЛЕНО: Безопасное затухание
+    get_tree().create_timer(delay).timeout.connect(_on_decay_timer_timeout)
+
+func _on_decay_timer_timeout() -> void:
+    if is_instance_valid(self):
+        var tween = create_tween()
+        tween.tween_property(self, "modulate:a", 0.0, 1.0)
+        tween.tween_property(self, "scale", Vector2.ZERO, 1.0)
+        tween.finished.connect(queue_free)
 
 func _collect() -> void:
     if is_instance_valid(target_player):

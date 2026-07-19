@@ -34,11 +34,11 @@ polygon = PackedVector2Array(-1, -149, -105, -107, -149, -2, -110, 101, -1, 149,
 position = Vector2(0, -88)
 
 [node name="HurtboxComponent" type="Area2D" parent="." unique_id=833300435 node_paths=PackedStringArray("health_component")]
-collision_layer = 2
-collision_mask = 16
+collision_layer = 0
+collision_mask = 8
 script = ExtResource("7_wyg3y")
 health_component = NodePath("../HealthComponent")
-faction = "enemy"
+faction = "player"
 metadata/_custom_type_script = "uid://beg66r2q1vu01"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1251613569]

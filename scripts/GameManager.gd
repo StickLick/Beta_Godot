@@ -5,7 +5,7 @@ signal anomaly_warning(time_left: float)
 signal anomaly_ended()
 
 # --- ТЕСТОВАЯ НАСТРОЙКА ---
-const DEBUG_TEST_ANOMALY: String = "GRAVITY" 
+const DEBUG_TEST_ANOMALY: String = "" 
 
 var total_xp_collected: int = 0
 var rival_camps_destroyed: int = 0
@@ -29,6 +29,7 @@ const ANOMALY_NAMES = {
     "HUNT": "ПРИКАЗ: ОХОТА",
     "SEIZE": "ПРИКАЗ: ЗАХВАТ",
     "COLLAPSE": "АНОМАЛИЯ: КОЛЛАПС РЕАЛЬНОСТИ",
+    "INERTIA": "АНОМАЛИЯ: ИНЕРЦИЯ",
     "GRAVITY": "АНОМАЛИЯ: ГРАВИТАЦИЯ",
     "DEFICIT": "АНОМАЛИЯ: ДЕФИЦИТ",
     "ABUNDANCE": "АНОМАЛИЯ: ИЗОБИЛИЕ",
@@ -41,7 +42,7 @@ func _ready() -> void:
     set_meta("xp_mult", 1.0)
     set_meta("enemy_stat_mult", 0.8) 
     set_meta("scarcity_active", false)
-    set_meta("gravity_active", false)
+    set_meta("inertia_active", false)
     set_meta("shadow_feast_active", false)
     set_meta("map_rect", map_rect)
 
@@ -62,14 +63,15 @@ func _process_anomaly_logic(delta: float) -> void:
             current_chance += CHANCE_STEP 
 
 func trigger_anomaly() -> void:
-    var pool = ["HUNT", "SEIZE", "COLLAPSE", "GRAVITY", "DEFICIT", "ABUNDANCE", "FEAST", "HYPERDRIVE"]
+    var pool = ["HUNT", "SEIZE", "COLLAPSE", "INERTIA", "GRAVITY", "DEFICIT", "ABUNDANCE", "FEAST", "HYPERDRIVE"]
     current_anomaly = DEBUG_TEST_ANOMALY if DEBUG_TEST_ANOMALY != "" else pool.pick_random()
     
     match current_anomaly:
         "HUNT": set_meta("enemy_stat_mult", 1.1)
         "SEIZE": _mark_camps_for_seize()
         "COLLAPSE": _spawn_safe_zone()
-        "GRAVITY": set_meta("gravity_active", true)
+        "INERTIA": set_meta("inertia_active", true)
+        "GRAVITY": _spawn_gravity_wells_globally()
         "DEFICIT": set_meta("scarcity_active", true); set_meta("xp_mult", 2.0)
         "ABUNDANCE": set_meta("prod_mult", 0.5); set_meta("enemy_stat_mult", 1.1)
         "FEAST": set_meta("shadow_feast_active", true); set_meta("xp_mult", 2.0)
@@ -86,10 +88,17 @@ func trigger_anomaly() -> void:
 func _end_anomaly() -> void:
     if current_anomaly == "HYPERDRIVE": Engine.time_scale = 1.0
     for c in get_tree().get_nodes_in_group("camps"): c.set_meta("is_seize_target", false)
+    _cleanup_remaining_gems()
     set_meta("prod_mult", 1.0); set_meta("xp_mult", 1.0); set_meta("enemy_stat_mult", 0.8)
-    set_meta("scarcity_active", false); set_meta("gravity_active", false); set_meta("shadow_feast_active", false)
+    set_meta("scarcity_active", false); set_meta("inertia_active", false); set_meta("shadow_feast_active", false)
     for sz in get_tree().get_nodes_in_group("safe_zone"): sz.queue_free()
+    for gw in get_tree().get_nodes_in_group("gravity_well"): gw.queue_free()
     current_anomaly = ""; anomaly_ended.emit()
+
+func _cleanup_remaining_gems() -> void:
+    var gems = get_tree().get_nodes_in_group("resources")
+    for gem in gems:
+        if gem.has_method("start_decay"): gem.start_decay(5.0)
 
 func _mark_camps_for_seize() -> void:
     var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
@@ -105,6 +114,22 @@ func _spawn_safe_zone() -> void:
         var player = get_tree().get_first_node_in_group("player")
         if player: inst.global_position = player.global_position + Vector2.from_angle(randf()*TAU) * 350.0
         get_tree().current_scene.add_child(inst)
+
+func _spawn_gravity_wells_globally() -> void:
+    var gw_scene = load("res://Assets/Scenes/GravityWell.tscn")
+    if not gw_scene: return
+    var spawned_count = 0
+    var max_wells = 5
+    var attempts = 0
+    while spawned_count < max_wells and attempts < 40:
+        attempts += 1
+        var spawn_pos = Vector2(randf_range(map_rect.position.x + 500, map_rect.end.x - 500), randf_range(map_rect.position.y + 500, map_rect.end.y - 500))
+        var too_close = false
+        for gw in get_tree().get_nodes_in_group("gravity_well"):
+            if gw.global_position.distance_to(spawn_pos) < 1000.0: too_close = true; break
+        if not too_close:
+            var inst = gw_scene.instantiate(); inst.global_position = spawn_pos
+            get_tree().current_scene.add_child(inst); spawned_count += 1
 
 func log_event(type: String, value: Variant = 1) -> void:
     match type:

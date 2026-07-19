@@ -33,8 +33,11 @@ var mass: float = 100.0
 const MAX_MASS: float = 500.0
 var camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
 
+# Флаги состояния
 var is_attacking: bool = false
 var _disruptor_debuff_timer: float = 0.0
+
+# Система уровня
 var current_level: int = 1
 var current_xp: int = 0
 var xp_to_next_level: int = 100
@@ -48,11 +51,13 @@ func _ready() -> void:
     mass = base_mass
     stability = base_stability
     add_to_group("player")
-    if animated_sprite: animated_sprite.animation_finished.connect(_on_animation_finished)
+    if animated_sprite:
+        animated_sprite.animation_finished.connect(_on_animation_finished)
     if is_instance_valid(health_component):
         health_component.update_max_health(max_health)
         health_component.health_depleted.connect(_on_death)
-    if is_instance_valid(magnet_area): magnet_area.add_to_group("player_magnet")
+    if is_instance_valid(magnet_area):
+        magnet_area.add_to_group("player_magnet")
 
 func _physics_process(delta: float) -> void:
     if is_instance_valid(health_component) and health_component.current_health <= 0:
@@ -64,12 +69,17 @@ func _physics_process(delta: float) -> void:
     
     var debuff = 1.0
     if _disruptor_debuff_timer > 0:
-        _disruptor_debuff_timer -= delta; debuff = 0.5
+        _disruptor_debuff_timer -= delta
+        debuff = 0.4
+        modulate = Color(0.7, 0.3, 1.0) # Фиолетовый оттенок дебаффа
         if _disruptor_debuff_timer <= 0: modulate = Color.WHITE
     
     var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
     _move_player(delta, input_vector, debuff)
-    if not is_attacking: _update_animations(input_vector)
+    
+    if not is_attacking:
+        _update_animations(input_vector)
+        
     _process_territory_interaction(delta)
     
     if camp_buffs.regen > 0 and health_component.current_health < max_health:
@@ -100,31 +110,60 @@ func _move_player(delta: float, input: Vector2, debuff: float) -> void:
     
     var accel_final = acceleration
     var fric_final = friction
-    
-    # ЭФФЕКТ ЛЬДА (ГРАВИТАЦИЯ)
-    if GameManager.get_meta("gravity_active"):
-        accel_final = 180.0 # Очень медленный разгон
-        fric_final = 60.0    # Огромный тормозной путь (скольжение)
+    if GameManager.get_meta("inertia_active"):
+        accel_final = 180.0; fric_final = 60.0
     
     if input != Vector2.ZERO:
         velocity = velocity.move_toward(input * current_speed, accel_final * delta)
     else:
         velocity = velocity.move_toward(Vector2.ZERO, fric_final * delta)
+    
+    _apply_gravity_logic(delta)
     move_and_slide()
 
-func collect_xp(amount: int) -> void:
-    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult"))
-    current_xp += total_gain
-    GameManager.log_event("xp", total_gain)
-    while current_xp >= xp_to_next_level:
-        current_xp -= xp_to_next_level; current_level += 1
-        xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
-    xp_changed.emit(current_xp, xp_to_next_level)
+func _apply_gravity_logic(delta: float) -> void:
+    var wells = get_tree().get_nodes_in_group("gravity_well")
+    for well in wells:
+        var vec = well.global_position - global_position
+        var dist = vec.length()
+        var active_radius = well.pull_radius
+        if well.current_state == 1: active_radius = well.influence_radius
+            
+        if dist < active_radius:
+            var dir = vec.normalized()
+            var f_pct = clamp(1.1 - (dist / active_radius), 0.2, 1.0)
+            match well.current_state:
+                0, 1:
+                    var power = well.pull_strength
+                    if well.current_state == 1:
+                        power *= 4.5
+                        if dist > well.pull_radius: power *= 0.8 
+                    velocity += dir * (power * f_pct * delta)
+                    if dist < 80.0: health_component.take_damage(10.0 * delta)
+                2:
+                    velocity -= dir * (well.push_strength * f_pct * delta)
 
+# --- МЕТОДЫ БАФФОВ ЛАГЕРЯ (ВОССТАНОВЛЕНО) ---
+func apply_complex_camp_buffs(data: Dictionary) -> void:
+    camp_buffs = data
+    if _disruptor_debuff_timer <= 0:
+        modulate = Color(0.8, 0.8, 1.5)
+
+func remove_camp_buffs() -> void:
+    camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
+    if _disruptor_debuff_timer <= 0:
+        modulate = Color.WHITE
+
+func get_final_damage_multiplier() -> float:
+    return damage_multiplier * (1.0 + camp_buffs.damage)
+
+# --- ЛОГИКА АНИМАЦИИ ---
 func _update_animations(input_vector: Vector2) -> void:
     if input_vector != Vector2.ZERO:
-        animated_sprite.play("Run"); animated_sprite.flip_h = (input_vector.x < 0)
-    else: animated_sprite.play("Idle")
+        animated_sprite.play("Run")
+        animated_sprite.flip_h = (input_vector.x < 0)
+    else:
+        animated_sprite.play("Idle")
 
 func play_attack_animation(target_position: Vector2) -> void:
     is_attacking = true
@@ -147,6 +186,19 @@ func _get_attack_animation_name(dir: Vector2) -> String:
 func _on_animation_finished() -> void:
     if animated_sprite.animation in ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack"]:
         is_attacking = false
+
+# --- ЛОГИКА ОПЫТА ---
+func collect_xp(amount: int) -> void:
+    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult"))
+    current_xp += total_gain
+    GameManager.log_event("xp", total_gain)
+    while current_xp >= xp_to_next_level:
+        current_xp -= xp_to_next_level; current_level += 1
+        xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
+    xp_changed.emit(current_xp, xp_to_next_level)
+
+func apply_disruptor_debuff(duration: float) -> void:
+    _disruptor_debuff_timer = duration
 
 func register_zone(zone: Area2D) -> void: if not active_zones.has(zone): active_zones.append(zone)
 func unregister_zone(zone: Area2D) -> void: active_zones.erase(zone)
@@ -186,17 +238,7 @@ func _update_visual_scale() -> void:
     var s = 1.0 + ((mass / base_mass) - 1.0) * 0.7
     scale = scale.lerp(Vector2.ONE * s, 0.15)
 
-func apply_complex_camp_buffs(data: Dictionary) -> void:
-    camp_buffs = data; if _disruptor_debuff_timer <= 0: modulate = Color(0.8, 0.8, 1.5)
-
-func remove_camp_buffs() -> void:
-    camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
-    if _disruptor_debuff_timer <= 0: modulate = Color.WHITE
-
-func get_final_damage_multiplier() -> float: return damage_multiplier * (1.0 + camp_buffs.damage)
-
 func _on_death() -> void:
-    print("[DEATH LOG] Player died!")
     if GameManager.has_method("reset_game"): GameManager.reset_game()
     get_tree().reload_current_scene()
 

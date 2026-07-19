@@ -25,10 +25,9 @@ func _ready() -> void:
     if health_component == null: health_component = $HealthComponent
     if health_component: health_component.health_depleted.connect(_on_death)
     if hurtbox:
-        hurtbox.hit_received.connect(func(_d): 
-            var t = create_tween(); modulate = Color.RED
-            t.tween_property(self, "modulate", Color.WHITE, 0.1))
+        hurtbox.hit_received.connect(_on_hit_received)
         hurtbox.faction = "enemy"
+        hurtbox.collision_layer = 8
     if hitbox: 
         hitbox.faction = "enemy"
         var shape = hitbox.get_node_or_null("CollisionShape2D")
@@ -58,10 +57,8 @@ func _physics_process(delta: float) -> void:
     var dist = global_position.distance_to(target_node.global_position)
     var dir = (target_node.global_position - global_position).normalized()
     
-    # ЭФФЕКТ ЛЬДА ДЛЯ ВРАГОВ
     var accel = 10.0
-    if GameManager.get_meta("gravity_active"): 
-        accel = 0.8 # Враги будут очень сильно "пролетать" мимо
+    if GameManager.get_meta("inertia_active"): accel = 0.8
     
     var move_dir = dir
     if current_archetype == Archetype.DISRUPTOR:
@@ -70,24 +67,44 @@ func _physics_process(delta: float) -> void:
         else: move_dir = Vector2.ZERO
     
     var final_speed = speed * GameManager.get_meta("enemy_stat_mult")
-    if dist < 25.0 and not GameManager.get_meta("gravity_active"):
+    if dist < 25.0 and not GameManager.get_meta("inertia_active"):
         velocity = velocity.lerp(Vector2.ZERO, delta * 15.0)
     else:
         velocity = velocity.lerp(move_dir * final_speed, delta * accel)
+    
+    _apply_gravity_logic(delta)
     
     var attack_range = 450.0 if current_archetype == Archetype.DISRUPTOR else 65.0
     if dist < attack_range and attack_cooldown_timer <= 0 and not is_attacking:
         _execute_attack()
     
-    if not is_attacking and dist > 20.0:
+    if not is_attacking and dist > 40.0:
         if abs(dir.x) > 0.1: animated_sprite.flip_h = (dir.x < 0)
         animated_sprite.play("Run" if velocity.length() > 20 else "Idle")
     move_and_slide()
 
+func _apply_gravity_logic(delta: float) -> void:
+    var wells = get_tree().get_nodes_in_group("gravity_well")
+    for well in wells:
+        var vec = well.global_position - global_position
+        var d = vec.length()
+        var active_radius = well.pull_radius
+        if well.current_state == 1: active_radius = well.influence_radius
+        if d < active_radius:
+            var dir = vec.normalized()
+            var f = clamp(1.1 - (d / active_radius), 0.2, 1.0)
+            if well.current_state == 2:
+                velocity -= dir * (well.push_strength * f * delta)
+            else:
+                var power = well.pull_strength
+                if well.current_state == 1:
+                    power *= 4.5
+                    if d > well.pull_radius: power *= 0.8
+                velocity += dir * (power * f * delta)
+
 func _update_target() -> void:
     if GameManager.current_anomaly == "HUNT":
         target_node = get_tree().get_first_node_in_group("player"); return
-        
     if GameManager.current_anomaly == "SEIZE":
         var seize_targets = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.has_meta("is_seize_target") and c.get_meta("is_seize_target") == true)
         if not seize_targets.is_empty():
@@ -95,7 +112,6 @@ func _update_target() -> void:
             for c in seize_targets:
                 var d = global_position.distance_to(c.global_position); if d < min_d: min_d = d; closest = c
             target_node = closest; return
-
     if current_archetype == Archetype.BREAKER:
         var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
         if not player_camps.is_empty():
@@ -119,6 +135,7 @@ func _shoot() -> void:
     animated_sprite.play("Attack1")
 
 func _play_sequential_melee() -> void:
+    # ИСПРАВЛЕНО: Безопасное переключение хитбокса
     _toggle_hitbox() 
     var attacks = ["Attack1", "Attack2"]
     animated_sprite.play(attacks[attack_index])
@@ -131,10 +148,17 @@ func _toggle_hitbox() -> void:
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape:
             shape.disabled = false
-            get_tree().create_timer(0.4).timeout.connect(func():
-                if is_instance_valid(shape): shape.disabled = true
-                hitbox.damage = original_dmg
-            )
+            hitbox.check_hit()
+            # Используем таймер сцены для безопасности
+            get_tree().create_timer(0.4).timeout.connect(_disable_shape.bind(shape, original_dmg))
+
+func _disable_shape(shape: CollisionShape2D, dmg: float) -> void:
+    if is_instance_valid(shape): shape.disabled = true
+    if is_instance_valid(hitbox): hitbox.damage = dmg
+
+func _on_hit_received(_damage: float) -> void:
+    var t = create_tween(); modulate = Color.RED
+    t.tween_property(self, "modulate", Color.WHITE, 0.1)
 
 func _on_death() -> void:
     var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
