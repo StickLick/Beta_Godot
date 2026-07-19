@@ -23,6 +23,7 @@ func _ready() -> void:
     add_to_group("hud")
     if is_instance_valid(results_panel): results_panel.hide()
     if is_instance_valid(specialty_panel): specialty_panel.hide()
+    
     if is_instance_valid(anomaly_label): 
         anomaly_label.hide()
         anomaly_label.modulate.a = 0
@@ -41,10 +42,18 @@ func _ready() -> void:
     GameManager.anomaly_warning.connect(_on_anomaly_warning)
     GameManager.anomaly_ended.connect(_on_anomaly_ended)
 
-    var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+    var player: Player = get_tree().get_first_node_in_group("player") as Player
     if player != null: _setup_player_connections(player)
+    
     get_tree().node_added.connect(func(n): if n is Camp: _connect_camp(n))
     for camp in get_tree().get_nodes_in_group("camps"): _connect_camp(camp)
+    
+    if is_instance_valid(anomaly_overlay):
+        anomaly_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        anomaly_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        anomaly_overlay.color = Color(1, 1, 1, 0)
+        anomaly_overlay.show()
+        _update_overlay_shader(0.0, 0.01, Color(0,0,0,0), 0.1)
 
 func _on_anomaly_started(type_name: String, _duration: float) -> void:
     if is_instance_valid(anomaly_label):
@@ -56,29 +65,31 @@ func _on_anomaly_started(type_name: String, _duration: float) -> void:
         lt.tween_property(anomaly_label, "modulate:a", 0.0, 1.0).set_delay(3.0)
     
     if is_instance_valid(anomaly_overlay):
-        var color = Color(1, 1, 1, 0.1)
-        if "ОХОТА" in type_name: color = Color(0.8, 0, 0, 0.15)
-        elif "ЗАХВАТ" in type_name: color = Color(1, 0.5, 0, 0.15)
-        elif "КОЛЛАПС" in type_name: color = Color(0, 0.4, 0.8, 0.08)
-        elif "ГРАВИТАЦИЯ" in type_name: color = Color(0.5, 0.5, 0.5, 0.1)
-        elif "ДЕФИЦИТ" in type_name: color = Color(0.6, 0, 1, 0.15)
-        elif "ИЗОБИЛИЕ" in type_name: color = Color(1, 0.8, 0, 0.1)
-        elif "ПИР" in type_name: color = Color(0, 0, 0, 0.92)
-        create_tween().tween_property(anomaly_overlay, "color", color, 1.0)
+        var target_color: Color = Color(0, 0, 0, 0)
+        var target_vision: float = 0.0 
+        var target_soft: float = 0.01
+        
+        if "ОХОТА" in type_name: target_color = Color(0.8, 0, 0, 0.25)
+        elif "ЗАХВАТ" in type_name: target_color = Color(1, 0.5, 0, 0.25)
+        elif "КОЛЛАПС" in type_name: target_color = Color(0, 0.4, 0.8, 0.2)
+        elif "ГРАВИТАЦИЯ" in type_name: target_color = Color(0.5, 0.2, 0.8, 0.2)
+        elif "ДЕФИЦИТ" in type_name: target_color = Color(0.4, 0, 0.6, 0.3)
+        elif "ИЗОБИЛИЕ" in type_name: target_color = Color(1, 0.8, 0, 0.15)
+        elif "ПИР" in type_name: 
+            target_color = Color(0, 0, 0, 1.0)
+            target_vision = GameManager.get_meta("shadow_feast_vision_range", 0.07)
+            target_soft = 0.2
+        elif "ГИПЕРДРАЙВ" in type_name: target_color = Color(0, 1, 0.8, 0.15)
+        
+        _update_overlay_shader(target_vision, target_soft, target_color, 1.5)
 
 func _on_anomaly_warning(_time_left: float) -> void:
     if is_instance_valid(anomaly_label):
-        anomaly_label.text = "ЗАВЕРШЕНИЕ СОБЫТИЯ..."
+        anomaly_label.text = "СТАБИЛИЗАЦИЯ..."
         anomaly_label.show()
-        # ИСПРАВЛЕНО: set_loops вызывается у Tween
         var lt = create_tween().set_loops(4)
         lt.tween_property(anomaly_label, "modulate:a", 0.3, 0.3)
         lt.tween_property(anomaly_label, "modulate:a", 1.0, 0.3)
-    
-    if is_instance_valid(anomaly_overlay):
-        var ot = create_tween().set_loops(5)
-        ot.tween_property(anomaly_overlay, "color:a", 0.05, 0.5)
-        ot.tween_property(anomaly_overlay, "color:a", 0.15, 0.5)
 
 func _on_anomaly_ended() -> void:
     if is_instance_valid(anomaly_label):
@@ -89,7 +100,20 @@ func _on_anomaly_ended() -> void:
         lt.tween_property(anomaly_label, "modulate:a", 0.0, 0.8).set_delay(1.5)
         
     if is_instance_valid(anomaly_overlay):
-        create_tween().tween_property(anomaly_overlay, "color", Color(0,0,0,0), 1.0)
+        _update_overlay_shader(0.0, 0.01, Color(0,0,0,0), 1.0)
+
+func _update_overlay_shader(vision: float, soft: float, color: Color, duration: float) -> void:
+    if not is_instance_valid(anomaly_overlay): return
+    var mat = anomaly_overlay.material as ShaderMaterial
+    if not mat: return
+    
+    var tween = create_tween().set_parallel(true)
+    tween.tween_method(func(v): mat.set_shader_parameter("vision_range", v), 
+        mat.get_shader_parameter("vision_range"), vision, duration)
+    tween.tween_method(func(s): mat.set_shader_parameter("softness", s), 
+        mat.get_shader_parameter("softness"), soft, duration)
+    tween.tween_method(func(c): mat.set_shader_parameter("fog_color", c), 
+        mat.get_shader_parameter("fog_color"), color, duration)
 
 func _on_restart_pressed() -> void:
     get_tree().paused = false; GameManager.reset_game(); get_tree().reload_current_scene()
