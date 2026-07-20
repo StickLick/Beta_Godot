@@ -9,4 +9,5 @@ description = "Удваивает урон критов. Нужна Сила и 
 stat_to_modify = "crit_damage"
 amount = 1.0
 rarity = 2
+prerequisites = Array[String](["Сила I", "Глаз Орла"])
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"
