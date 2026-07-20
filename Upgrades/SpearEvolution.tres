@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://fqfur6jy4jp1"]
+
+[ext_resource type="PackedScene" uid="uid://ciwk2a3606juq" path="res://Assets/Scenes/EvolvedSpear.tscn" id="1_udukc"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_f7qln"]
+
+[resource]
+script = ExtResource("2_f7qln")
+name = "Копье Судьбы"
+target_weapon_name = "Spear"
+evolved_weapon_scene = ExtResource("1_udukc")
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -29,8 +29,9 @@ signal level_up(new_level: int)
 
 @export var radius_weapons: float = 1.0
 @export var xp_radius: float = 1.0
-@export var xp_gain: float = 1.0
+@export var xp_gain: float = 10.0
 
+# --- ВНУТРЕННИЕ ПЕРЕМЕННЫЕ ---
 var stability: float = 100.0
 var applied_zone_speed_modifier: float = 1.0
 var active_zones: Array[Area2D] = []
@@ -39,12 +40,9 @@ const MAX_MASS: float = 500.0
 var camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
 
 var applied_upgrade_names: Array[String] = []
-
-# Флаги состояния
 var is_attacking: bool = false
 var _disruptor_debuff_timer: float = 0.0
 
-# Система уровня
 var current_level: int = 1
 var current_xp: int = 0
 var xp_to_next_level: int = 100
@@ -74,9 +72,11 @@ func _physics_process(delta: float) -> void:
     _process_anomalies_damage(delta)
     _process_feast_debuffs()
     
-    # Регенерация здоровья
-    if health_regen > 0 and health_component.current_health < max_health:
-        health_component.heal(health_regen * delta)
+    _sync_weapon_position()
+    
+    var total_regen = health_regen + camp_buffs.regen
+    if total_regen > 0 and health_component.current_health < max_health:
+        health_component.heal(total_regen * delta)
     
     var debuff = 1.0
     if _disruptor_debuff_timer > 0:
@@ -92,79 +92,8 @@ func _physics_process(delta: float) -> void:
         _update_animations(input_vector)
         
     _process_territory_interaction(delta)
-    
-    if is_instance_valid(health_component) and camp_buffs.regen > 0:
-        if health_component.current_health < health_component.max_health:
-            health_component.current_health = min(health_component.current_health + camp_buffs.regen * delta, health_component.max_health)
 
-func get_final_damage_multiplier() -> float:
-    return damage_multiplier * (1.0 + camp_buffs.damage)
-
-func apply_custom_upgrade(upgrade: Upgrade) -> void:
-    if not applied_upgrade_names.has(upgrade.name):
-        applied_upgrade_names.append(upgrade.name)
-    
-    var stat = upgrade.stat_to_modify
-    var val = upgrade.amount
-    
-    if stat in self:
-        set(stat, get(stat) + val)
-        print("[UPGRADE] Stat ", stat, " updated to ", get(stat))
-    else:
-        var weapons = find_children("*", "WeaponComponent", true)
-        for weapon in weapons:
-            if stat in weapon:
-                weapon.set(stat, weapon.get(stat) + val)
-
-func _process_anomalies_damage(delta: float) -> void:
-    if not is_inside_tree(): return
-    if GameManager.current_anomaly == "COLLAPSE":
-        var sz = get_tree().get_first_node_in_group("safe_zone")
-        if is_instance_valid(sz):
-            var dist = global_position.distance_to(sz.global_position)
-            if dist > sz.get("current_radius"): 
-                health_component.take_damage(15.0 * delta)
-
-func _process_feast_debuffs() -> void:
-    var is_feast = GameManager.get_meta("shadow_feast_active", false)
-    var range_mult = 0.4 if is_feast else 1.0
-    var weapons = find_children("*", "WeaponComponent", true)
-    for weapon in weapons:
-        if weapon.has_method("update_weapon_range"):
-            weapon.update_weapon_range(radius_weapons * range_mult)
-    if is_instance_valid(magnet_area):
-        var col = magnet_area.get_node_or_null("CollisionShape2D")
-        if col: col.scale = Vector2.ONE * (xp_radius * range_mult)
-
-func _move_player(delta: float, input: Vector2, debuff: float) -> void:
-    var mass_penalty = base_mass / mass
-    var current_speed = max_speed * (1.0 + camp_buffs.speed) * applied_zone_speed_modifier * debuff * mass_penalty
-    
-    var accel_final = acceleration
-    var fric_final = friction
-    if GameManager.get_meta("inertia_active", false):
-        accel_final = 180.0; fric_final = 60.0
-    
-    if input != Vector2.ZERO:
-        velocity = velocity.move_toward(input * current_speed, accel_final * delta)
-    else:
-        velocity = velocity.move_toward(Vector2.ZERO, fric_final * delta)
-    
-    _apply_gravity_logic(delta)
-    move_and_slide()
-
-func _apply_gravity_logic(delta: float) -> void:
-    if not is_inside_tree(): return
-    var wells = get_tree().get_nodes_in_group("gravity_well")
-    for well in wells:
-        if not is_instance_valid(well): continue
-        var vec = well.global_position - global_position
-        var dist = vec.length()
-        var pull_rad = well.get("pull_radius") if "pull_radius" in well else 500.0
-        if dist < pull_rad:
-            var dir = vec.normalized()
-            var f_pct = clamp(1.1 - (dist / pull_rad), 0.2, 1.0)
-            velocity += dir * (400.0 * f_pct * delta)
+# --- МЕТОДЫ БАФФОВ ЛАГЕРЯ ---
 
 func apply_complex_camp_buffs(data: Dictionary) -> void:
     camp_buffs = data
@@ -176,45 +105,94 @@ func remove_camp_buffs() -> void:
     if _disruptor_debuff_timer <= 0:
         modulate = Color.WHITE
 
-func _update_animations(input_vector: Vector2) -> void:
-    if input_vector != Vector2.ZERO:
-        animated_sprite.play("Run")
-        animated_sprite.flip_h = (input_vector.x < 0)
+func get_final_damage_multiplier() -> float:
+    return damage_multiplier * (1.0 + camp_buffs.damage)
+
+# --- СИСТЕМА УЛУЧШЕНИЙ И ЭВОЛЮЦИИ ---
+
+func apply_custom_upgrade(upgrade: Upgrade) -> void:
+    print("\n[DEBUG] --- Нажата карта: ", upgrade.name, " ---")
+    
+    if not applied_upgrade_names.has(upgrade.name):
+        applied_upgrade_names.append(upgrade.name)
+    
+    # 1. ПРОВЕРКА НА ЭВОЛЮЦИЮ (Теперь игнорируем редкость для теста)
+    if upgrade.evolved_weapon_scene != null:
+        print("[DEBUG] Найдена сцена эволюции в ресурсе. Запускаю замену оружия...")
+        apply_evolution(upgrade.target_weapon_name, upgrade.evolved_weapon_scene)
+        return
     else:
-        animated_sprite.play("Idle")
+        print("[DEBUG] В этой карте нет сцены эволюции (поле Evolved Weapon Scene пустое).")
 
-func play_attack_animation(target_position: Vector2) -> void:
-    is_attacking = true
-    var direction = (target_position - global_position).normalized()
-    animated_sprite.play(_get_attack_animation_name(direction))
-    animated_sprite.flip_h = (direction.x < 0)
+    # 2. ПОВЫШЕНИЕ УРОВНЯ ОРУЖИЯ
+    if upgrade.target_weapon_name != "":
+        var weapons = find_children("*", "WeaponComponent", true)
+        for w in weapons:
+            if w.get("weapon_name") == upgrade.target_weapon_name:
+                print("[DEBUG] Оружие найдено. Повышаю уровень: ", w.weapon_name)
+                if w.has_method("level_up"): w.level_up()
+                return
+        print("[DEBUG] ОШИБКА: Оружие с именем '", upgrade.target_weapon_name, "' не найдено у игрока!")
 
-func _get_attack_animation_name(dir: Vector2) -> String:
-    var angle = rad_to_deg(dir.angle())
-    if angle > -45 and angle <= 45: return "RightAttack"
-    elif angle > 45 and angle <= 135: return "DownAttack"
-    elif angle > -135 and angle <= -45: return "UpAttack"
-    return "RightAttack"
+    # 3. ОБЫЧНАЯ СТАТИСТИКА
+    var stat = upgrade.stat_to_modify
+    var val = upgrade.amount
+    if stat != "" and stat in self:
+        set(stat, get(stat) + val)
+        print("[DEBUG] Характеристика игрока '", stat, "' увеличена.")
+    else:
+        var weapons = find_children("*", "WeaponComponent", true)
+        for weapon in weapons:
+            if stat != "" and stat in weapon: 
+                weapon.set(stat, weapon.get(stat) + val)
+                print("[DEBUG] Характеристика оружия '", stat, "' увеличена.")
 
-func _on_animation_finished() -> void:
-    if "Attack" in animated_sprite.animation:
-        is_attacking = false
+func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
+    var weapons = find_children("*", "WeaponComponent", true)
+    var found = false
+    
+    print("[DEBUG] Ищу оружие для удаления. Цель: ", weapon_name)
+    
+    for w in weapons:
+        # Проверяем имя
+        var internal_name = w.get("weapon_name")
+        print("[DEBUG] Проверяю узел: ", w.name, " (Внутреннее имя: ", internal_name, ")")
+        
+        if internal_name == weapon_name:
+            found = true
+            print("[EVOLUTION] Цель найдена! Удаляю старое, спавню новое...")
+            
+            var old_pos = w.position
+            w.name = "DELETING_OLD"
+            w.queue_free()
+            
+            var new_weapon = evolved_scene.instantiate()
+            new_weapon.position = old_pos
+            add_child(new_weapon)
+            
+            _play_evolution_fx()
+            print("[EVOLUTION] УСПЕХ: Новое оружие добавлено.")
+            break
+            
+    if not found:
+        print("[DEBUG] ОШИБКА ЭВОЛЮЦИИ: Не удалось найти оружие с именем '", weapon_name, "'. Проверь Weapon Name в инспекторе оружия!")
 
-func collect_xp(amount: int) -> void:
-    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult", 1.0))
-    current_xp += total_gain
-    if GameManager.has_method("log_event"):
-        GameManager.log_event("xp", total_gain)
-    while current_xp >= xp_to_next_level:
-        current_xp -= xp_to_next_level; current_level += 1
-        xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
-    xp_changed.emit(current_xp, xp_to_next_level)
+func _play_evolution_fx() -> void:
+    var camera = get_viewport().get_camera_2d()
+    if camera and camera.has_method("apply_shake"): camera.apply_shake(25.0)
+    
+    # Замедление времени для эффекта
+    Engine.time_scale = 0.1
+    get_tree().create_timer(0.4, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
+    
+    var flash = create_tween()
+    flash.tween_property(self, "modulate", Color(20, 20, 20), 0.1)
+    flash.tween_property(self, "modulate", Color.WHITE, 0.6)
 
-func register_zone(zone: Area2D) -> void: 
-    if not active_zones.has(zone): active_zones.append(zone)
+# --- ОСТАЛЬНЫЕ СИСТЕМЫ ---
 
-func unregister_zone(zone: Area2D) -> void: 
-    active_zones.erase(zone)
+func register_zone(zone: Area2D) -> void: if not active_zones.has(zone): active_zones.append(zone)
+func unregister_zone(zone: Area2D) -> void: active_zones.erase(zone)
 
 func _process_zone_influences(delta: float) -> void:
     var speed_mod: float = 1.0
@@ -231,37 +209,108 @@ func _process_zone_influences(delta: float) -> void:
     stability = clamp(stability, 0.0, base_stability * 2.0)
 
 func _process_territory_interaction(delta: float) -> void:
-    # Улучшение лагеря
     if is_instance_valid(current_camp) and current_camp.get("alignment") == 1:
-        var inv = 50.0 * delta
-        if spend_mass(inv): 
-            if current_camp.has_method("upgrade"): current_camp.upgrade(inv)
-            
-    # Инъекция массы в зоны
+        var inv = 50.0 * delta; if spend_mass(inv): if current_camp.has_method("upgrade"): current_camp.upgrade(inv)
     for zone in active_zones:
         if is_instance_valid(zone) and zone.has_method("inject_mass"):
-            if zone.get("current_state") == 2: # Состояние захвата
-                var z_inv = 20.0 * delta
-                if spend_mass(z_inv): zone.inject_mass(z_inv)
+            if zone.get("current_state") == 2:
+                var z_inv = 20.0 * delta; if spend_mass(z_inv): zone.inject_mass(z_inv)
+
+func _process_anomalies_damage(delta: float) -> void:
+    if not is_inside_tree(): return
+    if GameManager.current_anomaly == "COLLAPSE":
+        var tree = get_tree()
+        if tree:
+            var sz = tree.get_first_node_in_group("safe_zone")
+            if is_instance_valid(sz):
+                var dist = global_position.distance_to(sz.global_position)
+                var safe_radius = sz.get("current_radius") if "current_radius" in sz else 100.0
+                if dist > safe_radius: health_component.take_damage(15.0 * delta)
+
+func _process_feast_debuffs() -> void:
+    var is_feast = GameManager.get_meta("shadow_feast_active", false)
+    var range_mult = 0.4 if is_feast else 1.0
+    var weapons = find_children("*", "WeaponComponent", true)
+    for weapon in weapons:
+        if weapon.has_method("update_weapon_range"): weapon.update_weapon_range(radius_weapons * range_mult)
+    if is_instance_valid(magnet_area):
+        var col = magnet_area.get_node_or_null("CollisionShape2D")
+        if col: col.scale = Vector2.ONE * (xp_radius * range_mult)
+
+func _move_player(delta: float, input: Vector2, debuff: float) -> void:
+    var mass_penalty = base_mass / mass
+    var current_speed = max_speed * (1.0 + camp_buffs.speed) * applied_zone_speed_modifier * debuff * mass_penalty
+    var accel_final = acceleration; var fric_final = friction
+    if GameManager.get_meta("inertia_active", false): accel_final = 180.0; fric_final = 60.0
+    if input != Vector2.ZERO: velocity = velocity.move_toward(input * current_speed, accel_final * delta)
+    else: velocity = velocity.move_toward(Vector2.ZERO, fric_final * delta)
+    _apply_gravity_logic(delta)
+    move_and_slide()
+
+func _apply_gravity_logic(delta: float) -> void:
+    if not is_inside_tree(): return
+    var wells = get_tree().get_nodes_in_group("gravity_well")
+    for well in wells:
+        if not is_instance_valid(well): continue
+        var vec = well.global_position - global_position
+        var dist = vec.length()
+        var pull_rad = well.get("pull_radius") if "pull_radius" in well else 500.0
+        if dist < pull_rad:
+            var dir = vec.normalized(); var f_pct = clamp(1.1 - (dist / pull_rad), 0.2, 1.0)
+            velocity += dir * (400.0 * f_pct * delta)
+
+func _update_animations(input_vector: Vector2) -> void:
+    if input_vector != Vector2.ZERO: animated_sprite.play("Run"); animated_sprite.flip_h = (input_vector.x < 0)
+    else: animated_sprite.play("Idle")
+
+func play_attack_animation(target_position: Vector2) -> void:
+    is_attacking = true; var direction = (target_position - global_position).normalized()
+    animated_sprite.play(_get_attack_animation_name(direction)); animated_sprite.flip_h = (direction.x < 0)
+
+func _get_attack_animation_name(dir: Vector2) -> String:
+    var angle = rad_to_deg(dir.angle())
+    if angle > -45 and angle <= 45: return "RightAttack"
+    elif angle > 45 and angle <= 135: return "DownAttack"
+    elif angle > -135 and angle <= -45: return "UpAttack"
+    return "RightAttack"
+
+func _on_animation_finished() -> void:
+    if "Attack" in animated_sprite.animation: is_attacking = false
+
+func collect_xp(amount: int) -> void:
+    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult", 1.0))
+    current_xp += total_gain
+    if GameManager.has_method("log_event"): GameManager.log_event("xp", total_gain)
+    while current_xp >= xp_to_next_level:
+        current_xp -= xp_to_next_level; current_level += 1
+        xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
+    xp_changed.emit(current_xp, xp_to_next_level)
 
 func spend_mass(amount: float) -> bool:
     if mass > (base_mass + 1.0):
-        var actual_spend = min(amount, mass - base_mass)
-        mass -= actual_spend
-        _update_visual_scale()
-        return true
+        mass -= amount; _update_visual_scale(); return true
     return false
 
 func collect_mass(amount: float) -> void:
-    mass = clamp(mass + amount, base_mass, MAX_MASS)
-    _update_visual_scale()
+    mass = clamp(mass + amount, base_mass, MAX_MASS); _update_visual_scale()
 
 func _update_visual_scale() -> void:
-    var s = 1.0 + ((mass / base_mass) - 1.0) * 0.7
-    scale = scale.lerp(Vector2.ONE * s, 0.15)
+    scale = scale.lerp(Vector2.ONE * (1.0 + ((mass / base_mass) - 1.0) * 0.7), 0.15)
 
 func _on_death() -> void:
     GameManager.reset_game(); get_tree().reload_current_scene()
+    
+func _sync_weapon_position() -> void:
+    var weapon = find_child("WeaponComponent", true, false)
+    if not is_instance_valid(weapon): return
 
-func _on_magnet_area_entered(area: Area2D) -> void:
-    if area.has_method("attract"): area.attract(self)
+    # Смещение копья относительно центра игрока
+    var offset = Vector2(0, -15) # Базовое смещение (на уровень груди)
+
+    # Если персонаж бежит или атакует, можно добавить микро-смещения
+    if animated_sprite.flip_h:
+        offset.x = -10 # Сдвигаем чуть левее, если смотрим влево
+    else:
+        offset.x = 10  # Сдвигаем чуть правее
+    
+    weapon.position = offset

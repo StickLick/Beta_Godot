@@ -4,16 +4,28 @@
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_ujqmm"]
 [ext_resource type="Resource" uid="uid://c0d2q6pu8yffo" path="res://Upgrades/Damage_I.tres" id="3_cjoxr"]
 [ext_resource type="Resource" uid="uid://c02rpg03n50vk" path="res://Upgrades/HP_I.tres" id="4_1cnya"]
+[ext_resource type="Resource" uid="uid://bdol32xxc0bmp" path="res://Upgrades/Berserker.tres" id="4_01uqw"]
 [ext_resource type="Resource" uid="uid://mnshjwksb3iy" path="res://Upgrades/RadiusWeapons.tres" id="5_itudg"]
+[ext_resource type="Resource" uid="uid://tmfjbulilxot" path="res://Upgrades/Crit_chance.tres" id="5_qujqb"]
+[ext_resource type="Resource" uid="uid://tlwhmmxwkxva" path="res://Upgrades/Crit_damage.tres" id="6_0klsh"]
 [ext_resource type="Resource" uid="uid://cvtx1vdaefbgw" path="res://Upgrades/RadiusXp.tres" id="6_7gsh6"]
 [ext_resource type="Resource" uid="uid://ba4lgmsqs3btv" path="res://Upgrades/Speed.tres" id="7_euifs"]
+[ext_resource type="Resource" uid="uid://8l5h03ul4dwp" path="res://Upgrades/Damage_II.tres" id="8_lx8kt"]
 [ext_resource type="Resource" uid="uid://csxvlg5ehwcw1" path="res://Upgrades/XpGain.tres" id="8_ujqmm"]
 [ext_resource type="Resource" uid="uid://dbr1ebk7cd1j1" path="res://Upgrades/AttackCooldown.tres" id="9_cjoxr"]
+[ext_resource type="Resource" uid="uid://cct2ijnp2irdb" path="res://Upgrades/Damage_III.tres" id="9_e60l8"]
+[ext_resource type="Resource" uid="uid://dj7c8ch40hgq6" path="res://Upgrades/Health_regen.tres" id="10_01jp1"]
+[ext_resource type="Resource" uid="uid://cvpxs0vyik37q" path="res://Upgrades/Luck_I.tres" id="12_cie5a"]
+[ext_resource type="Resource" uid="uid://fqfur6jy4jp1" path="res://Upgrades/SpearEvolution.tres" id="15_rtwst"]
+[ext_resource type="Resource" uid="uid://bpk7famundgkk" path="res://Upgrades/Speed_Fast.tres" id="17_0jo7u"]
+[ext_resource type="Resource" uid="uid://d2nh218uysxq8" path="res://Upgrades/Speed_Sonic.tres" id="18_aylhc"]
+[ext_resource type="Resource" uid="uid://crj73kh2m2phq" path="res://Upgrades/Stone.tres" id="19_0h36t"]
+[ext_resource type="Resource" uid="uid://c2s754knk6103" path="res://Upgrades/Vampire.tres" id="20_i0w25"]
 
 [node name="UpgradeMenu" type="CanvasLayer" unique_id=1070606010]
 process_mode = 3
 script = ExtResource("1_4svoh")
-all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("3_cjoxr"), ExtResource("4_1cnya"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs"), ExtResource("8_ujqmm"), ExtResource("9_cjoxr")])
+all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("9_cjoxr"), ExtResource("4_01uqw"), ExtResource("5_qujqb"), ExtResource("6_0klsh"), ExtResource("3_cjoxr"), ExtResource("8_lx8kt"), ExtResource("9_e60l8"), ExtResource("10_01jp1"), ExtResource("4_1cnya"), ExtResource("12_cie5a"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("15_rtwst"), ExtResource("7_euifs"), ExtResource("17_0jo7u"), ExtResource("18_aylhc"), ExtResource("19_0h36t"), ExtResource("20_i0w25"), ExtResource("8_ujqmm")])
 
 [node name="UpgradePanel" type="Panel" parent="." unique_id=1717061613]
 unique_name_in_owner = true
