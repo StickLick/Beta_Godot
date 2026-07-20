@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_jh6nc")
-name = "Скорость + 10"
+name = "Скорость I"
 stat_to_modify = "max_speed"
 amount = 20.0
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

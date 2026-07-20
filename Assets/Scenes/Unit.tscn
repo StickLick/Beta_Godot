@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bo24jnh0i5jy4" path="res://scripts/unit.gd" id="1_kykp8"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_kykp8"]
-[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="3_b3m76"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_b3m76"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_kykp8"]
 [ext_resource type="Texture2D" uid="uid://benpsn37484f5" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack1.png" id="5_8l4sl"]
 [ext_resource type="Texture2D" uid="uid://db0uxw86t1k8w" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Run.png" id="5_b3m76"]

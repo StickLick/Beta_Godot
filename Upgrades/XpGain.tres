@@ -4,7 +4,10 @@
 
 [resource]
 script = ExtResource("1_es067")
-name = "Увеличение опыта"
+name = "Джекпот"
+description = "+50% опыта. Только для везучих."
 stat_to_modify = "xp_gain"
-amount = 3.0
+amount = 0.5
+rarity = 3
+prerequisites = Array[String](["Удача I"])
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

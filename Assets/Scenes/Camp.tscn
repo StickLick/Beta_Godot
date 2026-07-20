@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cf034lmytpa76" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png" id="5_wyg3y"]
 [ext_resource type="Texture2D" uid="uid://bjss8rl606m2u" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png" id="6_hvwlx"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="7_wyg3y"]
-[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="8_hvwlx"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="8_hvwlx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 150.0

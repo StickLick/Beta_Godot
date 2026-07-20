@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://c2s754knk6103"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_57c12"]
+
+[resource]
+script = ExtResource("1_57c12")
+name = "Вампиризм"
+description = "5% урона лечит тебя. Нужна Закалка"
+stat_to_modify = "lifesteal"
+amount = 0.05
+rarity = 1
+prerequisites = Array[String](["Здоровье"])
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bdol32xxc0bmp"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_8oi6c"]
+
+[resource]
+script = ExtResource("1_8oi6c")
+name = "Берсерк"
+description = "Требует и Силу, и Здоровье. Дает +50% урона."
+stat_to_modify = "damage_multiplier"
+amount = 0.5
+rarity = 2
+prerequisites = Array[String](["Сила I", "Закалка I"])
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

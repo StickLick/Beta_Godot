@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dj7c8ch40hgq6"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_be4hf"]
+
+[resource]
+script = ExtResource("1_be4hf")
+name = "Жатва"
+description = "Мощная регенерация. Нужна вся ветка воина."
+amount = 10.0
+rarity = 3
+prerequisites = Array[String](["Вампиризм", "Берсерк"])
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

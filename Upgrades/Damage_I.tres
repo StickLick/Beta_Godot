@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://c0d2q6pu8yffo"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_k3wro"]
+
+[resource]
+script = ExtResource("1_k3wro")
+name = "Сила I"
+description = "+15% урона"
+stat_to_modify = "damage_multiplier"
+amount = 0.15
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

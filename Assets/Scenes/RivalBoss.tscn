@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dvlm8a1lty3ec"]
 
-[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://health_component.gd" id="1_3360y"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="1_3360y"]
 [ext_resource type="Script" uid="uid://7lvcx14s7mji" path="res://scripts/rival_boss.gd" id="1_kkwvk"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="2_kkwvk"]
 
