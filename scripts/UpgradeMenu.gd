@@ -43,16 +43,26 @@ func open_upgrade_menu() -> void:
     _spawn_menu(selected_upgrades, player)
 
 func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
+    var weapons_full = player.active_weapons.size() >= player.max_weapon_slots
+    var passives_full = player.active_passives.size() >= player.max_passive_slots
+
     var pool = all_available_upgrades.filter(func(u):
         if u.is_unique and player.applied_upgrade_names.has(u.name): return false
         for p in u.prerequisites:
             if not player.applied_upgrade_names.has(p): return false
-        if u.target_weapon_name != "":
-            var w = _find_weapon(player, u.target_weapon_name)
-            if not w or (w.get("current_level") >= 8 and u.rarity != Upgrade.Rarity.LEGENDARY): return false
+        
+        # ФИЛЬТР СЛОТОВ
+        if u.is_weapon:
+            var already_owned = player.active_weapons.any(func(w): return w.name == u.name)
+            if weapons_full and not already_owned: return false
+        else:
+            var already_owned = player.active_passives.any(func(p): return p.name == u.name)
+            if passives_full and not already_owned: return false
+            
         return true
     )
     
+    # Проверка Эволюции
     var weapons = player.find_children("*", "WeaponComponent", true)
     for w in weapons:
         var w_name = w.get("weapon_name")

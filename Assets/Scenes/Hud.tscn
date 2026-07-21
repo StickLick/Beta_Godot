@@ -4,11 +4,16 @@
 [ext_resource type="Script" uid="uid://cwnspr7lr1gie" path="res://scripts/indicator_manager.gd" id="2_u84ry"]
 [ext_resource type="Shader" uid="uid://22jsxuufdpqp" path="res://Shaders/ShadowFeast.gdshader" id="3_5rrfm"]
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_5rrfm"]
+color = Color(0, 0, 0, 0.54901963)
+thickness = 20
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u84ry"]
 shader = ExtResource("3_5rrfm")
-shader_parameter/vision_range = 500.0
-shader_parameter/softness = 200.0
+shader_parameter/radius_px = 0.0
+shader_parameter/softness_px = 10.0
 shader_parameter/fog_color = Color(0, 0, 0, 1)
+shader_parameter/center_px = Vector2(0, 0)
 
 [node name="Hud" type="CanvasLayer" unique_id=1152050891]
 script = ExtResource("1_s617k")
@@ -21,25 +26,62 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="InventoryBar" type="HBoxContainer" parent="UI_Container" unique_id=1534612225]
+layout_mode = 0
+offset_top = 17.0
+offset_right = 200.0
+offset_bottom = 37.0
+theme_override_constants/separation = 10
+
+[node name="WeaponSlots" type="HBoxContainer" parent="UI_Container/InventoryBar" unique_id=574055898]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="VSeparator" type="VSeparator" parent="UI_Container/InventoryBar" unique_id=249245904]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_5rrfm")
+
+[node name="PassiveSlots" type="HBoxContainer" parent="UI_Container/InventoryBar" unique_id=284506013]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
 [node name="HealthBar" type="ProgressBar" parent="." unique_id=1278099814]
 unique_name_in_owner = true
 modulate = Color(1, 0.029999971, 0.029999971, 1)
-offset_right = 329.0
+offset_right = 500.0
 offset_bottom = 27.0
+scale = Vector2(0.6, 0.6)
 
 [node name="XPBar" type="ProgressBar" parent="." unique_id=1977171817]
 unique_name_in_owner = true
 modulate = Color(1, 1, 0.120000005, 1)
-offset_top = 32.0
-offset_right = 329.0
-offset_bottom = 59.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -15.999939
+offset_right = 360.0
+offset_bottom = 11.000061
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.6, 0.6)
 
 [node name="LevelLabel" type="Label" parent="." unique_id=1211333647]
 unique_name_in_owner = true
-offset_left = 340.0
-offset_top = 32.0
-offset_right = 420.0
-offset_bottom = 59.0
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -41.0
+offset_top = -15.999939
+offset_right = 39.0
+offset_bottom = 7.000061
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.52, 0.6799997)
 text = "LVL: 1"
 
 [node name="TimerLabel" type="Label" parent="." unique_id=337612957]

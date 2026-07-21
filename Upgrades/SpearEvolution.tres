@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("2_f7qln")
 name = "Копье Судьбы"
+is_weapon = true
 target_weapon_name = "Spear"
 evolved_weapon_scene = ExtResource("1_udukc")
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

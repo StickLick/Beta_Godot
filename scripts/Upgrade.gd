@@ -15,5 +15,6 @@ enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var is_unique: bool = false 
 
 @export_group("Weapon System")
-@export var target_weapon_name: String = "" # Имя оружия (напр. "Spear")
-@export var evolved_weapon_scene: PackedScene # Сцена для эволюции
+@export var is_weapon: bool = false # ПОСТАВЬ ГАЛОЧКУ В РЕСУРСАХ ОРУЖИЯ
+@export var target_weapon_name: String = "" 
+@export var evolved_weapon_scene: PackedScene
