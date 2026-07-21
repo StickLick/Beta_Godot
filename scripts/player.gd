@@ -3,7 +3,7 @@ class_name Player
 
 signal xp_changed(current_xp: int, next_level_xp: int)
 signal level_up(new_level: int)
-signal inventory_updated # Сигнал для HUD
+signal inventory_updated 
 
 @export_group("Base Stats")
 @export var base_mass: float = 100.0
@@ -30,14 +30,15 @@ signal inventory_updated # Сигнал для HUD
 
 @export var radius_weapons: float = 1.0
 @export var xp_radius: float = 1.0
-@export var xp_gain: float = 20.0
+@export var xp_gain: float = 1.0
 
-# --- СИСТЕМА ИНВЕНТАРЯ ---
+# --- ИНВЕНТАРЬ И ТЕГИ ---
 var max_weapon_slots: int = 1
 var max_passive_slots: int = 1
 var active_weapons: Array[Upgrade] = []
 var active_passives: Array[Upgrade] = []
 var applied_upgrade_names: Array[String] = []
+var tag_levels: Dictionary = {} # {"Spear": 5}
 
 # --- ВНУТРЕННИЕ ПЕРЕМЕННЫЕ ---
 var stability: float = 100.0
@@ -49,7 +50,6 @@ var camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
 
 var is_attacking: bool = false
 var _disruptor_debuff_timer: float = 0.0
-
 var current_level: int = 1
 var current_xp: int = 0
 var xp_to_next_level: int = 100
@@ -79,7 +79,6 @@ func _physics_process(delta: float) -> void:
     _process_anomalies_damage(delta)
     _process_feast_debuffs()
     
-    # Регенерация
     var total_regen = health_regen + camp_buffs.regen
     if total_regen > 0 and health_component.current_health < max_health:
         health_component.heal(total_regen * delta)
@@ -106,62 +105,50 @@ func get_final_damage_multiplier() -> float:
 
 func apply_complex_camp_buffs(data: Dictionary) -> void:
     camp_buffs = data
-    if _disruptor_debuff_timer <= 0:
-        modulate = Color(0.8, 0.8, 1.5)
+    if _disruptor_debuff_timer <= 0: modulate = Color(0.8, 0.8, 1.5)
 
 func remove_camp_buffs() -> void:
     camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
-    if _disruptor_debuff_timer <= 0:
-        modulate = Color.WHITE
+    if _disruptor_debuff_timer <= 0: modulate = Color.WHITE
 
 # --- ИНВЕНТАРЬ И УЛУЧШЕНИЯ ---
 
 func apply_custom_upgrade(upgrade: Upgrade) -> void:
-    # 1. Регистрация в инвентаре
+    # 1. Трекинг тегов
+    var tag = upgrade.weapon_tag
+    tag_levels[tag] = tag_levels.get(tag, 0) + 1
+    
+    # 2. Регистрация в инвентаре
     if not applied_upgrade_names.has(upgrade.name):
         if upgrade.is_weapon:
-            active_weapons.append(upgrade)
+            var has_tag = active_weapons.any(func(u): return u.weapon_tag == tag)
+            if not has_tag: active_weapons.append(upgrade)
         else:
             active_passives.append(upgrade)
         applied_upgrade_names.append(upgrade.name)
     
-    # 2. Эволюция
-    if upgrade.evolved_weapon_scene != null:
+    # 3. Эволюция
+    if upgrade.change_mechanic_on_apply and upgrade.evolved_weapon_scene != null:
         apply_evolution(upgrade.target_weapon_name, upgrade.evolved_weapon_scene)
     
-    # 3. Уровень оружия
-    elif upgrade.target_weapon_name != "":
-        var weapons = find_children("*", "WeaponComponent", true)
-        for w in weapons:
-            if w.get("weapon_name") == upgrade.target_weapon_name:
-                if w.has_method("level_up"): w.level_up()
-    
-    # 4. Статы
-    else:
-        var stat = upgrade.stat_to_modify
-        if stat != "" and stat in self:
+    # 4. Применение статов
+    var stat = upgrade.stat_to_modify
+    if stat != "":
+        if stat in self:
             set(stat, get(stat) + upgrade.amount)
+        else:
+            var weapons = find_children("*", "WeaponComponent", true)
+            for w in weapons:
+                if w.weapon_name == tag or w.weapon_name == upgrade.target_weapon_name:
+                    if stat in w: w.set(stat, w.get(stat) + upgrade.amount)
+                    if w.has_method("on_modifier_applied"): w.on_modifier_applied()
             
     inventory_updated.emit()
-
-func collect_xp(amount: int) -> void:
-    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult", 1.0))
-    current_xp += total_gain
-    if GameManager.has_method("log_event"): GameManager.log_event("xp", total_gain)
-    
-    while current_xp >= xp_to_next_level:
-        current_xp -= xp_to_next_level
-        current_level += 1
-        xp_to_next_level = int(xp_to_next_level * 1.2)
-        level_up.emit(current_level)
-        inventory_updated.emit()
-        
-    xp_changed.emit(current_xp, xp_to_next_level)
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
     var weapons = find_children("*", "WeaponComponent", true)
     for w in weapons:
-        if w.get("weapon_name") == weapon_name:
+        if w.weapon_name == weapon_name:
             var old_pos = w.position
             w.queue_free()
             var new_weapon = evolved_scene.instantiate()
@@ -172,20 +159,17 @@ func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
 
 func _play_evolution_fx() -> void:
     var camera = get_viewport().get_camera_2d()
-    if camera and camera.has_method("apply_shake"): camera.apply_shake(20.0)
-    Engine.time_scale = 0.1
+    if camera and camera.has_method("apply_shake"): camera.apply_shake(25.0)
+    Engine.time_scale = 0.05
     get_tree().create_timer(0.3, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
     var flash = create_tween()
-    flash.tween_property(self, "modulate", Color(15, 15, 15), 0.1)
+    flash.tween_property(self, "modulate", Color(20, 20, 20), 0.1)
     flash.tween_property(self, "modulate", Color.WHITE, 0.5)
 
 # --- ЗОНЫ И ВЗАИМОДЕЙСТВИЕ ---
 
-func register_zone(zone: Area2D) -> void: 
-    if not active_zones.has(zone): active_zones.append(zone)
-
-func unregister_zone(zone: Area2D) -> void: 
-    active_zones.erase(zone)
+func register_zone(zone: Area2D) -> void: if not active_zones.has(zone): active_zones.append(zone)
+func unregister_zone(zone: Area2D) -> void: active_zones.erase(zone)
 
 func _process_zone_influences(delta: float) -> void:
     var speed_mod: float = 1.0
@@ -209,16 +193,13 @@ func _process_territory_interaction(delta: float) -> void:
             if zone.get("current_state") == 2:
                 var z_inv = 20.0 * delta; if spend_mass(z_inv): zone.inject_mass(z_inv)
 
-# --- АНОМАЛИИ ---
-
 func _process_anomalies_damage(delta: float) -> void:
     if not is_inside_tree(): return
     if GameManager.current_anomaly == "COLLAPSE":
         var sz = get_tree().get_first_node_in_group("safe_zone")
         if is_instance_valid(sz):
-            var dist = global_position.distance_to(sz.global_position)
-            var safe_radius = sz.get("current_radius") if "current_radius" in sz else 100.0
-            if dist > safe_radius: health_component.take_damage(15.0 * delta)
+            if global_position.distance_to(sz.global_position) > sz.current_radius:
+                health_component.take_damage(15.0 * delta)
 
 func _process_feast_debuffs() -> void:
     var is_feast = GameManager.get_meta("shadow_feast_active", false)
@@ -237,12 +218,8 @@ func _move_player(delta: float, input: Vector2, debuff: float) -> void:
     var current_speed = max_speed * (1.0 + camp_buffs.speed) * applied_zone_speed_modifier * debuff * mass_penalty
     var accel_final = acceleration; var fric_final = friction
     if GameManager.get_meta("inertia_active", false): accel_final = 180.0; fric_final = 60.0
-    
-    if input != Vector2.ZERO:
-        velocity = velocity.move_toward(input * current_speed, accel_final * delta)
-    else:
-        velocity = velocity.move_toward(Vector2.ZERO, fric_final * delta)
-    
+    if input != Vector2.ZERO: velocity = velocity.move_toward(input * current_speed, accel_final * delta)
+    else: velocity = velocity.move_toward(Vector2.ZERO, fric_final * delta)
     _apply_gravity_logic(delta)
     move_and_slide()
 
@@ -284,6 +261,16 @@ func _get_attack_animation_name(dir: Vector2) -> String:
 func _on_animation_finished() -> void:
     var attack_anims = ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack"]
     if animated_sprite.animation in attack_anims: is_attacking = false
+
+func collect_xp(amount: int) -> void:
+    var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult", 1.0))
+    current_xp += total_gain
+    if GameManager.has_method("log_event"): GameManager.log_event("xp", total_gain)
+    while current_xp >= xp_to_next_level:
+        current_xp -= xp_to_next_level; current_level += 1
+        xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
+        inventory_updated.emit()
+    xp_changed.emit(current_xp, xp_to_next_level)
 
 func spend_mass(amount: float) -> bool:
     if mass > (base_mass + 1.0):

@@ -7,7 +7,7 @@ extends Node
 var _active_menu: Control = null
 var _pending_upgrades: int = 0
 
-const EVO_RECIPES = { "Spear": "Passive_Stone" }
+const EVO_RECIPES = { "Spear": "Passive_Stone", "Aura": "Passive_Book" }
 
 const BASE_WEIGHTS = {
     Upgrade.Rarity.COMMON: 100.0,
@@ -45,32 +45,32 @@ func open_upgrade_menu() -> void:
 func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
     var weapons_full = player.active_weapons.size() >= player.max_weapon_slots
     var passives_full = player.active_passives.size() >= player.max_passive_slots
+    var owned_tags = player.active_weapons.map(func(u): return u.weapon_tag)
+    var owned_passives = player.active_passives.map(func(u): return u.name)
 
     var pool = all_available_upgrades.filter(func(u):
         if u.is_unique and player.applied_upgrade_names.has(u.name): return false
         for p in u.prerequisites:
             if not player.applied_upgrade_names.has(p): return false
         
-        # ФИЛЬТР СЛОТОВ
+        # Фильтр тегов (Hive-Mind)
         if u.is_weapon:
-            var already_owned = player.active_weapons.any(func(w): return w.name == u.name)
-            if weapons_full and not already_owned: return false
+            if weapons_full and not owned_tags.has(u.weapon_tag): return false
         else:
-            var already_owned = player.active_passives.any(func(p): return p.name == u.name)
-            if passives_full and not already_owned: return false
+            if passives_full and not owned_passives.has(u.name): return false
             
+        if u.change_mechanic_on_apply: return false # Эволюции добавляются отдельно
         return true
     )
     
     # Проверка Эволюции
-    var weapons = player.find_children("*", "WeaponComponent", true)
-    for w in weapons:
-        var w_name = w.get("weapon_name")
-        var needed = EVO_RECIPES.get(w_name, "")
-        if w.get("current_level") >= 8 and player.applied_upgrade_names.has(needed):
+    for tag in owned_tags:
+        var cur_lvl = player.tag_levels.get(tag, 0)
+        var needed = EVO_RECIPES.get(tag, "")
+        if cur_lvl >= 8 and player.applied_upgrade_names.has(needed):
             for u in all_available_upgrades:
-                if u.rarity == Upgrade.Rarity.LEGENDARY and u.target_weapon_name == w_name:
-                    if not pool.has(u): pool.append(u)
+                if u.change_mechanic_on_apply and u.weapon_tag == tag:
+                    pool.append(u)
     return pool
 
 func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
@@ -95,10 +95,10 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
     for i in range(upgrades.size()):
         var up = upgrades[i]
         var btn = Button.new()
-        var lvl_info = ""
-        if up.target_weapon_name != "":
-            var w = _find_weapon(player, up.target_weapon_name)
-            if w: lvl_info = "\n[LVL %d -> %d]" % [w.get("current_level"), w.get("current_level") + 1]
+        var cur_lvl = player.tag_levels.get(up.weapon_tag, 0)
+        var lvl_info = "\n[LVL %d -> %d]" % [cur_lvl, cur_lvl + 1]
+        if up.change_mechanic_on_apply: lvl_info = "\n[EVOLUTION]"
+        
         btn.text = up.name + lvl_info + "\n" + up.description
         btn.custom_minimum_size = Vector2(320, 160)
         btn.self_modulate = RARITY_COLORS[up.rarity]
@@ -108,12 +108,6 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
         t.tween_property(btn, "scale", Vector2.ONE, 0.4).set_delay(i * 0.1)
         btn.pressed.connect(_on_upgrade_selected.bind(up))
         container.add_child(btn)
-
-func _find_weapon(player: Player, weapon_name: String) -> Node:
-    var weapons = player.find_children("*", "WeaponComponent", true)
-    for w in weapons:
-        if w.get("weapon_name") == weapon_name: return w
-    return null
 
 func _on_upgrade_selected(upgrade: Upgrade) -> void:
     var player = get_tree().get_first_node_in_group("player") as Player

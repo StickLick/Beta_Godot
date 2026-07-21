@@ -5,8 +5,6 @@ signal weapon_maxed(name: String)
 
 @export_group("Identity")
 @export var weapon_name: String = "Spear"
-@export var current_level: int = 1
-@export var max_level: int = 8
 @export var is_evolution_version: bool = false 
 
 @export_group("Stats")
@@ -20,7 +18,7 @@ signal weapon_maxed(name: String)
 @export_group("Glitch Juice")
 @export var max_attack_distance: float = 250.0 
 @export var strike_duration: float = 0.05
-@export var fade_duration: float = 0.2
+@export var fade_duration: float = 0.25
 @export var spear_visual_length: float = 120.0 
 
 @onready var visual_pivot: Node2D = $VisualPivot
@@ -30,14 +28,12 @@ signal weapon_maxed(name: String)
 @onready var hitbox: HitboxComponent = find_child("HitboxComponent", true)
 
 var player: Player
-var is_evolved: bool = false
 
 func _ready() -> void:
     player = get_parent() as Player
     if not is_instance_valid(player):
         player = get_tree().get_first_node_in_group("player")
     
-    is_evolved = is_evolution_version or current_level >= 8
     _setup_physics_auto()
     
     if is_instance_valid(spear_mesh):
@@ -47,19 +43,33 @@ func _ready() -> void:
     _set_hitbox_active(false)
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
     cooldown_timer.start(attack_cooldown)
+    
+    # Пример эволюции Аура -> Волна
+    if "Wave" in name: _run_wave_logic()
+
+func on_modifier_applied() -> void:
+    # Здесь можно обновить визуал при изменении статов (напр. масштаб)
+    pass
+
+func _run_wave_logic() -> void:
+    while true:
+        scale = Vector2.ZERO; modulate.a = 1.0
+        var tw = create_tween().set_parallel(true)
+        tw.tween_property(self, "scale", Vector2.ONE * 8.0, 1.2)
+        tw.tween_property(self, "modulate:a", 0.0, 1.2)
+        await tw.finished
+        await get_tree().create_timer(0.4).timeout
 
 func _setup_physics_auto() -> void:
     if is_instance_valid(detection_area):
         var shape_node = detection_area.get_node_or_null("CollisionShape2D")
         if shape_node and shape_node.shape is CircleShape2D:
             shape_node.shape.radius = max_attack_distance + 30.0
-    
     if is_instance_valid(hitbox):
         var shape_node = hitbox.get_node_or_null("CollisionShape2D")
         if shape_node and shape_node.shape is RectangleShape2D:
-            shape_node.shape.size.x = max_attack_distance
-            shape_node.position.x = max_attack_distance / 2.0
-            shape_node.shape.size.y = 60.0
+            shape_node.shape.size = Vector2(max_attack_distance + 15.0, 50.0)
+            shape_node.position.x = (max_attack_distance - 15.0) / 2.0
 
 func _on_cooldown_timeout() -> void:
     var target = _get_closest_target()
@@ -75,20 +85,17 @@ func _on_cooldown_timeout() -> void:
 
 func _perform_glitch_strike(target_dist: float) -> void:
     if not is_instance_valid(spear_mesh): return
-    var stretch = 1.7 if is_evolved else 1.2
-    var thickness = 1.2 if is_evolved else 1.0
+    var stretch = 1.7 if is_evolution_version else 1.2
+    var thickness = 1.2 if is_evolution_version else 1.0
     spear_mesh.position.x = target_dist - (spear_visual_length * stretch * 0.35)
     spear_mesh.scale = Vector2(stretch, thickness)
     spear_mesh.modulate.a = 1.0 
-    
     if is_instance_valid(hitbox):
         hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
         _set_hitbox_active(true)
-
     _spawn_glitch_ghost()
-
     var tween = create_tween().set_parallel(true)
-    tween.tween_method(_update_shader.bind(0.06), 0.0, 0.12 if is_evolved else 0.05, strike_duration)
+    tween.tween_method(_update_shader.bind(0.06), 0.0, 0.12 if is_evolution_version else 0.05, strike_duration)
     var fade = create_tween()
     fade.tween_interval(strike_duration)
     fade.tween_property(spear_mesh, "modulate:a", 0.0, fade_duration)
@@ -101,18 +108,15 @@ func _perform_glitch_strike(target_dist: float) -> void:
 func _spawn_glitch_ghost() -> void:
     var ghost = spear_mesh.duplicate() as Polygon2D
     ghost.polygon = spear_mesh.polygon
-    ghost.material = null 
-    ghost.modulate.a = 0.5 
+    ghost.material = null; ghost.modulate.a = 0.5 
     get_tree().current_scene.add_child(ghost)
     ghost.global_transform = spear_mesh.global_transform
-    
     var gt = create_tween().set_parallel(false)
     ghost.color = Color.WHITE
     gt.tween_interval(0.03)
     gt.tween_property(ghost, "color", Color(0, 1, 1), 0.08)
-    if is_evolved: gt.tween_property(ghost, "color", Color(1, 0, 1), 0.12)
-    
-    var linger = 0.45 if is_evolved else 0.25
+    if is_evolution_version: gt.tween_property(ghost, "color", Color(1, 0, 1), 0.12)
+    var linger = 0.5 if is_evolution_version else 0.3
     var final_fade = create_tween().set_parallel(true)
     final_fade.tween_property(ghost, "modulate:a", 0.0, linger)
     final_fade.tween_property(ghost, "scale:y", 0.01, linger)
@@ -136,12 +140,3 @@ func _set_hitbox_active(active: bool) -> void:
     if is_instance_valid(hitbox):
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape: shape.set_deferred("disabled", !active)
-
-func level_up() -> void:
-    if current_level >= max_level: return
-    current_level += 1
-    if current_level in [2, 4, 6]: attack_cooldown *= 0.8
-    if current_level in [3, 5, 7]: base_damage *= 1.2
-    if current_level == max_level: 
-        is_evolved = true
-        weapon_maxed.emit(weapon_name)
