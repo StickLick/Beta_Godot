@@ -1,32 +1,23 @@
 shader_type canvas_item;
 
-uniform float vision_range = 0.0; 
-uniform float softness = 0.01;
+// Все параметры в реальных экранных пикселях
+uniform float radius_px = 0.0; 
+uniform float softness_px = 10.0;
 uniform vec4 fog_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform vec2 center_px = vec2(0.0, 0.0); 
 
 void fragment() {
-	// Вычисляем соотношение сторон (ширина / высота)
-	float aspect = SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
+	vec2 resolution = 1.0 / SCREEN_PIXEL_SIZE;
+	vec2 current_pixel = SCREEN_UV * resolution;
 	
-	// Центрируем UV
-	vec2 uv = SCREEN_UV - vec2(0.5);
+	// Расстояние от текущего пикселя до центра зоны
+	float dist = distance(current_pixel, center_px);
 	
-	// Корректируем X-координату, чтобы получить круг, а не овал
-	uv.x *= aspect;
+	// Маска: 
+	// Внутри (dist < radius_px) -> 0.0 (чисто)
+	// Снаружи (dist > radius_px + softness) -> 1.0 (туман)
+	float mask = smoothstep(radius_px, radius_px + max(softness_px, 0.1), dist);
 	
-	float dist = length(uv);
-	
-	// Эффект пульсации (только если vision_range > 0, т.е. во время Пира)
-	float pulse = 0.0;
-	if (vision_range > 0.01) {
-		pulse = sin(TIME * 1.5) * 0.005;
-	}
-	
-	float final_vision = vision_range + pulse;
-	float s = max(softness, 0.001);
-	
-	// Создаем маску круга
-	float mask = smoothstep(final_vision, final_vision + s, dist);
-	
+	// Итоговый цвет
 	COLOR = vec4(fog_color.rgb, mask * fog_color.a);
 }

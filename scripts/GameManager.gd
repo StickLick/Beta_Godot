@@ -5,7 +5,7 @@ signal anomaly_warning(time_left: float)
 signal anomaly_ended()
 
 # --- ТЕСТОВАЯ НАСТРОЙКА ---
-const DEBUG_TEST_ANOMALY: String = "" 
+const DEBUG_TEST_ANOMALY: String = "COLLAPSE" 
 
 var total_xp_collected: int = 0
 var rival_camps_destroyed: int = 0
@@ -17,7 +17,7 @@ var is_game_over: bool = false
 var map_rect: Rect2 = Rect2(-2000, -2000, 4000, 4000)
 
 var _check_timer: float = 0.0
-const CHECK_INTERVAL: float = 40.0 
+const CHECK_INTERVAL: float = 10.0 
 var current_chance: float = 0.20   
 const CHANCE_STEP: float = 0.15    
 

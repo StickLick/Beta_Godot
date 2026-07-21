@@ -53,7 +53,13 @@ func _ready() -> void:
         anomaly_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
         anomaly_overlay.color = Color(1, 1, 1, 0)
         anomaly_overlay.show()
-        _update_overlay_shader(0.0, 0.01, Color(0,0,0,0), 0.1)
+        # Инициализируем параметры шейдера, чтобы избежать Nil ошибок
+        var mat = anomaly_overlay.material as ShaderMaterial
+        if mat:
+            mat.set_shader_parameter("radius_px", 0.0)
+            mat.set_shader_parameter("softness_px", 10.0)
+            mat.set_shader_parameter("fog_color", Color(0,0,0,0))
+            mat.set_shader_parameter("center_px", get_viewport().get_visible_rect().size / 2.0)
 
 func _on_anomaly_started(type_name: String, _duration: float) -> void:
     if is_instance_valid(anomaly_label):
@@ -66,22 +72,27 @@ func _on_anomaly_started(type_name: String, _duration: float) -> void:
     
     if is_instance_valid(anomaly_overlay):
         var target_color: Color = Color(0, 0, 0, 0)
-        var target_vision: float = 0.0 
-        var target_soft: float = 0.01
+        var target_radius: float = 0.0 
+        var target_soft: float = 10.0
         
+        var screen_size = get_viewport().get_visible_rect().size
+
         if "ОХОТА" in type_name: target_color = Color(0.8, 0, 0, 0.25)
         elif "ЗАХВАТ" in type_name: target_color = Color(1, 0.5, 0, 0.25)
-        elif "КОЛЛАПС" in type_name: target_color = Color(0, 0.4, 0.8, 0.2)
+        elif "КОЛЛАПС" in type_name: 
+            target_color = Color(0, 0.3, 0.8, 0.4)
+            target_soft = 5.0 # Четкая граница
+            target_radius = screen_size.y
         elif "ГРАВИТАЦИЯ" in type_name: target_color = Color(0.5, 0.2, 0.8, 0.2)
         elif "ДЕФИЦИТ" in type_name: target_color = Color(0.4, 0, 0.6, 0.3)
         elif "ИЗОБИЛИЕ" in type_name: target_color = Color(1, 0.8, 0, 0.15)
         elif "ПИР" in type_name: 
             target_color = Color(0, 0, 0, 1.0)
-            target_vision = GameManager.get_meta("shadow_feast_vision_range", 0.07)
-            target_soft = 0.2
+            target_radius = screen_size.y * 0.12
+            target_soft = screen_size.y * 0.15
         elif "ГИПЕРДРАЙВ" in type_name: target_color = Color(0, 1, 0.8, 0.15)
         
-        _update_overlay_shader(target_vision, target_soft, target_color, 1.5)
+        _update_overlay_shader(target_radius, target_soft, target_color, 1.5)
 
 func _on_anomaly_warning(_time_left: float) -> void:
     if is_instance_valid(anomaly_label):
@@ -100,20 +111,58 @@ func _on_anomaly_ended() -> void:
         lt.tween_property(anomaly_label, "modulate:a", 0.0, 0.8).set_delay(1.5)
         
     if is_instance_valid(anomaly_overlay):
-        _update_overlay_shader(0.0, 0.01, Color(0,0,0,0), 1.0)
+        _update_overlay_shader(0.0, 10.0, Color(0,0,0,0), 1.0)
 
-func _update_overlay_shader(vision: float, soft: float, color: Color, duration: float) -> void:
+func _update_overlay_shader(radius: float, soft: float, color: Color, duration: float) -> void:
     if not is_instance_valid(anomaly_overlay): return
     var mat = anomaly_overlay.material as ShaderMaterial
     if not mat: return
     
+    # Безопасное получение текущих значений (защита от Nil)
+    var cur_r = mat.get_shader_parameter("radius_px")
+    if cur_r == null: cur_r = 0.0
+    var cur_s = mat.get_shader_parameter("softness_px")
+    if cur_s == null: cur_s = 10.0
+    var cur_c = mat.get_shader_parameter("fog_color")
+    if cur_c == null: cur_c = Color(0,0,0,0)
+    
     var tween = create_tween().set_parallel(true)
-    tween.tween_method(func(v): mat.set_shader_parameter("vision_range", v), 
-        mat.get_shader_parameter("vision_range"), vision, duration)
-    tween.tween_method(func(s): mat.set_shader_parameter("softness", s), 
-        mat.get_shader_parameter("softness"), soft, duration)
-    tween.tween_method(func(c): mat.set_shader_parameter("fog_color", c), 
-        mat.get_shader_parameter("fog_color"), color, duration)
+    tween.tween_method(func(v): mat.set_shader_parameter("radius_px", v), cur_r, radius, duration)
+    tween.tween_method(func(s): mat.set_shader_parameter("softness_px", s), cur_s, soft, duration)
+    tween.tween_method(func(c): mat.set_shader_parameter("fog_color", c), cur_c, color, duration)
+
+func _process(_delta: float) -> void:
+    if "time_elapsed" in GameManager: timer_label.text = _format_time(GameManager.time_elapsed)
+    
+    if GameManager.current_anomaly == "COLLAPSE":
+        _process_collapse_overlay()
+    elif GameManager.current_anomaly == "FEAST":
+        _process_feast_overlay()
+
+func _process_collapse_overlay() -> void:
+    if not is_instance_valid(anomaly_overlay): return
+    var mat = anomaly_overlay.material as ShaderMaterial
+    if not mat: return
+    
+    var sz = get_tree().get_first_node_in_group("safe_zone")
+    if is_instance_valid(sz):
+        var screen_pos = sz.get_global_transform_with_canvas().origin
+        mat.set_shader_parameter("center_px", screen_pos)
+        
+        var screen_scale = sz.get_global_transform_with_canvas().get_scale().y
+        # Добавляем +5 пикселей запаса, чтобы внутри кольца было идеально чисто
+        var radius_in_pixels = (100.0 * screen_scale) + 5.0
+        mat.set_shader_parameter("radius_px", radius_in_pixels)
+
+func _process_feast_overlay() -> void:
+    if not is_instance_valid(anomaly_overlay): return
+    var mat = anomaly_overlay.material as ShaderMaterial
+    if not mat: return
+    
+    var player = get_tree().get_first_node_in_group("player")
+    if is_instance_valid(player):
+        var screen_pos = player.get_global_transform_with_canvas().origin
+        mat.set_shader_parameter("center_px", screen_pos)
 
 func _on_restart_pressed() -> void:
     get_tree().paused = false; GameManager.reset_game(); get_tree().reload_current_scene()
@@ -130,9 +179,6 @@ func _on_camp_specialty_requested(camp: Camp) -> void:
 func _connect_camp(camp: Camp) -> void:
     if not camp.specialty_requested.is_connected(_on_camp_specialty_requested):
         camp.specialty_requested.connect(_on_camp_specialty_requested)
-
-func _process(_delta: float) -> void:
-    if "time_elapsed" in GameManager: timer_label.text = _format_time(GameManager.time_elapsed)
 
 func _on_player_health_changed(current: float, max_val: float) -> void:
     health_bar.max_value = max_val

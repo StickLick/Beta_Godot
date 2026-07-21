@@ -20,7 +20,7 @@ signal weapon_maxed(name: String)
 @export_group("Glitch Juice")
 @export var max_attack_distance: float = 250.0 
 @export var strike_duration: float = 0.05
-@export var fade_duration: float = 0.25
+@export var fade_duration: float = 0.2
 @export var spear_visual_length: float = 120.0 
 
 @onready var visual_pivot: Node2D = $VisualPivot
@@ -57,17 +57,14 @@ func _setup_physics_auto() -> void:
     if is_instance_valid(hitbox):
         var shape_node = hitbox.get_node_or_null("CollisionShape2D")
         if shape_node and shape_node.shape is RectangleShape2D:
-            # ИСПРАВЛЕНИЕ: Заход назад всего на 15 пикселей для ближнего боя
-            var reach_back = 15.0
-            shape_node.shape.size.x = max_attack_distance + reach_back
-            shape_node.position.x = (max_attack_distance - reach_back) / 2.0
-            shape_node.shape.size.y = 50.0
+            shape_node.shape.size.x = max_attack_distance
+            shape_node.position.x = max_attack_distance / 2.0
+            shape_node.shape.size.y = 60.0
 
 func _on_cooldown_timeout() -> void:
     var target = _get_closest_target()
     if target == null:
         cooldown_timer.start(0.2); return
-
     var dist = global_position.distance_to(target.global_position)
     if dist <= max_attack_distance:
         visual_pivot.look_at(target.global_position)
@@ -78,31 +75,23 @@ func _on_cooldown_timeout() -> void:
 
 func _perform_glitch_strike(target_dist: float) -> void:
     if not is_instance_valid(spear_mesh): return
-    
-    var lunge = target_dist
-    var stretch = 1.7 if is_evolved else 1.1
+    var stretch = 1.7 if is_evolved else 1.2
     var thickness = 1.2 if is_evolved else 1.0
-    
     spear_mesh.position.x = target_dist - (spear_visual_length * stretch * 0.35)
     spear_mesh.scale = Vector2(stretch, thickness)
     spear_mesh.modulate.a = 1.0 
     
-    var multiplier = player.get_final_damage_multiplier() if is_instance_valid(player) else 1.0
     if is_instance_valid(hitbox):
-        hitbox.damage = base_damage * multiplier
+        hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
         _set_hitbox_active(true)
 
     _spawn_glitch_ghost()
 
     var tween = create_tween().set_parallel(true)
-    var strength = 0.12 if is_evolved else 0.05
-    tween.tween_method(_update_shader.bind(0.06), 0.0, strength, strike_duration)
-    
+    tween.tween_method(_update_shader.bind(0.06), 0.0, 0.12 if is_evolved else 0.05, strike_duration)
     var fade = create_tween()
     fade.tween_interval(strike_duration)
     fade.tween_property(spear_mesh, "modulate:a", 0.0, fade_duration)
-    fade.parallel().tween_method(_update_shader.bind(0.0), strength, 0.0, fade_duration)
-    
     fade.finished.connect(func():
         spear_mesh.position.x = 0
         _set_hitbox_active(false)
@@ -113,8 +102,7 @@ func _spawn_glitch_ghost() -> void:
     var ghost = spear_mesh.duplicate() as Polygon2D
     ghost.polygon = spear_mesh.polygon
     ghost.material = null 
-    ghost.modulate.a = 0.4 
-    
+    ghost.modulate.a = 0.5 
     get_tree().current_scene.add_child(ghost)
     ghost.global_transform = spear_mesh.global_transform
     
@@ -122,14 +110,12 @@ func _spawn_glitch_ghost() -> void:
     ghost.color = Color.WHITE
     gt.tween_interval(0.03)
     gt.tween_property(ghost, "color", Color(0, 1, 1), 0.08)
-    if is_evolved:
-        gt.tween_property(ghost, "color", Color(1, 0, 1), 0.12)
+    if is_evolved: gt.tween_property(ghost, "color", Color(1, 0, 1), 0.12)
     
     var linger = 0.45 if is_evolved else 0.25
     var final_fade = create_tween().set_parallel(true)
     final_fade.tween_property(ghost, "modulate:a", 0.0, linger)
     final_fade.tween_property(ghost, "scale:y", 0.01, linger)
-    
     gt.finished.connect(ghost.queue_free)
 
 func _update_shader(strength: float, split: float) -> void:
@@ -159,7 +145,3 @@ func level_up() -> void:
     if current_level == max_level: 
         is_evolved = true
         weapon_maxed.emit(weapon_name)
-
-func update_weapon_range(new_range_mult: float) -> void:
-    if is_instance_valid(visual_pivot):
-        visual_pivot.scale = Vector2.ONE * new_range_mult
