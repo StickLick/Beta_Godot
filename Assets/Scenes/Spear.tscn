@@ -11,6 +11,7 @@ size = Vector2(50, 20)
 
 [node name="WeaponComponent" type="Node2D" unique_id=469123586]
 script = ExtResource("1_vr6i1")
+max_attack_distance = 100.0
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=319908576]
 collision_layer = 0

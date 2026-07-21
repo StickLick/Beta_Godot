@@ -57,16 +57,28 @@ func _physics_process(delta: float) -> void:
     var dist = global_position.distance_to(target_node.global_position)
     var dir = (target_node.global_position - global_position).normalized()
     
+    # --- ЛОГИКА РАЗДЕЛЕНИЯ (SEPARATION) ---
+    var separation_vector = Vector2.ZERO
+    var neighbors = get_tree().get_nodes_in_group("enemy")
+    for enemy in neighbors:
+        if enemy != self and is_instance_valid(enemy):
+            var d = global_position.distance_to(enemy.global_position)
+            if d < 40.0: # Радиус комфорта между врагами
+                separation_vector -= (enemy.global_position - global_position).normalized() * (40.0 - d)
+    
     var accel = 10.0
     if GameManager.get_meta("inertia_active"): accel = 0.8
     
-    var move_dir = dir
+    var move_dir = (dir + separation_vector * 0.5).normalized() # Смешиваем направление к цели и отталкивание
+    
     if current_archetype == Archetype.DISRUPTOR:
         if dist < 280: move_dir = -dir; speed = 180.0
         elif dist > 400: move_dir = dir; speed = 130.0
         else: move_dir = Vector2.ZERO
     
     var final_speed = speed * GameManager.get_meta("enemy_stat_mult")
+    
+    # Плавная остановка у цели
     if dist < 25.0 and not GameManager.get_meta("inertia_active"):
         velocity = velocity.lerp(Vector2.ZERO, delta * 15.0)
     else:
@@ -81,6 +93,7 @@ func _physics_process(delta: float) -> void:
     if not is_attacking and dist > 40.0:
         if abs(dir.x) > 0.1: animated_sprite.flip_h = (dir.x < 0)
         animated_sprite.play("Run" if velocity.length() > 20 else "Idle")
+    
     move_and_slide()
 
 func _apply_gravity_logic(delta: float) -> void:
@@ -135,7 +148,6 @@ func _shoot() -> void:
     animated_sprite.play("Attack1")
 
 func _play_sequential_melee() -> void:
-    # ИСПРАВЛЕНО: Безопасное переключение хитбокса
     _toggle_hitbox() 
     var attacks = ["Attack1", "Attack2"]
     animated_sprite.play(attacks[attack_index])
@@ -149,7 +161,6 @@ func _toggle_hitbox() -> void:
         if shape:
             shape.disabled = false
             hitbox.check_hit()
-            # Используем таймер сцены для безопасности
             get_tree().create_timer(0.4).timeout.connect(_disable_shape.bind(shape, original_dmg))
 
 func _disable_shape(shape: CollisionShape2D, dmg: float) -> void:

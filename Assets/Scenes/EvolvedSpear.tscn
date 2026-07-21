@@ -2,29 +2,25 @@
 
 [ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_on6hx"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_6iwg3"]
-[ext_resource type="Texture2D" uid="uid://6rdbdox0yg7x" path="res://icon.svg" id="3_6iwg3"]
+[ext_resource type="Shader" uid="uid://cvop7mrxfu45y" path="res://Shaders/GlitchWeapon.gdshader" id="2_lngdc"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_detection"]
-radius = 120.0
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_l7ah3"]
-particle_flag_disable_z = true
-direction = Vector3(1, 1, 0)
-spread = 180.0
-initial_velocity_min = 50.0
-initial_velocity_max = 100.0
-gravity = Vector3(0, 0, 0)
-scale_min = 0.01
-scale_max = 0.049999997
-color = Color(0.067899995, 0.57908994, 0.97, 1)
+radius = 200.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_weapon_hitbox"]
-size = Vector2(50, 20)
+size = Vector2(150, 20)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_on6hx"]
+shader = ExtResource("2_lngdc")
+shader_parameter/glitch_strength = 0.0
+shader_parameter/color_split = 0.0
 
 [node name="WeaponComponent" type="Node2D" unique_id=469123586]
 script = ExtResource("1_on6hx")
+weapon_name = "Spear_Of_Destiny"
+is_evolution_version = true
 base_damage = 100.0
-attack_cooldown = 0.2
+max_attack_distance = 180.0
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=319908576]
 collision_layer = 0
@@ -37,26 +33,20 @@ shape = SubResource("CircleShape2D_detection")
 [node name="CooldownTimer" type="Timer" parent="." unique_id=1446875375]
 
 [node name="VisualPivot" type="Node2D" parent="." unique_id=371455468]
+modulate = Color(1, 1, 1, 0)
 
-[node name="Polygon2D" type="Polygon2D" parent="VisualPivot" unique_id=53173236]
-color = Color(0.3, 0.7, 1, 1)
-polygon = PackedVector2Array(0, -6, 50, 0, 0, 6)
-
-[node name="GPUParticles2D" type="GPUParticles2D" parent="VisualPivot/Polygon2D" unique_id=1262850905]
-z_index = 10
-position = Vector2(43, 0)
-emitting = false
-amount = 50
-texture = ExtResource("3_6iwg3")
-lifetime = 0.3
-process_material = SubResource("ParticleProcessMaterial_l7ah3")
-
-[node name="HitboxComponent" type="Area2D" parent="VisualPivot/Polygon2D" unique_id=677400277]
+[node name="HitboxComponent" type="Area2D" parent="VisualPivot" unique_id=677400277]
 position = Vector2(25, 0)
 collision_layer = 8
 collision_mask = 12
 monitoring = false
 script = ExtResource("2_6iwg3")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="VisualPivot/Polygon2D/HitboxComponent" unique_id=1550546377]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VisualPivot/HitboxComponent" unique_id=1550546377]
+position = Vector2(50, 0)
 shape = SubResource("RectangleShape2D_weapon_hitbox")
+
+[node name="Polygon2D" type="Polygon2D" parent="VisualPivot" unique_id=53173236]
+material = SubResource("ShaderMaterial_on6hx")
+color = Color(0, 0.93333316, 1, 0.3137255)
+polygon = PackedVector2Array(0, -6, 50, 0, 0, 6)

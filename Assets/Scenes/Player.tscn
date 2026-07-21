@@ -340,5 +340,5 @@ shape = SubResource("CircleShape2D_magnet")
 position = Vector2(-7.9999995, -12.999999)
 scale = Vector2(0.9101563, 0.9101563)
 sprite_frames = SubResource("SpriteFrames_gd7ey")
-animation = &"Run"
+animation = &"UpRightAttack"
 speed_scale = 1.5
