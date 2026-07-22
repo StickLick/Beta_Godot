@@ -33,8 +33,8 @@ signal inventory_updated
 @export var xp_gain: float = 1.0
 
 # --- ИНВЕНТАРЬ И ТЕГИ ---
-var max_weapon_slots: int = 1
-var max_passive_slots: int = 1
+var max_weapon_slots: int = 3
+var max_passive_slots: int = 3
 var active_weapons: Array[Upgrade] = []
 var active_passives: Array[Upgrade] = []
 var applied_upgrade_names: Array[String] = []
@@ -114,17 +114,21 @@ func remove_camp_buffs() -> void:
 # --- ИНВЕНТАРЬ И УЛУЧШЕНИЯ ---
 
 func apply_custom_upgrade(upgrade: Upgrade) -> void:
-    # 1. Трекинг тегов
+    # 1. Трекинг тегов и уровней
     var tag = upgrade.weapon_tag
     tag_levels[tag] = tag_levels.get(tag, 0) + 1
     
     # 2. Регистрация в инвентаре
-    if not applied_upgrade_names.has(upgrade.name):
-        if upgrade.is_weapon:
-            var has_tag = active_weapons.any(func(u): return u.weapon_tag == tag)
-            if not has_tag: active_weapons.append(upgrade)
-        else:
+    if upgrade.is_weapon:
+        var already_owned = active_weapons.any(func(u): return u.weapon_tag == tag)
+        if not already_owned:
+            active_weapons.append(upgrade)
+    else:
+        var already_owned = active_passives.any(func(u): return u.name == upgrade.name)
+        if not already_owned:
             active_passives.append(upgrade)
+            
+    if not applied_upgrade_names.has(upgrade.name):
         applied_upgrade_names.append(upgrade.name)
     
     # 3. Эволюция
@@ -139,16 +143,18 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
         else:
             var weapons = find_children("*", "WeaponComponent", true)
             for w in weapons:
-                if w.weapon_name == tag or w.weapon_name == upgrade.target_weapon_name:
-                    if stat in w: w.set(stat, w.get(stat) + upgrade.amount)
-                    if w.has_method("on_modifier_applied"): w.on_modifier_applied()
+                if w.get("weapon_name") == tag or w.get("weapon_name") == upgrade.target_weapon_name:
+                    if stat in w: 
+                        w.set(stat, w.get(stat) + upgrade.amount)
+                    if w.has_method("on_modifier_applied"): 
+                        w.on_modifier_applied()
             
     inventory_updated.emit()
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
     var weapons = find_children("*", "WeaponComponent", true)
     for w in weapons:
-        if w.weapon_name == weapon_name:
+        if w.get("weapon_name") == weapon_name:
             var old_pos = w.position
             w.queue_free()
             var new_weapon = evolved_scene.instantiate()

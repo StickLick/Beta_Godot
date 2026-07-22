@@ -55,11 +55,13 @@ func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
         
         # Фильтр тегов (Hive-Mind)
         if u.is_weapon:
+            # Если слоты оружия полны, мы можем предлагать только улучшения для УЖЕ имеющегося оружия
             if weapons_full and not owned_tags.has(u.weapon_tag): return false
         else:
+            # Если слоты пассивок полны, мы можем предлагать только улучшения для УЖЕ имеющихся пассивок
             if passives_full and not owned_passives.has(u.name): return false
             
-        if u.change_mechanic_on_apply: return false # Эволюции добавляются отдельно
+        if u.change_mechanic_on_apply: return false # Эволюции добавляются отдельно ниже
         return true
     )
     
