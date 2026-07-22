@@ -73,7 +73,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     if is_instance_valid(health_component) and health_component.current_health <= 0:
-        _on_death(); return
+        _on_death()
+        return
 
     _process_zone_influences(delta)
     _process_anomalies_damage(delta)
@@ -174,8 +175,12 @@ func _play_evolution_fx() -> void:
 
 # --- ЗОНЫ И ВЗАИМОДЕЙСТВИЕ ---
 
-func register_zone(zone: Area2D) -> void: if not active_zones.has(zone): active_zones.append(zone)
-func unregister_zone(zone: Area2D) -> void: active_zones.erase(zone)
+func register_zone(zone: Area2D) -> void:
+    if not active_zones.has(zone):
+        active_zones.append(zone)
+
+func unregister_zone(zone: Area2D) -> void:
+    active_zones.erase(zone)
 
 func _process_zone_influences(delta: float) -> void:
     var speed_mod: float = 1.0
@@ -193,11 +198,17 @@ func _process_zone_influences(delta: float) -> void:
 
 func _process_territory_interaction(delta: float) -> void:
     if is_instance_valid(current_camp) and current_camp.get("alignment") == 1:
-        var inv = 50.0 * delta; if spend_mass(inv): if current_camp.has_method("upgrade"): current_camp.upgrade(inv)
+        var inv = 50.0 * delta
+        if spend_mass(inv):
+            if current_camp.has_method("upgrade"):
+                current_camp.upgrade(inv)
+                
     for zone in active_zones:
         if is_instance_valid(zone) and zone.has_method("inject_mass"):
             if zone.get("current_state") == 2:
-                var z_inv = 20.0 * delta; if spend_mass(z_inv): zone.inject_mass(z_inv)
+                var z_inv = 20.0 * delta
+                if spend_mass(z_inv):
+                    zone.inject_mass(z_inv)
 
 func _process_anomalies_damage(delta: float) -> void:
     if not is_inside_tree(): return
