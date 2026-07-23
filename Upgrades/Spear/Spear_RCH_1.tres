@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cspearrch1"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Spear_RCH_1"
+description = "+20 дальности копья"
+stat_to_modify = "max_attack_distance"
+amount = 20.0
+rarity = 0
+weapon_tag = "Spear"
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

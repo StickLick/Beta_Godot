@@ -8,5 +8,4 @@ name = "Сила II"
 stat_to_modify = "damage_multiplier"
 amount = 0.25
 rarity = 1
-prerequisites = Array[String](["Сила I"])
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

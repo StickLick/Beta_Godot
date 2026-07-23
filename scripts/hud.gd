@@ -62,8 +62,8 @@ func _ready() -> void:
 func update_inventory_ui() -> void:
     var player = get_tree().get_first_node_in_group("player") as Player
     if not player: return
-    _fill_slots(weapon_container, player.active_weapons, player.max_weapon_slots, 3, Vector2(20, 20))
-    _fill_slots(passive_container, player.active_passives, player.max_passive_slots, 3, Vector2(20, 20))
+    _fill_slots(weapon_container, player.active_weapons, player.unlocked_weapon_slots, 3, Vector2(20, 20))
+    _fill_slots(passive_container, player.active_passives, player.unlocked_passive_slots, 3, Vector2(20, 20))
 
 func _fill_slots(container: HBoxContainer, items: Array, max_slots: int, total_slots: int, slot_size: Vector2) -> void:
     if not is_instance_valid(container): return
@@ -141,6 +141,8 @@ func _setup_player_connections(player: Player) -> void:
     var health_node: Node = player.find_child("HealthComponent", true, false)
     if health_node is HealthComponent:
         health_node.health_changed.connect(_on_player_health_changed)
+        # Инициализируем health_bar сразу, чтобы не было 0 HP
+        _on_player_health_changed(health_node.current_health, health_node.max_health)
     player.xp_changed.connect(_on_player_xp_changed)
     player.level_up.connect(_on_player_level_up)
     level_label.text = "LVL: " + str(player.current_level)

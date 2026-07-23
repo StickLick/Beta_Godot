@@ -4,9 +4,8 @@
 
 [resource]
 script = ExtResource("1_xx4gc")
-name = "Сила II"
+name = "Сила III"
 stat_to_modify = "damage_multiplier"
 amount = 1.5
 rarity = 3
-prerequisites = Array[String](["Сила II"])
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

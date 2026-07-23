@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cstoner01"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Stone_HP_R"
+description = "+75-150 HP (Stone)"
+stat_to_modify = "max_health"
+amount = 100.0
+rarity = 1
+weapon_tag = "BaseStone"
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

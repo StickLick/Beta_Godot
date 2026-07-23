@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://caurabase01"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Aura"
+description = "Базовое оружие: аура ближнего радиуса"
+stat_to_modify = "base_damage"
+amount = 10.0
+rarity = 0
+is_weapon = true
+weapon_tag = "Aura"
+target_weapon_name = "Aura"
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

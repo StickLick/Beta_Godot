@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cauradmg01"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Aura_DMG_1"
+description = "+4 урона ауре"
+stat_to_modify = "base_damage"
+amount = 4.0
+rarity = 0
+weapon_tag = "Aura"
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

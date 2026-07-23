@@ -22,7 +22,8 @@ signal weapon_maxed(name: String)
 @export var spear_visual_length: float = 120.0 
 
 @onready var visual_pivot: Node2D = $VisualPivot
-@onready var spear_mesh: Polygon2D = $VisualPivot/Polygon2D 
+@onready var spear_visual: CanvasItem = _find_visual()
+
 @onready var cooldown_timer: Timer = $CooldownTimer
 @onready var detection_area: Area2D = $DetectionArea
 @onready var hitbox: HitboxComponent = find_child("HitboxComponent", true)
@@ -30,21 +31,29 @@ signal weapon_maxed(name: String)
 var player: Player
 
 func _ready() -> void:
+    if "Wave" in name:
+        _run_wave_logic()
+    
     player = get_parent() as Player
     if not is_instance_valid(player):
         player = get_tree().get_first_node_in_group("player")
     
     _setup_physics_auto()
     
-    if is_instance_valid(spear_mesh):
-        spear_mesh.modulate.a = 0
+    if weapon_name == "Aura":
+        _set_hitbox_active(true)
+        if is_instance_valid(spear_visual):
+            spear_visual.modulate.a = 0.3
+        return
+    
+    if is_instance_valid(spear_visual):
+        spear_visual.modulate.a = 0
         _update_shader(0.0, 0.0)
     
     _set_hitbox_active(false)
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
     cooldown_timer.start(attack_cooldown)
     
-    # Пример эволюции Аура -> Волна
     if "Wave" in name: _run_wave_logic()
 
 func on_modifier_applied() -> void:
@@ -84,33 +93,42 @@ func _on_cooldown_timeout() -> void:
         cooldown_timer.start(0.1)
 
 func _perform_glitch_strike(target_dist: float) -> void:
-    if not is_instance_valid(spear_mesh): return
-    var stretch = 1.7 if is_evolution_version else 1.2
-    var thickness = 1.2 if is_evolution_version else 1.0
-    spear_mesh.position.x = target_dist - (spear_visual_length * stretch * 0.35)
-    spear_mesh.scale = Vector2(stretch, thickness)
-    spear_mesh.modulate.a = 1.0 
+    # Урон — выполняется ВСЕГДА, независимо от визуала
     if is_instance_valid(hitbox):
         hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
         _set_hitbox_active(true)
-    _spawn_glitch_ghost()
-    var tween = create_tween().set_parallel(true)
-    tween.tween_method(_update_shader.bind(0.06), 0.0, 0.12 if is_evolution_version else 0.05, strike_duration)
+    
+    # Визуал — только если есть canvas-элемент
+    if is_instance_valid(spear_visual):
+        var stretch = 1.7 if is_evolution_version else 1.2
+        var thickness = 1.2 if is_evolution_version else 1.0
+        spear_visual.position.x = target_dist - (spear_visual_length * stretch * 0.35)
+        spear_visual.scale = Vector2(stretch, thickness)
+        spear_visual.modulate.a = 1.0
+        _spawn_glitch_ghost()
+        _update_shader(0.06, 0.06 if is_evolution_version else 0.05)
+    
+    # Fade + выключение хитбокса
     var fade = create_tween()
     fade.tween_interval(strike_duration)
-    fade.tween_property(spear_mesh, "modulate:a", 0.0, fade_duration)
+    if is_instance_valid(spear_visual):
+        fade.tween_property(spear_visual, "modulate:a", 0.0, fade_duration)
+    else:
+        fade.tween_property(self, "modulate:a", 0.0, strike_duration)
     fade.finished.connect(func():
-        spear_mesh.position.x = 0
+        if is_instance_valid(spear_visual):
+            spear_visual.position.x = 0
         _set_hitbox_active(false)
     )
     cooldown_timer.start(attack_cooldown)
 
 func _spawn_glitch_ghost() -> void:
-    var ghost = spear_mesh.duplicate() as Polygon2D
-    ghost.polygon = spear_mesh.polygon
+    var poly = spear_visual as Polygon2D
+    if not poly: return
+    var ghost = poly.duplicate() as Polygon2D
     ghost.material = null; ghost.modulate.a = 0.5 
     get_tree().current_scene.add_child(ghost)
-    ghost.global_transform = spear_mesh.global_transform
+    ghost.global_transform = spear_visual.global_transform
     var gt = create_tween().set_parallel(false)
     ghost.color = Color.WHITE
     gt.tween_interval(0.03)
@@ -123,9 +141,10 @@ func _spawn_glitch_ghost() -> void:
     gt.finished.connect(ghost.queue_free)
 
 func _update_shader(strength: float, split: float) -> void:
-    if is_instance_valid(spear_mesh) and spear_mesh.material is ShaderMaterial:
-        spear_mesh.material.set_shader_parameter("glitch_strength", strength)
-        spear_mesh.material.set_shader_parameter("color_split", split)
+    var poly = spear_visual as Polygon2D
+    if poly and poly.material is ShaderMaterial:
+        poly.material.set_shader_parameter("glitch_strength", strength)
+        poly.material.set_shader_parameter("color_split", split)
 
 func _get_closest_target() -> Area2D:
     var closest: Area2D = null
@@ -140,3 +159,14 @@ func _set_hitbox_active(active: bool) -> void:
     if is_instance_valid(hitbox):
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape: shape.set_deferred("disabled", !active)
+        
+func _find_visual() -> CanvasItem:
+    var polygon = get_node_or_null("VisualPivot/Polygon2D")
+    if polygon:
+        return polygon
+
+    var sprite = get_node_or_null("VisualPivot/Sprite2D")
+    if sprite:
+        return sprite
+
+    return null

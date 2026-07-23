@@ -30,11 +30,13 @@ signal inventory_updated
 
 @export var radius_weapons: float = 1.0
 @export var xp_radius: float = 1.0
-@export var xp_gain: float = 1.0
+@export var xp_gain: float = 20.0
 
 # --- ИНВЕНТАРЬ И ТЕГИ ---
 var max_weapon_slots: int = 3
 var max_passive_slots: int = 3
+var unlocked_weapon_slots: int = 2
+var unlocked_passive_slots: int = 2
 var active_weapons: Array[Upgrade] = []
 var active_passives: Array[Upgrade] = []
 var applied_upgrade_names: Array[String] = []
@@ -70,6 +72,13 @@ func _ready() -> void:
         health_component.health_depleted.connect(_on_death)
     if is_instance_valid(magnet_area): 
         magnet_area.add_to_group("player_magnet")
+    
+    # Заполняем первый слот стартовым копьём
+    var spear_upgrade = load("res://Upgrades/Spear/BaseSpear.tres") as Upgrade
+    if spear_upgrade:
+        active_weapons.append(spear_upgrade)
+        applied_upgrade_names.append(spear_upgrade.name)
+        tag_levels["Spear"] = 1
 
 func _physics_process(delta: float) -> void:
     if is_instance_valid(health_component) and health_component.current_health <= 0:
@@ -117,17 +126,21 @@ func remove_camp_buffs() -> void:
 func apply_custom_upgrade(upgrade: Upgrade) -> void:
     # 1. Трекинг тегов и уровней
     var tag = upgrade.weapon_tag
-    tag_levels[tag] = tag_levels.get(tag, 0) + 1
+    # Эволюции не инкрементят уровень — они заменяют оружие
+    if not upgrade.change_mechanic_on_apply:
+        tag_levels[tag] = min(tag_levels.get(tag, 0) + 1, 8)
     
-    # 2. Регистрация в инвентаре
+    # 2. Регистрация в инвентаре и спавн сцены оружия
     if upgrade.is_weapon:
         var already_owned = active_weapons.any(func(u): return u.weapon_tag == tag)
         if not already_owned:
             active_weapons.append(upgrade)
-    else:
+            _spawn_weapon_scene(upgrade)
+    elif upgrade.weapon_tag == "" or upgrade.weapon_tag == "General":
         var already_owned = active_passives.any(func(u): return u.name == upgrade.name)
         if not already_owned:
             active_passives.append(upgrade)
+    # Модификаторы оружия/пассивок (weapon_tag != "" и не "General") — не добавляем в active_passives
             
     if not applied_upgrade_names.has(upgrade.name):
         applied_upgrade_names.append(upgrade.name)
@@ -151,6 +164,20 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
                         w.on_modifier_applied()
             
     inventory_updated.emit()
+
+
+func _spawn_weapon_scene(upgrade: Upgrade) -> void:
+    # Загружаем сцену из Assets/Scenes/{weapon_tag}Weapon.tscn
+    var scene_path = "res://Assets/Scenes/" + upgrade.weapon_tag + "Weapon.tscn"
+    var weapon_scene = load(scene_path) as PackedScene
+    if not weapon_scene:
+        push_warning("No weapon scene found at: " + scene_path)
+        return
+    var new_weapon = weapon_scene.instantiate()
+    # Сдвигаем позицию, чтобы оружия не накладывались друг на друга
+    var offset = active_weapons.size() * 20
+    new_weapon.position = Vector2(offset, -offset)
+    add_child(new_weapon)
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
     var weapons = find_children("*", "WeaponComponent", true)

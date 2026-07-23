@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cauraevo001"]
+
+[ext_resource type="PackedScene" uid="uid://cqaskkp8hh682" path="res://Assets/Scenes/EvolvedAuraWave.tscn" id="1_g0onb"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+
+[resource]
+script = ExtResource("2_upg")
+name = "Аура Бездны"
+description = "Эволюция Ауры: пульсирующая волна"
+rarity = 3
+is_unique = true
+required_passive_tag = "BaseBook"
+weapon_tag = "Aura"
+target_weapon_name = "Aura"
+evolved_weapon_scene = ExtResource("1_g0onb")
+change_mechanic_on_apply = true
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

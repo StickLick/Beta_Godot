@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://ct1g2pn7oa0rw"]
+
+[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_vka61"]
+[ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_7pouy"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
+radius = 330.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gd7ey"]
+size = Vector2(320, 80)
+
+[node name="WeaponComponent" type="Node2D" unique_id=1817784419]
+script = ExtResource("1_vka61")
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=66046695]
+collision_layer = 0
+collision_mask = 12
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1370908666]
+shape = SubResource("CircleShape2D_gd7ey")
+
+[node name="CooldownTimer" type="Timer" parent="." unique_id=4091616]
+
+[node name="VisualPivot" type="Node2D" parent="." unique_id=1375187962]
+modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
+
+[node name="HitboxComponent" type="Area2D" parent="VisualPivot" unique_id=1359229337]
+collision_layer = 8
+collision_mask = 12
+monitoring = false
+script = ExtResource("2_7pouy")
+metadata/_custom_type_script = "uid://c2578100uqvx"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VisualPivot/HitboxComponent" unique_id=1129988597]
+position = Vector2(120, 0)
+shape = SubResource("RectangleShape2D_gd7ey")
+
+[node name="Polygon2D" type="Polygon2D" parent="VisualPivot" unique_id=968335966]
+color = Color(0.2, 0.6, 1, 0.2509804)
+polygon = PackedVector2Array(0, -8, 60, 0, 0, 8)

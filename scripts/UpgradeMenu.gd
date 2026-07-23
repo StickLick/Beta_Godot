@@ -7,7 +7,6 @@ extends Node
 var _active_menu: Control = null
 var _pending_upgrades: int = 0
 
-const EVO_RECIPES = { "Spear": "Passive_Stone", "Aura": "Passive_Book" }
 
 const BASE_WEIGHTS = {
     Upgrade.Rarity.COMMON: 100.0,
@@ -29,6 +28,8 @@ func open_upgrade_menu() -> void:
 
     var eligible_pool = _get_eligible_upgrades(player)
     if eligible_pool.is_empty():
+        # TODO: Gold/resources reward when all builds are maxed
+        # player.add_gold(randi_range(50, 150))
         get_tree().paused = false; return
 
     get_tree().paused = true
@@ -42,38 +43,118 @@ func open_upgrade_menu() -> void:
 
     _spawn_menu(selected_upgrades, player)
 
-func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
-    var weapons_full = player.active_weapons.size() >= player.max_weapon_slots
-    var passives_full = player.active_passives.size() >= player.max_passive_slots
-    var owned_tags = player.active_weapons.map(func(u): return u.weapon_tag)
-    var owned_passives = player.active_passives.map(func(u): return u.name)
 
-    var pool = all_available_upgrades.filter(func(u):
-        if u.is_unique and player.applied_upgrade_names.has(u.name): return false
-        for p in u.prerequisites:
-            if not player.applied_upgrade_names.has(p): return false
-        
-        # Фильтр тегов (Hive-Mind)
-        if u.is_weapon:
-            # Если слоты оружия полны, мы можем предлагать только улучшения для УЖЕ имеющегося оружия
-            if weapons_full and not owned_tags.has(u.weapon_tag): return false
-        else:
-            # Если слоты пассивок полны, мы можем предлагать только улучшения для УЖЕ имеющихся пассивок
-            if passives_full and not owned_passives.has(u.name): return false
-            
-        if u.change_mechanic_on_apply: return false # Эволюции добавляются отдельно ниже
-        return true
-    )
+# ═══════════════════════════════════════════════════════════
+# ОСНОВНОЙ ФИЛЬТР — одна ветка на upgrade
+# ═══════════════════════════════════════════════════════════
+
+func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
+    var weapons_full = player.active_weapons.size() >= player.unlocked_weapon_slots
+    var passives_full = player.active_passives.size() >= player.unlocked_passive_slots
+    var pool: Array[Upgrade] = []
     
-    # Проверка Эволюции
-    for tag in owned_tags:
-        var cur_lvl = player.tag_levels.get(tag, 0)
-        var needed = EVO_RECIPES.get(tag, "")
-        if cur_lvl >= 8 and player.applied_upgrade_names.has(needed):
-            for u in all_available_upgrades:
-                if u.change_mechanic_on_apply and u.weapon_tag == tag:
-                    pool.append(u)
+    for u in all_available_upgrades:
+        if _already_taken(u, player): continue
+        if not _prerequisites_met(u, player): continue
+        
+        if u.change_mechanic_on_apply:
+            if _can_take_evolution(u, player): pool.append(u)
+        elif u.is_weapon:
+            if _can_take_weapon(u, player, weapons_full): pool.append(u)
+        elif u.weapon_tag != "" and u.weapon_tag != "General":
+            if _can_take_modifier(u, player): pool.append(u)
+        else:
+            if _can_take_passive(u, player, passives_full): pool.append(u)
+    
     return pool
+
+
+# ═══════════════════════════════════════════════════════════
+# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+# ═══════════════════════════════════════════════════════════
+
+func _already_taken(u: Upgrade, player: Player) -> bool:
+    return u.is_unique and player.applied_upgrade_names.has(u.name)
+
+
+func _prerequisites_met(u: Upgrade, player: Player) -> bool:
+    for p in u.prerequisites:
+        if not player.applied_upgrade_names.has(p):
+            return false
+    return true
+
+
+func _can_take_evolution(u: Upgrade, player: Player) -> bool:
+    # Оружие должно существовать в active_weapons (источник истины)
+    var owns_weapon = false
+    for w in player.active_weapons:
+        if w.weapon_tag == u.weapon_tag:
+            owns_weapon = true
+            break
+    if not owns_weapon:
+        return false
+    
+    # Уровень оружия ≥ требуемого
+    if player.tag_levels.get(u.weapon_tag, 0) < u.max_level_for_evo:
+        return false
+    
+    # Нужная пассивка должна быть в active_passives
+    if u.required_passive_tag != "":
+        var has_passive = false
+        for p in player.active_passives:
+            if p.name == u.required_passive_tag:
+                has_passive = true
+                break
+        if not has_passive:
+            return false
+    
+    return true
+
+
+func _can_take_weapon(u: Upgrade, player: Player, weapons_full: bool) -> bool:
+    # Уже есть такое оружие?
+    for w in player.active_weapons:
+        if w.name == u.name:
+            return false
+    
+    # Слоты полны?
+    if weapons_full:
+        return false
+    
+    return true
+
+
+func _can_take_modifier(u: Upgrade, player: Player) -> bool:
+    # Проверяем active_weapons — есть оружие с таким weapon_tag?
+    for w in player.active_weapons:
+        if w.weapon_tag == u.weapon_tag:
+            return player.tag_levels.get(u.weapon_tag, 0) < 8
+    
+    # Проверяем active_passives — пассивки матчатся по name
+    for p in player.active_passives:
+        if p.name == u.weapon_tag:
+            return player.tag_levels.get(u.weapon_tag, 0) < 8
+    
+    # Сирота — ни оружия, ни пассивки с таким тегом нет
+    return false
+
+
+func _can_take_passive(u: Upgrade, player: Player, passives_full: bool) -> bool:
+    # Уже есть такая пассивка?
+    for p in player.active_passives:
+        if p.name == u.name:
+            return false
+    
+    # Слоты полны?
+    if passives_full:
+        return false
+    
+    return true
+
+
+# ═══════════════════════════════════════════════════════════
+# ВЗВЕШЕННЫЙ СЛУЧАЙНЫЙ ВЫБОР
+# ═══════════════════════════════════════════════════════════
 
 func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
     var total_weight = 0.0
@@ -90,6 +171,11 @@ func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
         if roll <= cursor: return pool[i]
     return pool[0]
 
+
+# ═══════════════════════════════════════════════════════════
+# МЕНЮ (визуал)
+# ═══════════════════════════════════════════════════════════
+
 func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
     _active_menu = upgrade_menu_scene.instantiate()
     _ui_container.add_child(_active_menu)
@@ -99,7 +185,10 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
         var btn = Button.new()
         var cur_lvl = player.tag_levels.get(up.weapon_tag, 0)
         var lvl_info = "\n[LVL %d -> %d]" % [cur_lvl, cur_lvl + 1]
-        if up.change_mechanic_on_apply: lvl_info = "\n[EVOLUTION]"
+        if cur_lvl >= 8:
+            lvl_info = "\n[MAX LEVEL]"
+        if up.change_mechanic_on_apply:
+            lvl_info = "\n[EVOLUTION]"
         
         btn.text = up.name + lvl_info + "\n" + up.description
         btn.custom_minimum_size = Vector2(320, 160)
