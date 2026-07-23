@@ -23,6 +23,7 @@ signal weapon_maxed(name: String)
 
 @onready var visual_pivot: Node2D = $VisualPivot
 @onready var spear_visual: CanvasItem = _find_visual()
+@onready var aura_sprite: Sprite2D = get_node_or_null("VisualPivot/Sprite2D")
 
 @onready var cooldown_timer: Timer = $CooldownTimer
 @onready var detection_area: Area2D = $DetectionArea
@@ -42,8 +43,14 @@ func _ready() -> void:
     
     if weapon_name == "Aura":
         _set_hitbox_active(true)
-        if is_instance_valid(spear_visual):
-            spear_visual.modulate.a = 0.3
+        if is_instance_valid(aura_sprite):
+            aura_sprite.modulate = Color(0.4, 0.7, 1.0, 1.0)
+            aura_sprite.scale = Vector2.ONE
+            # Применяем радиальный шейдер для маскировки прямоугольника текстуры
+            var aura_shader = load("res://Shaders/AuraRadial.gdshader")
+            if aura_shader:
+                aura_sprite.material = ShaderMaterial.new()
+                aura_sprite.material.shader = aura_shader
         return
     
     if is_instance_valid(spear_visual):
@@ -57,8 +64,47 @@ func _ready() -> void:
     if "Wave" in name: _run_wave_logic()
 
 func on_modifier_applied() -> void:
-    # Здесь можно обновить визуал при изменении статов (напр. масштаб)
     pass
+
+
+# Aura damage tick timer
+var _aura_damage_timer: float = 0.0
+
+# ── Aura visual animation ──
+func _process(delta: float) -> void:
+    if weapon_name != "Aura":
+        return
+    if not is_instance_valid(aura_sprite):
+        return
+    
+    # Aura всегда в центре игрока — обнуляем смещение от спавна
+    position = Vector2.ZERO
+    
+    # Периодический урон — проверка врагов внутри хитбокса
+    _aura_damage_timer += delta
+    if _aura_damage_timer >= 0.5:
+        _aura_damage_timer = 0.0
+        if is_instance_valid(hitbox):
+            hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+            hitbox.check_hit()
+    
+    var t = Time.get_ticks_msec() / 1000.0
+    
+    # Усиленная пульсация — scale 0.8 → 1.2
+    var pulse = 1.0 + sin(t * 3.0) * 0.2
+    aura_sprite.scale = Vector2.ONE * pulse
+    
+    # Alpha от 0.5 до 1.0
+    aura_sprite.modulate.a = 0.75 + sin(t * 2.5) * 0.25
+    
+    # Лёгкое вращение для динамики
+    aura_sprite.rotation = sin(t * 0.5) * 0.05
+    
+    # Эволюция: дополнительный цветовой акцент
+    if is_evolution_version:
+        aura_sprite.modulate.r = 0.6 + sin(t * 2.0) * 0.2
+        aura_sprite.modulate.g = 0.3 + sin(t * 2.5) * 0.15
+        aura_sprite.modulate.b = 0.8 + sin(t * 3.0) * 0.2
 
 func _run_wave_logic() -> void:
     while true:

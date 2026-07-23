@@ -35,20 +35,21 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1370908666]
 shape = SubResource("CircleShape2D_gd7ey")
 
-[node name="CooldownTimer" type="Timer" parent="." unique_id=4091616]
-
-[node name="VisualPivot" type="Node2D" parent="." unique_id=1375187962]
-modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
-
-[node name="HitboxComponent" type="Area2D" parent="VisualPivot" unique_id=1359229337]
+[node name="HitboxComponent" type="Area2D" parent="." unique_id=1359229337]
 collision_layer = 8
 collision_mask = 12
 monitoring = false
 script = ExtResource("2_qi32r")
 metadata/_custom_type_script = "uid://c2578100uqvx"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="VisualPivot/HitboxComponent" unique_id=1129988597]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1129988597]
 shape = SubResource("CircleShape2D_owks6")
 
+[node name="CooldownTimer" type="Timer" parent="." unique_id=4091616]
+
+[node name="VisualPivot" type="Node2D" parent="." unique_id=1375187962]
+modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
+
 [node name="Sprite2D" type="Sprite2D" parent="VisualPivot" unique_id=1395611392]
+modulate = Color(0.949169, 0.57652056, 0.21780172, 1)
 texture = SubResource("GradientTexture2D_gd7ey")

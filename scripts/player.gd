@@ -178,6 +178,9 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     var offset = active_weapons.size() * 20
     new_weapon.position = Vector2(offset, -offset)
     add_child(new_weapon)
+    # Перемещаем WeaponComponent в начало списка детей Player,
+    # чтобы визуал (Aura, Spear) был ПОД AnimatedSprite2D персонажа
+    move_child(new_weapon, 0)
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
     var weapons = find_children("*", "WeaponComponent", true)
