@@ -125,6 +125,10 @@ func _can_take_weapon(u: Upgrade, player: Player, weapons_full: bool) -> bool:
 
 
 func _can_take_modifier(u: Upgrade, player: Player) -> bool:
+    # Глобальные модификаторы — доступны всегда, без ограничения по уровню
+    if u.is_global_modifier:
+        return true
+    
     # Проверяем active_weapons — есть оружие с таким weapon_tag?
     for w in player.active_weapons:
         if w.weapon_tag == u.weapon_tag:

@@ -145,9 +145,21 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
     if not applied_upgrade_names.has(upgrade.name):
         applied_upgrade_names.append(upgrade.name)
     
-    # 3. Эволюция
+    # 3. Эволюция — заменяет оружие и создаёт новую ветку прогрессии
     if upgrade.change_mechanic_on_apply and upgrade.evolved_weapon_scene != null:
-        apply_evolution(upgrade.target_weapon_name, upgrade.evolved_weapon_scene)
+        var evo_tag = upgrade.evolved_weapon_tag
+        if evo_tag != "":
+            # 3a. Удаляем старую запись из active_weapons (тег, который был до эволюции)
+            active_weapons = active_weapons.filter(func(u): return u.weapon_tag != tag)
+            # 3b. Добавляем новую запись с evolved тегом для поиска в UpgradeMenu
+            var evo_entry = Upgrade.new()
+            evo_entry.weapon_tag = evo_tag
+            evo_entry.name = evo_tag + "_Base"
+            evo_entry.is_weapon = true
+            active_weapons.append(evo_entry)
+            # 3c. Новая прогрессия с 1 уровня
+            tag_levels[evo_tag] = 1
+        apply_evolution(upgrade.target_weapon_name, upgrade.evolved_weapon_scene, evo_tag)
     
     # 4. Применение статов
     var stat = upgrade.stat_to_modify
@@ -174,6 +186,8 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
         push_warning("No weapon scene found at: " + scene_path)
         return
     var new_weapon = weapon_scene.instantiate()
+    # Устанавливаем weapon_tag из ресурса Upgrade
+    new_weapon.weapon_tag = upgrade.weapon_tag
     # Сдвигаем позицию, чтобы оружия не накладывались друг на друга
     var offset = active_weapons.size() * 20
     new_weapon.position = Vector2(offset, -offset)
@@ -182,7 +196,7 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     # чтобы визуал (Aura, Spear) был ПОД AnimatedSprite2D персонажа
     move_child(new_weapon, 0)
 
-func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
+func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_tag: String = "") -> void:
     var weapons = find_children("*", "WeaponComponent", true)
     for w in weapons:
         if w.get("weapon_name") == weapon_name:
@@ -190,6 +204,8 @@ func apply_evolution(weapon_name: String, evolved_scene: PackedScene) -> void:
             w.queue_free()
             var new_weapon = evolved_scene.instantiate()
             new_weapon.position = old_pos
+            if evolved_tag != "":
+                new_weapon.weapon_tag = evolved_tag
             add_child(new_weapon)
             _play_evolution_fx()
             break

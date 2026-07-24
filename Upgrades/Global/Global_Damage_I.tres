@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cgldmg001"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Global_Damage_I"
+description = "+10% ко всему урону"
+stat_to_modify = "damage_multiplier"
+amount = 0.1
+rarity = 0
+is_global_modifier = true
+weapon_tag = ""
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -6,6 +6,7 @@ signal weapon_maxed(name: String)
 @export_group("Identity")
 @export var weapon_name: String = "Spear"
 @export var is_evolution_version: bool = false 
+var weapon_tag: String = ""  # устанавливается из Upgrade ресурса при спавне/эволюции (runtime)
 
 @export_group("Stats")
 @export var base_damage: float = 15.0

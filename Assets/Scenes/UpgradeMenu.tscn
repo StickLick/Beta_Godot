@@ -22,11 +22,16 @@
 [ext_resource type="Resource" uid="uid://cspearspd1" path="res://Upgrades/Spear/Spear_SPD_1.tres" id="9_nskpl"]
 [ext_resource type="Resource" uid="uid://dj7c8ch40hgq6" path="res://Upgrades/Passives/Health_regen.tres" id="10_01jp1"]
 [ext_resource type="Resource" uid="uid://cspearspd2" path="res://Upgrades/Spear/Spear_SPD_2.tres" id="10_02wya"]
+[ext_resource type="Resource" uid="uid://cevaucd001" path="res://Upgrades/Aura_Evolved/EvoAura_COOLDOWN.tres" id="11_dcp01"]
+[ext_resource type="Resource" uid="uid://cevaudmgc1" path="res://Upgrades/Aura_Evolved/EvoAura_DMG_C.tres" id="12_8wbw6"]
 [ext_resource type="Resource" uid="uid://cvpxs0vyik37q" path="res://Upgrades/Passives/Luck_I.tres" id="12_cie5a"]
 [ext_resource type="Resource" uid="uid://cbookpass01" path="res://Upgrades/Passives/Book.tres" id="12_t3n8y"]
+[ext_resource type="Resource" uid="uid://cevaudur01" path="res://Upgrades/Aura_Evolved/EvoAura_DURATION.tres" id="13_m4xjv"]
+[ext_resource type="Resource" uid="uid://cevaupuls01" path="res://Upgrades/Aura_Evolved/EvoAura_PULSE_RATE.tres" id="14_cqj6p"]
 [ext_resource type="Resource" uid="uid://cbasebook01" path="res://Upgrades/Passives/BaseBook.tres" id="14_fna0k"]
 [ext_resource type="Resource" uid="uid://cbasestone01" path="res://Upgrades/Passives/BaseStone.tres" id="15_7jsac"]
 [ext_resource type="Resource" uid="uid://fqfur6jy4jp1" path="res://Upgrades/Evolutions/SpearEvolution.tres" id="15_rtwst"]
+[ext_resource type="Resource" uid="uid://cevaurrad01" path="res://Upgrades/Aura_Evolved/EvoAura_RADIUS.tres" id="15_vbsml"]
 [ext_resource type="Resource" uid="uid://bpk7famundgkk" path="res://Upgrades/Passives/Speed_Fast.tres" id="17_0jo7u"]
 [ext_resource type="Resource" uid="uid://cbookradc1" path="res://Upgrades/Passives/Book_RAD_C.tres" id="17_ithuu"]
 [ext_resource type="Resource" uid="uid://d2nh218uysxq8" path="res://Upgrades/Passives/Speed_Sonic.tres" id="18_aylhc"]
@@ -47,11 +52,17 @@
 [ext_resource type="Resource" uid="uid://cstoner01" path="res://Upgrades/Passives/Stone_HP_R.tres" id="37_3fleo"]
 [ext_resource type="Resource" uid="uid://cauraspd02" path="res://Upgrades/Aura/Aura_SPD_2.tres" id="37_e64cy"]
 [ext_resource type="Resource" uid="uid://caurabase01" path="res://Upgrades/Aura/BaseAura.tres" id="38_cpbi3"]
+[ext_resource type="Resource" uid="uid://cevsparea1" path="res://Upgrades/Spear_Evolved/EvoSpear_AREA.tres" id="53_2u42m"]
+[ext_resource type="Resource" uid="uid://cevspacd01" path="res://Upgrades/Spear_Evolved/EvoSpear_COOLDOWN.tres" id="54_o5ovi"]
+[ext_resource type="Resource" uid="uid://cevspdmgc1" path="res://Upgrades/Spear_Evolved/EvoSpear_DMG_C.tres" id="55_xq1ro"]
+[ext_resource type="Resource" uid="uid://cevspdmgr1" path="res://Upgrades/Spear_Evolved/EvoSpear_DMG_R.tres" id="56_1hsge"]
+[ext_resource type="Resource" uid="uid://cevsprng01" path="res://Upgrades/Spear_Evolved/EvoSpear_RANGE.tres" id="57_bk3fe"]
+[ext_resource type="Resource" path="res://Upgrades/Spear_Evolved/EvoSpear_SPEED.tres" id="58_sgq24"]
 
 [node name="UpgradeMenu" type="CanvasLayer" unique_id=1070606010]
 process_mode = 3
 script = ExtResource("1_4svoh")
-all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("31_7jsac"), ExtResource("32_ithuu"), ExtResource("33_i0mdu"), ExtResource("34_3tpp6"), ExtResource("35_q4pf1"), ExtResource("36_qv1yp"), ExtResource("37_e64cy"), ExtResource("38_cpbi3"), ExtResource("29_fna0k"), ExtResource("15_rtwst"), ExtResource("9_cjoxr"), ExtResource("14_fna0k"), ExtResource("15_7jsac"), ExtResource("12_t3n8y"), ExtResource("17_ithuu"), ExtResource("18_i0mdu"), ExtResource("19_3tpp6"), ExtResource("20_q4pf1"), ExtResource("5_qujqb"), ExtResource("6_0klsh"), ExtResource("3_cjoxr"), ExtResource("8_lx8kt"), ExtResource("9_e60l8"), ExtResource("10_01jp1"), ExtResource("4_1cnya"), ExtResource("12_cie5a"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs"), ExtResource("17_0jo7u"), ExtResource("18_aylhc"), ExtResource("34_qv1yp"), ExtResource("35_e64cy"), ExtResource("36_cpbi3"), ExtResource("37_3fleo"), ExtResource("20_i0w25"), ExtResource("8_ujqmm"), ExtResource("3_q316m"), ExtResource("4_qnfig"), ExtResource("5_r1lcf"), ExtResource("6_enbbt"), ExtResource("7_sr5m3"), ExtResource("8_etw03"), ExtResource("9_nskpl"), ExtResource("10_02wya")])
+all_available_upgrades = Array[ExtResource("2_ujqmm")]([ExtResource("31_7jsac"), ExtResource("32_ithuu"), ExtResource("33_i0mdu"), ExtResource("34_3tpp6"), ExtResource("35_q4pf1"), ExtResource("36_qv1yp"), ExtResource("37_e64cy"), ExtResource("38_cpbi3"), ExtResource("11_dcp01"), ExtResource("12_8wbw6"), ExtResource("13_m4xjv"), ExtResource("14_cqj6p"), ExtResource("15_vbsml"), ExtResource("29_fna0k"), ExtResource("15_rtwst"), ExtResource("9_cjoxr"), ExtResource("14_fna0k"), ExtResource("15_7jsac"), ExtResource("12_t3n8y"), ExtResource("17_ithuu"), ExtResource("18_i0mdu"), ExtResource("19_3tpp6"), ExtResource("20_q4pf1"), ExtResource("5_qujqb"), ExtResource("6_0klsh"), ExtResource("3_cjoxr"), ExtResource("8_lx8kt"), ExtResource("9_e60l8"), ExtResource("10_01jp1"), ExtResource("4_1cnya"), ExtResource("12_cie5a"), ExtResource("5_itudg"), ExtResource("6_7gsh6"), ExtResource("7_euifs"), ExtResource("17_0jo7u"), ExtResource("18_aylhc"), ExtResource("34_qv1yp"), ExtResource("35_e64cy"), ExtResource("36_cpbi3"), ExtResource("37_3fleo"), ExtResource("20_i0w25"), ExtResource("8_ujqmm"), ExtResource("3_q316m"), ExtResource("4_qnfig"), ExtResource("5_r1lcf"), ExtResource("6_enbbt"), ExtResource("7_sr5m3"), ExtResource("8_etw03"), ExtResource("9_nskpl"), ExtResource("10_02wya"), ExtResource("53_2u42m"), ExtResource("54_o5ovi"), ExtResource("55_xq1ro"), ExtResource("56_1hsge"), ExtResource("57_bk3fe"), ExtResource("58_sgq24")])
 
 [node name="UpgradePanel" type="Panel" parent="." unique_id=1717061613]
 unique_name_in_owner = true
