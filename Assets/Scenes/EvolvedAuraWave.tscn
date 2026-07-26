@@ -5,10 +5,10 @@
 [ext_resource type="Shader" path="res://Shaders/EvolvedAuraRing.gdshader" id="3_ring"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
-radius = 330.0
+radius = 210.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gd7ey"]
-size = Vector2(320, 80)
+size = Vector2(200, 50)
 
 [sub_resource type="Gradient" id="Gradient_burst"]
 colors = PackedColorArray(0.2, 0.6, 1.0, 1.0, 0.0, 0.3, 0.8, 1.0, 0.0, 0.0, 0.3, 0.0)
@@ -18,7 +18,7 @@ offsets = PackedFloat32Array(0.0, 0.4, 1.0)
 gradient = SubResource("Gradient_burst")
 
 [sub_resource type="Curve" id="Curve_scale"]
-_data = [Vector2(0, 0.1), Vector2(0.2, 1.0), Vector2(0.7, 0.8), Vector2(1.0, 0.0)]
+_data = [Vector2(0, 0.1), Vector2(0.2, 1.0), Vector2(0.7, 0.8), Vector2(1.0, 0.0), Vector2(0, 0)]
 
 [sub_resource type="ParticleProcessMaterial" id="PPM_burst"]
 emission_shape = 1
@@ -27,12 +27,12 @@ gravity = Vector3(0, 0, 0)
 initial_velocity_min = 150.0
 initial_velocity_max = 400.0
 scale_min = 4.0
-scale_max = 10.0
+scale_max = 8.0
 scale_curve = SubResource("Curve_scale")
 color_ramp = SubResource("GradientTexture1D_burst")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
-radius = 200.0
+radius = 180.0
 
 [sub_resource type="Gradient" id="Gradient_aura"]
 colors = PackedColorArray(0, 0, 0, 1, 0.2, 0.6, 1.0, 1)
@@ -49,7 +49,7 @@ fill_to = Vector2(0.5, 0)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
 shader = ExtResource("3_ring")
 shader_parameter/radius = 0.45
-shader_parameter/ring_thickness = 0.05
+shader_parameter/ring_thickness = 0.02
 shader_parameter/glow_intensity = 0.35
 
 [node name="WeaponComponent" type="Node2D" unique_id=1817784419]
@@ -58,7 +58,7 @@ weapon_name = "Aura_Wave"
 is_evolution_version = true
 base_damage = 40.0
 attack_cooldown = 0.3
-max_attack_distance = 300.0
+max_attack_distance = 180.0
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=66046695]
 collision_layer = 0
@@ -86,18 +86,18 @@ modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
 [node name="AuraRing" type="Sprite2D" parent="VisualPivot" unique_id=968335960]
 material = SubResource("ShaderMaterial_ring")
 texture = SubResource("GradientTexture2D_aura")
-modulate = Color(0.2, 0.6, 1.0, 0.35)
+modulate = Color(0.2, 0.6, 1.0, 0.25)
 
 [node name="CoreGlow" type="Polygon2D" parent="VisualPivot" unique_id=968335966]
-color = Color(0.2, 0.6, 1, 0.1)
-polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+color = Color(0.2, 0.6, 1, 0.06)
+polygon = PackedVector2Array(-3, -3, 3, -3, 3, 3, -3, 3)
 
 [node name="BurstParticles" type="GPUParticles2D" parent="VisualPivot" unique_id=968335967]
 position = Vector2(0, 0)
-amount = 30
-lifetime = 0.6
+amount = 25
+lifetime = 0.5
 one_shot = true
 explosiveness = 1.0
-randomness = 0.5
+randomness = 0.4
 local_coords = true
 process_material = SubResource("PPM_burst")

@@ -141,12 +141,12 @@ func _process(delta: float) -> void:
         var t = Time.get_ticks_msec() / 1000.0
         var field_pulse = 1.0 + sin(t * 2.0) * 0.05
         
-        # Animate aura field: scale based on weapon range + slow pulse
+        # Animate aura ring: scale so ring edge (shader radius@0.45 of 230px) = hitbox radius
         if is_instance_valid(aura_field):
-            var aura_size = max_attack_distance * 0.5
-            aura_field.scale = Vector2.ONE * (aura_size / 100.0 * field_pulse)
-            aura_field.modulate.a = 0.08 + sin(t * 2.5) * 0.04
-            aura_field.rotation += delta * 0.15
+            var ring_scale = max_attack_distance / (230.0 * 0.45)  # ≈2.9 at max_attack_distance=300
+            aura_field.scale = Vector2.ONE * (ring_scale * field_pulse)
+            aura_field.modulate.a = 0.25 + sin(t * 2.5) * 0.06
+            aura_field.rotation += delta * 0.1
         
         visual_pivot.rotation += delta * 0.3
         
