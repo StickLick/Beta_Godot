@@ -141,14 +141,14 @@ func _process(delta: float) -> void:
         var t = Time.get_ticks_msec() / 1000.0
         var field_pulse = 1.0 + sin(t * 2.0) * 0.05
         
-        # Animate aura ring: scale so ring edge (shader radius@0.45 of 230px) = hitbox radius
+        # Animate aura ring: visual radius = hitbox radius
         if is_instance_valid(aura_field):
-            var ring_scale = max_attack_distance / (230.0 * 0.45)  # ≈2.9 at max_attack_distance=300
+            var ring_scale = max_attack_distance / (230.0 * 0.45)
             aura_field.scale = Vector2.ONE * (ring_scale * field_pulse)
-            aura_field.modulate.a = 0.25 + sin(t * 2.5) * 0.06
-            aura_field.rotation += delta * 0.1
+            aura_field.modulate.a = 0.2 + sin(t * 2.5) * 0.04
+            aura_field.rotation += delta * 0.05
         
-        visual_pivot.rotation += delta * 0.3
+        visual_pivot.rotation += delta * 0.2
         
         # Random burst timer
         _evo_burst_timer += delta
@@ -166,17 +166,34 @@ func _trigger_pulse() -> void:
         return
     
     var heavy = randf() < 0.15
-    var angle = randf_range(0, TAU)
+    var angle: float
     
-    # Move particle spawn point to aura edge + set direction outward
-    var aura_radius = max_attack_distance * 0.45
+    # 70% chance to target an enemy in extended detection range
+    var enemies: Array[Area2D] = []
+    if is_instance_valid(detection_area):
+        var search_radius = max_attack_distance * 1.5
+        for area in detection_area.get_overlapping_areas():
+            if area.has_method("_apply_damage") and area.get("faction") != "player":
+                if global_position.distance_to(area.global_position) <= search_radius:
+                    enemies.append(area)
+    
+    if not enemies.is_empty() and randf() < 0.7:
+        var target = enemies[randi() % enemies.size()]
+        var player_pos = player.global_position if is_instance_valid(player) else global_position
+        var dir = (target.global_position - player_pos).normalized()
+        angle = atan2(dir.y, dir.x)
+    else:
+        angle = randf_range(0, TAU)
+    
+    # Move particle spawn point to visual ring edge + set direction outward
+    var aura_radius = max_attack_distance
     burst_particles.position = Vector2.RIGHT.rotated(angle) * aura_radius
     mat.direction = Vector3(cos(angle), sin(angle), 0.0)
     
     # Randomize burst arc
     mat.spread = randf_range(30.0, 90.0) if not heavy else randf_range(60.0, 120.0)
-    mat.initial_velocity_min = 80.0 if not heavy else 200.0
-    mat.initial_velocity_max = 250.0 if not heavy else 450.0
+    mat.initial_velocity_min = 400.0 if not heavy else 600.0
+    mat.initial_velocity_max = 600.0 if not heavy else 900.0
     burst_particles.amount = randi_range(15, 30) if not heavy else randi_range(40, 60)
     burst_particles.restart()
     burst_particles.emitting = true
