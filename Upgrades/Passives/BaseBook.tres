@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_upg")
-name = "BaseBook"
+name = "AttackRange"
 description = "+30 к дальности оружия"
 stat_to_modify = "max_attack_distance"
 amount = 30.0

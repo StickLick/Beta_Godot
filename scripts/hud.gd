@@ -22,6 +22,21 @@ extends CanvasLayer
 
 var _player_health_component: HealthComponent = null
 var _pending_camp: Node2D = null
+var _active_anomaly_key: String = ""
+var _current_anomaly_visual = null
+
+# Maps anomaly display name -> visual config
+const ANOMALY_VISUALS = {
+    "\u041f\u0420\u0418\u041a\u0410\u0417: \u041e\u0425\u041e\u0422\u0410":           {"radius": 0.0, "color": Color(0.5, 0.0, 0.0, 0.6), "softness": 10.0, "follow": null},
+    "\u041f\u0420\u0418\u041a\u0410\u0417: \u0417\u0410\u0425\u0412\u0410\u0422":       {"radius": 0.0, "color": Color(0.5, 0.3, 0.0, 0.5), "softness": 10.0, "follow": null},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u041a\u041e\u041b\u041b\u0410\u041f\u0421 \u0420\u0415\u0410\u041b\u042c\u041d\u041e\u0421\u0422\u0418": {"radius": 100.0, "color": Color(0.0, 0.3, 0.8, 0.4), "softness": 10.0, "follow": "safe_zone"},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0418\u041d\u0415\u0420\u0426\u0418\u042f":   {"radius": 0.0, "color": Color(0.3, 0.0, 0.3, 0.5), "softness": 10.0, "follow": null},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0413\u0420\u0410\u0412\u0418\u0422\u0410\u0426\u0418\u042f": {"radius": 0.0, "color": Color(0.0, 0.2, 0.2, 0.5), "softness": 10.0, "follow": null},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0414\u0415\u0424\u0418\u0426\u0418\u0422":   {"radius": 0.0, "color": Color(0.2, 0.2, 0.0, 0.4), "softness": 10.0, "follow": null},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0418\u0417\u041e\u0411\u0418\u041b\u0418\u0415":  {"radius": 0.0, "color": Color(0.0, 0.2, 0.0, 0.4), "softness": 10.0, "follow": null},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0422\u0415\u041d\u0415\u0412\u041e\u0419 \u041f\u0418\u0420": {"radius": 200.0, "color": Color(0.0, 0.0, 0.0, 1.0), "softness": 50.0, "follow": "player"},
+    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0413\u0418\u041f\u0415\u0420\u0414\u0420\u0410\u0419\u0412": {"radius": 0.0, "color": Color(1.0, 0.5, 0.0, 0.3), "softness": 10.0, "follow": null},
+}
 
 func _ready() -> void:
     add_to_group("hud")
@@ -43,6 +58,7 @@ func _ready() -> void:
             restart_button.pressed.connect(_on_restart_pressed)
 
     GameManager.anomaly_started.connect(_on_anomaly_started)
+    GameManager.anomaly_warning.connect(_on_anomaly_warning)
     GameManager.anomaly_ended.connect(_on_anomaly_ended)
 
     var player: Player = get_tree().get_first_node_in_group("player") as Player
@@ -89,14 +105,33 @@ func _fill_slots(container: HBoxContainer, items: Array, max_slots: int, total_s
 
 # --- АНОМАЛИИ ---
 func _on_anomaly_started(type_name: String, _duration: float) -> void:
+    _active_anomaly_key = type_name
+    _current_anomaly_visual = ANOMALY_VISUALS.get(type_name, null)
+    
     if is_instance_valid(anomaly_label):
-        anomaly_label.text = type_name; anomaly_label.show(); anomaly_label.modulate = Color.WHITE
+        anomaly_label.text = type_name
+        anomaly_label.show()
+        anomaly_label.modulate = Color.WHITE
         create_tween().tween_property(anomaly_label, "modulate:a", 1.0, 0.5)
-    if is_instance_valid(anomaly_overlay):
-        var target_color = Color(0, 0.3, 0.8, 0.4) if "КОЛЛАПС" in type_name else Color(0,0,0,1)
-        _update_overlay_shader(100.0, 10.0, target_color, 1.5)
+    
+    if is_instance_valid(anomaly_overlay) and _current_anomaly_visual != null:
+        var v = _current_anomaly_visual
+        _update_overlay_shader(v.radius, v.softness, v.color, 1.5)
 
-func _on_anomaly_ended(): _update_overlay_shader(0, 10, Color(0,0,0,0), 1.0)
+func _on_anomaly_warning(_time_left: float) -> void:
+    if is_instance_valid(anomaly_label):
+        anomaly_label.text = "\u0421\u0422\u0410\u0411\u0418\u041b\u0418\u0417\u0410\u0426\u0418\u042f..."
+        anomaly_label.modulate = Color.RED
+        create_tween().tween_property(anomaly_label, "modulate:a", 0.3, 0.8).set_trans(Tween.TRANS_SINE)
+
+func _on_anomaly_ended():
+    _active_anomaly_key = ""
+    _current_anomaly_visual = null
+    if is_instance_valid(anomaly_label):
+        anomaly_label.text = "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f \u0417\u0410\u0412\u0415\u0420\u0428\u0415\u041d\u0410"
+        create_tween().tween_property(anomaly_label, "modulate:a", 0.0, 0.5)
+        anomaly_label.modulate.a = 0
+    _update_overlay_shader(0, 10, Color(0,0,0,0), 1.0)
 
 func _update_overlay_shader(radius, soft, color, duration):
     var mat = anomaly_overlay.material as ShaderMaterial
@@ -106,12 +141,34 @@ func _update_overlay_shader(radius, soft, color, duration):
         tw.tween_method(func(c): mat.set_shader_parameter("fog_color", c), Color(0,0,0,0), color, duration)
 
 func _process(_delta: float) -> void:
-    if "time_elapsed" in GameManager: timer_label.text = _format_time(GameManager.time_elapsed)
+    if "time_elapsed" in GameManager:
+        timer_label.text = _format_time(GameManager.time_elapsed)
+    
+    if not is_instance_valid(anomaly_overlay):
+        return
+    
+    var mat = anomaly_overlay.material as ShaderMaterial
+    if not mat:
+        return
+    
+    # Handle safe_zone follower (COLLAPSE)
     var sz = get_tree().get_first_node_in_group("safe_zone")
-    if is_instance_valid(sz) and is_instance_valid(anomaly_overlay):
-        var mat = anomaly_overlay.material as ShaderMaterial
+    if is_instance_valid(sz):
         mat.set_shader_parameter("center_px", sz.get_global_transform_with_canvas().origin)
         mat.set_shader_parameter("radius_px", (100.0 * sz.get_global_transform_with_canvas().get_scale().y) + 5.0)
+        return
+    
+    # Handle player follower (FEAST/Shadow Feast)
+    if _current_anomaly_visual != null and _current_anomaly_visual.get("follow") == "player":
+        var player = get_tree().get_first_node_in_group("player")
+        if is_instance_valid(player):
+            # Convert world position to screen pixel coordinates for the shader
+            # Canvas transform maps world -> screen. We need screen pixel coords.
+            var cam = get_viewport().get_camera_2d()
+            if is_instance_valid(cam):
+                var canvas_transform = cam.get_canvas_transform()
+                var player_screen_pixel = canvas_transform * player.global_position
+                mat.set_shader_parameter("center_px", player_screen_pixel)
 
 # --- ЛОГИКА ЛАГЕРЕЙ ---
 func _on_specialty_selected(type_index: int) -> void:

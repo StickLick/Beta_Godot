@@ -96,6 +96,7 @@ func trigger_anomaly() -> void:
         tree.create_timer(ANOMALY_DURATION).timeout.connect(_end_anomaly)
 
 func _end_anomaly() -> void:
+    _check_timer = 0.0
     var tree = get_tree()
     if not tree: return
     if current_anomaly == "HYPERDRIVE": Engine.time_scale = 1.0

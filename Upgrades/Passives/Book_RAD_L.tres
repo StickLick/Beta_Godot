@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1_upg")
-name = "Book_RAD_L"
+name = "AttackRange_L"
 description = "+100-150 дальности (Book)"
 stat_to_modify = "max_attack_distance"
 amount = 120.0
 rarity = 3
-weapon_tag = "BaseBook"
+weapon_tag = "AttackRange"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

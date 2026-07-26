@@ -40,9 +40,13 @@ func _ready() -> void:
     if not is_instance_valid(player):
         player = get_tree().get_first_node_in_group("player")
     
+    # Устанавливаем weapon_tag для предустановленного в сцене оружия (Spear)
+    if weapon_tag == "":
+        weapon_tag = weapon_name
+    
     _setup_physics_auto()
     
-    if weapon_name == "Aura":
+    if weapon_name == "Aura" or weapon_tag == "Aura_Evolved":
         _set_hitbox_active(true)
         if is_instance_valid(aura_sprite):
             aura_sprite.modulate = Color(0.4, 0.7, 1.0, 1.0)
@@ -63,19 +67,49 @@ func _ready() -> void:
     cooldown_timer.start(attack_cooldown)
     
     if "Wave" in name: _run_wave_logic()
+    
+    print("[WEAPON INIT] ", weapon_name, " (tag=", weapon_tag, ")")
+    print("   max_attack_distance=", max_attack_distance)
+    print("   base_damage=", base_damage)
+    print("   attack_cooldown=", attack_cooldown)
+    if is_instance_valid(detection_area):
+        var shape = detection_area.get_node_or_null("CollisionShape2D")
+        if shape and shape.shape:
+            print("   detection_radius=", shape.shape.radius)
+    if is_instance_valid(hitbox):
+        var shape = hitbox.get_node_or_null("CollisionShape2D")
+        if shape and shape.shape:
+            if shape.shape is CircleShape2D:
+                print("   hitbox_radius=", shape.shape.radius)
+            elif shape.shape is RectangleShape2D:
+                print("   hitbox_size=", shape.shape.size)
 
 func on_modifier_applied() -> void:
-    pass
+    _setup_physics_auto()
+    print("[WEAPON] ", weapon_name, " (tag=", weapon_tag, ") after modifier:")
+    print("   max_attack_distance=", max_attack_distance)
+    print("   base_damage=", base_damage)
+    print("   attack_cooldown=", attack_cooldown)
+    if is_instance_valid(detection_area):
+        var shape = detection_area.get_node_or_null("CollisionShape2D")
+        if shape and shape.shape:
+            print("   detection_radius=", shape.shape.radius)
+    if is_instance_valid(hitbox):
+        var shape = hitbox.get_node_or_null("CollisionShape2D")
+        if shape and shape.shape:
+            if shape.shape is CircleShape2D:
+                print("   hitbox_radius=", shape.shape.radius)
+            elif shape.shape is RectangleShape2D:
+                print("   hitbox_size=", shape.shape.size)
 
 
 # Aura damage tick timer
 var _aura_damage_timer: float = 0.0
+var _aura_base_scale: float = 1.0
 
 # ── Aura visual animation ──
 func _process(delta: float) -> void:
-    if weapon_name != "Aura":
-        return
-    if not is_instance_valid(aura_sprite):
+    if weapon_tag != "Aura" and weapon_tag != "Aura_Evolved":
         return
     
     # Aura всегда в центре игрока — обнуляем смещение от спавна
@@ -90,22 +124,22 @@ func _process(delta: float) -> void:
             hitbox.check_hit()
     
     var t = Time.get_ticks_msec() / 1000.0
-    
-    # Усиленная пульсация — scale 0.8 → 1.2
     var pulse = 1.0 + sin(t * 3.0) * 0.2
-    aura_sprite.scale = Vector2.ONE * pulse
     
-    # Alpha от 0.5 до 1.0
-    aura_sprite.modulate.a = 0.75 + sin(t * 2.5) * 0.25
-    
-    # Лёгкое вращение для динамики
-    aura_sprite.rotation = sin(t * 0.5) * 0.05
-    
-    # Эволюция: дополнительный цветовой акцент
-    if is_evolution_version:
-        aura_sprite.modulate.r = 0.6 + sin(t * 2.0) * 0.2
-        aura_sprite.modulate.g = 0.3 + sin(t * 2.5) * 0.15
-        aura_sprite.modulate.b = 0.8 + sin(t * 3.0) * 0.2
+    if is_instance_valid(aura_sprite):
+        # Обычная Aura: Sprite2D с шейдером
+        aura_sprite.scale = Vector2.ONE * (_aura_base_scale * pulse)
+        aura_sprite.modulate.a = 0.75 + sin(t * 2.5) * 0.25
+        aura_sprite.rotation = sin(t * 0.5) * 0.05
+        if is_evolution_version:
+            aura_sprite.modulate.r = 0.6 + sin(t * 2.0) * 0.2
+            aura_sprite.modulate.g = 0.3 + sin(t * 2.5) * 0.15
+            aura_sprite.modulate.b = 0.8 + sin(t * 3.0) * 0.2
+    else:
+        # EvolvedAuraWave: Polygon2D анимация через visual_pivot
+        visual_pivot.scale = Vector2.ONE * pulse
+        visual_pivot.modulate.a = 0.5 + sin(t * 2.5) * 0.3
+        visual_pivot.rotation = t * 1.5
 
 func _run_wave_logic() -> void:
     while true:
@@ -123,9 +157,16 @@ func _setup_physics_auto() -> void:
             shape_node.shape.radius = max_attack_distance + 30.0
     if is_instance_valid(hitbox):
         var shape_node = hitbox.get_node_or_null("CollisionShape2D")
-        if shape_node and shape_node.shape is RectangleShape2D:
-            shape_node.shape.size = Vector2(max_attack_distance + 15.0, 50.0)
-            shape_node.position.x = (max_attack_distance - 15.0) / 2.0
+        if shape_node:
+            if shape_node.shape is RectangleShape2D:
+                shape_node.shape.size = Vector2(max_attack_distance + 15.0, 50.0)
+                shape_node.position.x = (max_attack_distance - 15.0) / 2.0
+            elif shape_node.shape is CircleShape2D:
+                shape_node.shape.radius = max_attack_distance
+                # Синхронизируем визуал ауры с новым радиусом
+                _aura_base_scale = max_attack_distance / 200.0
+                if is_instance_valid(aura_sprite):
+                    aura_sprite.scale = Vector2.ONE * _aura_base_scale
 
 func _on_cooldown_timeout() -> void:
     var target = _get_closest_target()
