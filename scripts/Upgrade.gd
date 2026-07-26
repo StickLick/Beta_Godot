@@ -14,6 +14,7 @@ enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var prerequisites: Array[String] = [] 
 @export var is_unique: bool = false 
 @export var required_passive_tag: String = ""
+@export var required_passive_level: int = 1
 @export var max_level_for_evo: int = 8
 
 @export_group("Passive System")

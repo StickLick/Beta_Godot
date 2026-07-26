@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cqaskkp8hh682"]
 
-[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_wave"]
+[ext_resource type="Script" uid="uid://dva7xpm0bhrkg" path="res://scripts/weapons/aura_weapon.gd" id="1_wave"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_hitbox"]
 [ext_resource type="Shader" path="res://Shaders/EvolvedAuraRing.gdshader" id="3_ring"]
 

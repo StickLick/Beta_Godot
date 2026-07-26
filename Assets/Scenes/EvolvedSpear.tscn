@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ciwk2a3606juq"]
 
-[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_on6hx"]
+[ext_resource type="Script" uid="uid://bmk084p2a0svb" path="res://scripts/weapons/spear_weapon.gd" id="1_on6hx"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_6iwg3"]
 [ext_resource type="Shader" uid="uid://cvop7mrxfu45y" path="res://Shaders/GlitchWeapon.gdshader" id="2_lngdc"]
 

@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://ds8x2kplq70n5"]
+
+[ext_resource type="Script" path="res://scripts/weapons/siege_bolt.gd" id="1_sbolt"]
+[ext_resource type="Texture2D" path="res://Assets/Textures/SiegeBolt.svg" id="2_svg"]
+
+[sub_resource type="RectangleShape2D" id="SiegeBoltShape"]
+size = Vector2(50, 14)
+
+[sub_resource type="Gradient" id="WindGrad"]
+colors = PackedColorArray(1.0, 1.0, 1.0, 0.35, 0.9, 0.95, 1.0, 0.1, 0.0, 0.0, 0.0, 0.0)
+offsets = PackedFloat32Array(0.0, 0.5, 1.0)
+
+[sub_resource type="GradientTexture1D" id="WindTex"]
+gradient = SubResource("WindGrad")
+
+[sub_resource type="ParticleProcessMaterial" id="WindPPM"]
+emission_shape = 1
+spread = 2.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 60.0
+initial_velocity_max = 100.0
+direction = Vector3(-1, 0, 0)
+scale_min = 0.5
+scale_max = 2.0
+color_ramp = SubResource("WindTex")
+lifetime = 0.12
+
+[node name="SiegeBolt" type="Area2D" unique_id=4829475030]
+script = ExtResource("1_sbolt")
+speed = 500.0
+damage = 130.0
+pierce_limit = 3
+scale = Vector2(0.8, 0.8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=4829475031]
+shape = SubResource("SiegeBoltShape")
+position = Vector2(25, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=4829475032]
+texture = ExtResource("2_svg")
+position = Vector2(30, 0)
+
+[node name="WindTrail" type="GPUParticles2D" parent="." unique_id=4829475034]
+amount = 20
+lifetime = 0.12
+one_shot = false
+explosiveness = 0.0
+local_coords = false
+z_index = 10
+process_material = SubResource("WindPPM")
+emitting = true
+position = Vector2(-10, 0)

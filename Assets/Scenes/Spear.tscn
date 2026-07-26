@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ccfvr0dvx0xv1"]
 
-[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_vr6i1"]
+[ext_resource type="Script" uid="uid://bmk084p2a0svb" path="res://scripts/weapons/spear_weapon.gd" id="1_vr6i1"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_nl1v4"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_detection"]

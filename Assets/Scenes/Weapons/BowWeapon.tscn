@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://c1m9sktp1hqu0"]
+
+[ext_resource type="Script" path="res://scripts/weapons/bow_weapon.gd" id="1_bow"]
+
+[sub_resource type="CircleShape2D" id="DetectionShape"]
+radius = 280.0
+
+[node name="BowWeapon" type="Node2D" unique_id=2394871023]
+script = ExtResource("1_bow")
+weapon_name = "Bow"
+base_damage = 20.0
+attack_cooldown = 1.2
+max_attack_distance = 280.0
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=2394871024]
+collision_layer = 0
+collision_mask = 12
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=2394871025]
+shape = SubResource("DetectionShape")
+
+[node name="CooldownTimer" type="Timer" parent="." unique_id=2394871026]
+
+[node name="VisualPivot" type="Node2D" parent="." unique_id=2394871027]
+
+[node name="HitboxComponent" type="Area2D" parent="." unique_id=2394871028]
+collision_layer = 0
+collision_mask = 0
+monitoring = false

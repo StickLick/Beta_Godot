@@ -109,6 +109,16 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
                 break
         if not has_passive:
             return false
+        # Проверяем уровень пассивки
+        var passive_level = player.tag_levels.get(u.required_passive_tag, 0)
+        if passive_level < u.required_passive_level:
+            return false
+    
+    # Запрещаем другие эволюции Bow, если одна уже взята
+    if u.weapon_tag == "Bow":
+        for w in player.active_weapons:
+            if w.weapon_tag in ["SiegeCrossbow", "SpectralVolley", "SkyPiercer"]:
+                return false
     
     return true
 

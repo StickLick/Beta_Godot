@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://c8exqpl7kr5n2"]
+
+[ext_resource type="Shader" path="res://Shaders/ExplosionEffect.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="ExplosionMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/progress = 0.0
+
+[sub_resource type="Gradient" id="ExplosionGradient"]
+colors = PackedColorArray(1.0, 0.6, 0.1, 1.0, 1.0, 0.3, 0.05, 0.8, 1.0, 0.0, 0.0, 0.0)
+offsets = PackedFloat32Array(0.0, 0.4, 1.0)
+
+[sub_resource type="GradientTexture1D" id="ExplosionGradientTex"]
+gradient = SubResource("ExplosionGradient")
+
+[sub_resource type="ParticleProcessMaterial" id="ExplosionPPM"]
+emission_shape = 1
+spread = 360.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 250.0
+scale_min = 1.0
+scale_max = 3.0
+color_ramp = SubResource("ExplosionGradientTex")
+lifetime = 0.4
+lifetime_randomness = 0.2
+
+[node name="Explosion" type="Node2D" unique_id=7002475040]
+
+[node name="Shockwave" type="Sprite2D" parent="." unique_id=7002475041]
+material = SubResource("ExplosionMaterial")
+scale = Vector2(3.0, 3.0)
+modulate = Color(1, 1, 1, 1)
+
+[node name="Sparks" type="GPUParticles2D" parent="." unique_id=7002475042]
+amount = 20
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ExplosionPPM")
+emitting = false
+
+[node name="TweenPlayer" type="Node" parent="." unique_id=7002475043]

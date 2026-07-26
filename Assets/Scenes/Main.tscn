@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://luhp1l5cxkek" path="res://Assets/Scenes/Player.tscn" id="1_kwblh"]
 [ext_resource type="PackedScene" uid="uid://bopll1eq6vire" path="res://Assets/Scenes/Enemy.tscn" id="2_enemy"]
 [ext_resource type="TileSet" uid="uid://btmsnhy2iplv7" path="res://Assets/TileMapLayer/Water.tres" id="3_7n1ip"]
+[ext_resource type="PackedScene" uid="uid://c5q8khj0b3t6l" path="res://Assets/Scenes/UI/DebugPanel.tscn" id="3_c16tw"]
 [ext_resource type="PackedScene" uid="uid://bw8cirdg6bvpw" path="res://Assets/Scenes/Hud.tscn" id="3_ygaiq"]
 [ext_resource type="TileSet" uid="uid://dntbws74sk8d6" path="res://Assets/TileMapLayer/Rocks.tres" id="4_0i17j"]
 [ext_resource type="Texture2D" uid="uid://lt206wdxunrd" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Tileset/Water Foam.png" id="4_muljk"]
@@ -64,6 +65,8 @@ sources/0 = SubResource("TileSetAtlasSource_22soc")
 [node name="Main" type="Node2D" unique_id=1981767503]
 script = ExtResource("1_8bicx")
 boss_scene = ExtResource("13_obb38")
+
+[node name="DebugPanel" parent="." unique_id=1706406483 instance=ExtResource("3_c16tw")]
 
 [node name="MapBoundaries" type="StaticBody2D" parent="." unique_id=1372759210]
 

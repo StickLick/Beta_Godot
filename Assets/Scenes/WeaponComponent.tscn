@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ct1g2pn7oa0rw"]
 
-[ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_vka61"]
+[ext_resource type="Script" uid="uid://d1pqn4q2rhw8b" path="res://scripts/weapons/base_weapon.gd" id="1_vka61"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_7pouy"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]

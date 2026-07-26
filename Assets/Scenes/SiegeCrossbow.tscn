@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://dgh5hcwc3ky6a"]
+
+[ext_resource type="Script" path="res://scripts/weapons/siege_crossbow.gd" id="1_siege"]
+
+[sub_resource type="CircleShape2D" id="DetectionShape"]
+radius = 320.0
+
+[node name="SiegeCrossbow" type="Node2D" unique_id=5829476040]
+script = ExtResource("1_siege")
+weapon_name = "SiegeCrossbow"
+base_damage = 80.0
+attack_cooldown = 2.0
+max_attack_distance = 320.0
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=5829476041]
+collision_layer = 0
+collision_mask = 12
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=5829476042]
+shape = SubResource("DetectionShape")
+
+[node name="CooldownTimer" type="Timer" parent="." unique_id=5829476043]
+
+[node name="VisualPivot" type="Node2D" parent="." unique_id=5829476044]

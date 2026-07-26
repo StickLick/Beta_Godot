@@ -21,6 +21,7 @@ signal inventory_updated
 @export var crit_damage: float = 1.5
 @export var lifesteal: float = 0.0
 @export var health_regen: float = 0.0
+@export var projectile_amount: int = 1
 
 @export var max_health: float = 1000.0:
     set(value):
@@ -193,9 +194,9 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
         else:
             var weapons: Array[Node] = []
             for child in get_children():
-                if child is WeaponComponent:
+                if child is BaseWeapon:
                     weapons.append(child)
-            print("   [DEBUG] looking for weapon_tag=", tag, " among ", weapons.size(), " WeaponComponents:")
+            print("   [DEBUG] looking for weapon_tag=", tag, " among ", weapons.size(), " BaseWeapons:")
             var matched = false
             for w in weapons:
                 print("   [DEBUG]   found: name=", w.get("weapon_name"), " tag=", w.get("weapon_tag"))
@@ -205,14 +206,14 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
                         var old_val = w.get(stat)
                         w.set(stat, w.get(stat) + upgrade.amount)
                         print("[UPGRADE] ", upgrade.name)
-                        print("target=WeaponComponent ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ")")
+                        print("target=BaseWeapon ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ")")
                         print("stat=", stat)
                         print("old=", old_val)
                         print("new=", w.get(stat))
                     if w.has_method("on_modifier_applied"): 
                         w.on_modifier_applied()
                         print("  -> on_modifier_applied called on ", w.get("weapon_name"))
-            # Пассивные модификаторы (Book, Stone) — применяем ко всем WeaponComponents и накапливаем для новых
+            # Пассивные модификаторы (Book, Stone) — применяем ко всем BaseWeapons и накапливаем для новых
             if not matched:
                 _accumulated_weapon_bonuses[stat] = _accumulated_weapon_bonuses.get(stat, 0.0) + upgrade.amount
                 for w in weapons:
@@ -220,7 +221,7 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
                         var old_val = w.get(stat)
                         w.set(stat, w.get(stat) + upgrade.amount)
                         print("[UPGRADE] ", upgrade.name)
-                        print("target=WeaponComponent ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ") [passive fallback]")
+                        print("target=BaseWeapon ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ") [passive fallback]")
                         print("stat=", stat)
                         print("old=", old_val)
                         print("new=", w.get(stat))
@@ -271,7 +272,7 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     add_child(new_weapon)
     print("   parent after add_child: ", new_weapon.get_parent())
     print("   player child_count: ", get_child_count())
-    # Перемещаем WeaponComponent в начало списка детей Player,
+    # Перемещаем BaseWeapon в начало списка детей Player,
     # чтобы визуал (Aura, Spear) был ПОД AnimatedSprite2D персонажа
     move_child(new_weapon, 0)
     # Применяем накопленные пассивные/глобальные бонусы к новому оружию
@@ -283,13 +284,13 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     if new_weapon.has_method("on_modifier_applied"):
         new_weapon.on_modifier_applied()
     
-    print("[SPAWN] SUCCESS. Player children WeaponComponents now: ", find_children("*", "WeaponComponent", true).size())
+    print("[SPAWN] SUCCESS. Player children BaseWeapons now: ", find_children("*", "BaseWeapon", true).size())
     print("   all player children: ", get_children().map(func(c): return c.name))
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_tag: String = "") -> void:
     var old_pos = Vector2.ZERO
     for child in get_children():
-        if child is WeaponComponent and child.get("weapon_name") == weapon_name:
+        if child is BaseWeapon and child.get("weapon_name") == weapon_name:
             old_pos = child.position
             child.queue_free()
             break
@@ -368,7 +369,7 @@ func _process_feast_debuffs() -> void:
     var range_mult = 0.4 if is_feast else 1.0
     var weapons: Array[Node] = []
     for child in get_children():
-        if child is WeaponComponent:
+        if child is BaseWeapon:
             weapons.append(child)
     for weapon in weapons:
         if weapon.has_method("update_weapon_range"): weapon.update_weapon_range(radius_weapons * range_mult)

@@ -9,6 +9,7 @@ name = "Копье Судьбы"
 rarity = 3
 is_unique = true
 required_passive_tag = "MaxHP"
+required_passive_level = 8
 weapon_tag = "Spear"
 target_weapon_name = "Spear"
 evolved_weapon_tag = "Spear_Evolved"
