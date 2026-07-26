@@ -31,6 +31,7 @@ signal inventory_updated
 @export var radius_weapons: float = 1.0
 @export var xp_radius: float = 1.0
 @export var xp_gain: float = 20.0
+@export var debug_give_aura_evolution: bool = false
 
 # --- ИНВЕНТАРЬ И ТЕГИ ---
 var max_weapon_slots: int = 3
@@ -80,6 +81,9 @@ func _ready() -> void:
         active_weapons.append(spear_upgrade)
         applied_upgrade_names.append(spear_upgrade.name)
         tag_levels["Spear"] = 1
+    
+    if debug_give_aura_evolution:
+        call_deferred("_debug_add_aura_evolution")
 
 func _physics_process(delta: float) -> void:
     if is_instance_valid(health_component) and health_component.current_health <= 0:
@@ -127,8 +131,21 @@ func remove_camp_buffs() -> void:
 func apply_custom_upgrade(upgrade: Upgrade) -> void:
     # 1. Трекинг тегов и уровней
     var tag = upgrade.weapon_tag
-    # Эволюции не инкрементят уровень — они заменяют оружие
-    if not upgrade.change_mechanic_on_apply and tag != "":
+    var pid = upgrade.passive_id
+    
+    # Track passive family levels
+    if pid != "" and not upgrade.change_mechanic_on_apply:
+        tag_levels[pid] = min(tag_levels.get(pid, 0) + 1, 8)
+        # First pickup: create passive slot entry
+        var exists = active_passives.any(func(u: Upgrade): return u.get("passive_id") == pid)
+        if not exists:
+            var new_entry = Upgrade.new()
+            new_entry.passive_id = pid
+            new_entry.name = pid
+            active_passives.append(new_entry)
+    
+    # Track weapon levels separately
+    if not upgrade.change_mechanic_on_apply and tag != "" and pid == "":
         tag_levels[tag] = min(tag_levels.get(tag, 0) + 1, 8)
     
     # 2. Регистрация в инвентаре и спавн сцены оружия
@@ -137,7 +154,7 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
         if not already_owned:
             active_weapons.append(upgrade)
             _spawn_weapon_scene(upgrade)
-    elif (upgrade.weapon_tag == "" or upgrade.weapon_tag == "General") and not upgrade.is_global_modifier:
+    elif pid == "" and (upgrade.weapon_tag == "" or upgrade.weapon_tag == "General") and not upgrade.is_global_modifier:
         var already_owned = active_passives.any(func(u): return u.name == upgrade.name)
         if not already_owned:
             active_passives.append(upgrade)
@@ -212,6 +229,28 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
             
     inventory_updated.emit()
 
+
+func _debug_add_aura_evolution() -> void:
+    # Прямой спавн EvolvedAuraWave без нормальной Aura
+    var evo_scene = load("res://Assets/Scenes/EvolvedAuraWave.tscn") as PackedScene
+    if not evo_scene:
+        return
+    var evolved = evo_scene.instantiate()
+    evolved.weapon_tag = "Aura_Evolved"
+    add_child(evolved)
+    move_child(evolved, 0)
+    # Добавляем в active_weapons эволюционную запись
+    var evo_weapon_entry = Upgrade.new()
+    evo_weapon_entry.weapon_tag = "Aura_Evolved"
+    evo_weapon_entry.is_weapon = true
+    active_weapons.append(evo_weapon_entry)
+    tag_levels["Aura_Evolved"] = 1
+    # Добавляем AttackRange пассивку (для совместимости)
+    var range_entry = Upgrade.new()
+    range_entry.name = "AttackRange"
+    range_entry.passive_id = "AttackRange"
+    active_passives.append(range_entry)
+    print("[DEBUG] Direct spawn of EvolvedAuraWave complete")
 
 func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     # Загружаем сцену из Assets/Scenes/{weapon_tag}Weapon.tscn

@@ -16,6 +16,9 @@ enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var required_passive_tag: String = ""
 @export var max_level_for_evo: int = 8
 
+@export_group("Passive System")
+@export var passive_id: String = ""  # "Damage", "MoveSpeed", "AttackRange", etc.
+
 @export_group("Weapon System")
 @export var is_weapon: bool = false 
 @export var weapon_tag: String = "General" # "Spear", "Aura", "General"

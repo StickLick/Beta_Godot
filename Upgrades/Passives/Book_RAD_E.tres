@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_upg")
+passive_id = "AttackRange"
 name = "AttackRange_E"
 description = "+50-80 дальности (Book)"
 stat_to_modify = "max_attack_distance"

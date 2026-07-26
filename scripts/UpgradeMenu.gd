@@ -61,6 +61,8 @@ func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
             if _can_take_evolution(u, player): pool.append(u)
         elif u.is_weapon:
             if _can_take_weapon(u, player, weapons_full): pool.append(u)
+        elif u.passive_id != "":
+            if _can_take_passive_by_id(u, player, passives_full): pool.append(u)
         elif u.weapon_tag != "" and u.weapon_tag != "General":
             if _can_take_modifier(u, player): pool.append(u)
         else:
@@ -98,11 +100,11 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
     if player.tag_levels.get(u.weapon_tag, 0) < u.max_level_for_evo:
         return false
     
-    # Нужная пассивка должна быть в active_passives
+    # Нужная пассивка должна быть в active_passives — проверяем по passive_id
     if u.required_passive_tag != "":
         var has_passive = false
         for p in player.active_passives:
-            if p.name == u.required_passive_tag:
+            if p.get("passive_id") == u.required_passive_tag:
                 has_passive = true
                 break
         if not has_passive:
@@ -142,6 +144,14 @@ func _can_take_modifier(u: Upgrade, player: Player) -> bool:
     # Сирота — ни оружия, ни пассивки с таким тегом нет
     return false
 
+
+func _can_take_passive_by_id(u: Upgrade, player: Player, passives_full: bool) -> bool:
+    # Проверяем, есть ли уже такая пассивная семья
+    for p in player.active_passives:
+        if p.get("passive_id") == u.passive_id:
+            return player.tag_levels.get(u.passive_id, 0) < 8
+    # Новое пассивное семейство — нужен свободный слот
+    return not passives_full
 
 func _can_take_passive(u: Upgrade, player: Player, passives_full: bool) -> bool:
     # Уже есть такая пассивка?
@@ -187,7 +197,8 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
     for i in range(upgrades.size()):
         var up = upgrades[i]
         var btn = Button.new()
-        var cur_lvl = player.tag_levels.get(up.weapon_tag, 0)
+        var level_tag = up.passive_id if up.passive_id != "" else up.weapon_tag
+        var cur_lvl = player.tag_levels.get(level_tag, 0)
         var lvl_info = "\n[LVL %d -> %d]" % [cur_lvl, cur_lvl + 1]
         if cur_lvl >= 8:
             lvl_info = "\n[MAX LEVEL]"

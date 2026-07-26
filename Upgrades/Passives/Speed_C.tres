@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_upg")
+passive_id = "MoveSpeed"
 name = "MoveSpeed_C"
 description = "+15 к скорости"
 stat_to_modify = "max_speed"

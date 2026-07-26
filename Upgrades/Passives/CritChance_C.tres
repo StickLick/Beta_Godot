@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_upg")
+passive_id = "CritChance"
 name = "CritChance_C"
 description = "+3% крит. шанса"
 stat_to_modify = "crit_chance"

@@ -25,6 +25,8 @@ var weapon_tag: String = ""  # устанавливается из Upgrade ре�
 @onready var visual_pivot: Node2D = $VisualPivot
 @onready var spear_visual: CanvasItem = _find_visual()
 @onready var aura_sprite: Sprite2D = get_node_or_null("VisualPivot/Sprite2D")
+@onready var burst_particles: GPUParticles2D = get_node_or_null("VisualPivot/BurstParticles")
+@onready var aura_field: CanvasItem = get_node_or_null("VisualPivot/AuraRing")
 
 @onready var cooldown_timer: Timer = $CooldownTimer
 @onready var detection_area: Area2D = $DetectionArea
@@ -107,6 +109,10 @@ func on_modifier_applied() -> void:
 var _aura_damage_timer: float = 0.0
 var _aura_base_scale: float = 1.0
 
+# EvolvedAura burst timer
+var _evo_burst_timer: float = 0.0
+var _evo_next_interval: float = 2.5
+
 # ── Aura visual animation ──
 func _process(delta: float) -> void:
     if weapon_tag != "Aura" and weapon_tag != "Aura_Evolved":
@@ -123,23 +129,57 @@ func _process(delta: float) -> void:
             hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
             hitbox.check_hit()
     
-    var t = Time.get_ticks_msec() / 1000.0
-    var pulse = 1.0 + sin(t * 3.0) * 0.2
-    
     if is_instance_valid(aura_sprite):
         # Обычная Aura: Sprite2D с шейдером
+        var t = Time.get_ticks_msec() / 1000.0
+        var pulse = 1.0 + sin(t * 3.0) * 0.2
         aura_sprite.scale = Vector2.ONE * (_aura_base_scale * pulse)
         aura_sprite.modulate.a = 0.75 + sin(t * 2.5) * 0.25
         aura_sprite.rotation = sin(t * 0.5) * 0.05
-        if is_evolution_version:
-            aura_sprite.modulate.r = 0.6 + sin(t * 2.0) * 0.2
-            aura_sprite.modulate.g = 0.3 + sin(t * 2.5) * 0.15
-            aura_sprite.modulate.b = 0.8 + sin(t * 3.0) * 0.2
-    else:
-        # EvolvedAuraWave: Polygon2D анимация через visual_pivot
-        visual_pivot.scale = Vector2.ONE * pulse
-        visual_pivot.modulate.a = 0.5 + sin(t * 2.5) * 0.3
-        visual_pivot.rotation = t * 1.5
+    elif is_evolution_version:
+        # EvolvedAuraWave: constant aura field + burst particles
+        var t = Time.get_ticks_msec() / 1000.0
+        var field_pulse = 1.0 + sin(t * 2.0) * 0.05
+        
+        # Animate aura field: scale based on weapon range + slow pulse
+        if is_instance_valid(aura_field):
+            var aura_size = max_attack_distance * 0.5
+            aura_field.scale = Vector2.ONE * (aura_size / 100.0 * field_pulse)
+            aura_field.modulate.a = 0.08 + sin(t * 2.5) * 0.04
+            aura_field.rotation += delta * 0.15
+        
+        visual_pivot.rotation += delta * 0.3
+        
+        # Random burst timer
+        _evo_burst_timer += delta
+        if _evo_burst_timer >= _evo_next_interval:
+            _evo_burst_timer = 0.0
+            _evo_next_interval = randf_range(2.0, 4.5)
+            _trigger_pulse()
+
+func _trigger_pulse() -> void:
+    if not is_instance_valid(burst_particles):
+        return
+    
+    var mat = burst_particles.process_material as ParticleProcessMaterial
+    if not mat:
+        return
+    
+    var heavy = randf() < 0.15
+    var angle = randf_range(0, TAU)
+    
+    # Move particle spawn point to aura edge + set direction outward
+    var aura_radius = max_attack_distance * 0.45
+    burst_particles.position = Vector2.RIGHT.rotated(angle) * aura_radius
+    mat.direction = Vector3(cos(angle), sin(angle), 0.0)
+    
+    # Randomize burst arc
+    mat.spread = randf_range(30.0, 90.0) if not heavy else randf_range(60.0, 120.0)
+    mat.initial_velocity_min = 80.0 if not heavy else 200.0
+    mat.initial_velocity_max = 250.0 if not heavy else 450.0
+    burst_particles.amount = randi_range(15, 30) if not heavy else randi_range(40, 60)
+    burst_particles.restart()
+    burst_particles.emitting = true
 
 func _run_wave_logic() -> void:
     while true:

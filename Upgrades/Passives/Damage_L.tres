@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_upg")
+passive_id = "Damage"
 name = "Damage_L"
 description = "+25% урона"
 stat_to_modify = "damage_multiplier"

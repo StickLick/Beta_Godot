@@ -2,12 +2,55 @@
 
 [ext_resource type="Script" uid="uid://c5jadr2s3xy45" path="res://scripts/weapon_component.gd" id="1_wave"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_hitbox"]
+[ext_resource type="Shader" path="res://Shaders/EvolvedAuraRing.gdshader" id="3_ring"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 330.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gd7ey"]
 size = Vector2(320, 80)
+
+[sub_resource type="Gradient" id="Gradient_burst"]
+colors = PackedColorArray(0.2, 0.6, 1.0, 1.0, 0.0, 0.3, 0.8, 1.0, 0.0, 0.0, 0.3, 0.0)
+offsets = PackedFloat32Array(0.0, 0.4, 1.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_burst"]
+gradient = SubResource("Gradient_burst")
+
+[sub_resource type="Curve" id="Curve_scale"]
+_data = [Vector2(0, 0.1), Vector2(0.2, 1.0), Vector2(0.7, 0.8), Vector2(1.0, 0.0)]
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_burst"]
+emission_shape = 1
+spread = 20.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 150.0
+initial_velocity_max = 400.0
+scale_min = 4.0
+scale_max = 10.0
+scale_curve = SubResource("Curve_scale")
+color_ramp = SubResource("GradientTexture1D_burst")
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
+radius = 200.0
+
+[sub_resource type="Gradient" id="Gradient_aura"]
+colors = PackedColorArray(0, 0, 0, 1, 0.2, 0.6, 1.0, 1)
+offsets = PackedFloat32Array(0.0, 1.0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_aura"]
+gradient = SubResource("Gradient_aura")
+width = 460
+height = 460
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
+shader = ExtResource("3_ring")
+shader_parameter/radius = 0.45
+shader_parameter/ring_thickness = 0.05
+shader_parameter/glow_intensity = 0.35
 
 [node name="WeaponComponent" type="Node2D" unique_id=1817784419]
 script = ExtResource("1_wave")
@@ -27,20 +70,34 @@ shape = SubResource("CircleShape2D_gd7ey")
 
 [node name="CooldownTimer" type="Timer" parent="." unique_id=4091616]
 
-[node name="VisualPivot" type="Node2D" parent="." unique_id=1375187962]
-modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
-
-[node name="HitboxComponent" type="Area2D" parent="VisualPivot" unique_id=1359229337]
+[node name="HitboxComponent" type="Area2D" parent="." unique_id=1359229337]
 collision_layer = 8
 collision_mask = 12
 monitoring = false
 script = ExtResource("2_hitbox")
 metadata/_custom_type_script = "uid://c2578100uqvx"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="VisualPivot/HitboxComponent" unique_id=1129988597]
-position = Vector2(120, 0)
-shape = SubResource("RectangleShape2D_gd7ey")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1129988597]
+shape = SubResource("CircleShape2D_hitbox")
 
-[node name="Polygon2D" type="Polygon2D" parent="VisualPivot" unique_id=968335966]
-color = Color(0.2, 0.6, 1, 0.2509804)
-polygon = PackedVector2Array(0, -8, 60, 0, 0, 8)
+[node name="VisualPivot" type="Node2D" parent="." unique_id=1375187962]
+modulate = Color(51.167366, 203.81523, 255.0139, 0.5019608)
+
+[node name="AuraRing" type="Sprite2D" parent="VisualPivot" unique_id=968335960]
+material = SubResource("ShaderMaterial_ring")
+texture = SubResource("GradientTexture2D_aura")
+modulate = Color(0.2, 0.6, 1.0, 0.35)
+
+[node name="CoreGlow" type="Polygon2D" parent="VisualPivot" unique_id=968335966]
+color = Color(0.2, 0.6, 1, 0.1)
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+
+[node name="BurstParticles" type="GPUParticles2D" parent="VisualPivot" unique_id=968335967]
+position = Vector2(0, 0)
+amount = 30
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+randomness = 0.5
+local_coords = true
+process_material = SubResource("PPM_burst")
