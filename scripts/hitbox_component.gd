@@ -19,7 +19,10 @@ func _on_area_entered(area: Area2D) -> void:
     _try_damage(area)
 
 func _try_damage(area: Area2D) -> void:
+    deal_damage_to_area(area, damage, faction)
+
+static func deal_damage_to_area(area: Area2D, amount: float, attacker_faction: String) -> void:
     if area.has_method("_apply_damage"):
         var target_f = area.get("faction")
-        if target_f != null and str(target_f).to_lower() != faction.to_lower():
-            area._apply_damage(damage)
+        if target_f != null and str(target_f).to_lower() != attacker_faction.to_lower():
+            area._apply_damage(amount)

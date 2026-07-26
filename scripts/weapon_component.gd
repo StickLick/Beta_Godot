@@ -168,22 +168,34 @@ func _trigger_pulse() -> void:
     var heavy = randf() < 0.15
     var angle: float
     
-    # 70% chance to target an enemy in extended detection range
-    var enemies: Array[Area2D] = []
-    if is_instance_valid(detection_area):
-        var search_radius = max_attack_distance * 1.5
+    # Target selection: find closest valid enemy
+    var closest_enemy: Area2D = null
+    var closest_dist_sq: float = INF
+    if is_instance_valid(detection_area) and is_instance_valid(player):
         for area in detection_area.get_overlapping_areas():
-            if area.has_method("_apply_damage") and area.get("faction") != "player":
-                if global_position.distance_to(area.global_position) <= search_radius:
-                    enemies.append(area)
+            # Skip player's own hitbox
+            if area.owner == get_parent():
+                continue
+            if area.name.to_lower().contains("player"):
+                continue
+            # Must have damage method either on area or its parent
+            var has_dmg = area.has_method("_apply_damage")
+            if not has_dmg and is_instance_valid(area.get_parent()):
+                has_dmg = area.get_parent().has_method("_apply_damage")
+            if not has_dmg:
+                continue
+            var d_sq = global_position.distance_squared_to(area.global_position)
+            if d_sq < closest_dist_sq:
+                closest_dist_sq = d_sq
+                closest_enemy = area
     
-    if not enemies.is_empty() and randf() < 0.7:
-        var target = enemies[randi() % enemies.size()]
-        var player_pos = player.global_position if is_instance_valid(player) else global_position
-        var dir = (target.global_position - player_pos).normalized()
+    if closest_enemy != null and randf() < 0.85:
+        var dir = (closest_enemy.global_position - global_position).normalized()
         angle = atan2(dir.y, dir.x)
+        print("BURST FIRE: TARGETED AT ", closest_enemy.name)
     else:
         angle = randf_range(0, TAU)
+        print("BURST FIRE: RANDOM")
     
     # Move particle spawn point to visual ring edge + set direction outward
     var aura_radius = max_attack_distance
@@ -197,6 +209,45 @@ func _trigger_pulse() -> void:
     burst_particles.amount = randi_range(15, 30) if not heavy else randi_range(40, 60)
     burst_particles.restart()
     burst_particles.emitting = true
+    
+    # Burst damage: physics query in burst direction
+    var space_state = get_world_2d().direct_space_state
+    var query = PhysicsShapeQueryParameters2D.new()
+    var rect = RectangleShape2D.new()
+    rect.size = Vector2(120, 60)
+    query.shape = rect
+    query.transform = Transform2D(angle, burst_particles.global_position + Vector2.RIGHT.rotated(angle) * 40)
+    query.collision_mask = 8  # enemy hurtbox layer 4
+    query.collide_with_areas = true
+    query.collide_with_bodies = false
+    var results = space_state.intersect_shape(query)
+    print("Burst triggered, objects found: ", results.size())
+    var burst_dmg = base_damage * 0.5
+    for result in results:
+        var collider = result.collider
+        print("BURST COLLIDER: name=", collider.name, " type=", collider.get_class(), " layer=", collider.collision_layer, " mask=", collider.collision_mask)
+        # Skip player's own hitbox
+        var collider_faction = collider.get("faction")
+        if collider_faction != null and str(collider_faction).to_lower() == "player":
+            print("BURST SKIP: player hitbox")
+            continue
+        var target: Node = null
+        var owner = collider.get_parent()
+        # Check collider itself
+        if collider.has_method("_apply_damage"):
+            target = collider
+        elif is_instance_valid(owner):
+            # Search siblings under same parent
+            for child in owner.get_children():
+                if child.has_method("_apply_damage"):
+                    target = child
+                    break
+        if target != null:
+            print("BURST CALLING DAMAGE: ", target.name, " amount=", burst_dmg)
+            HitboxComponent.deal_damage_to_area(target, burst_dmg, "player")
+            print("BURST DAMAGE CALL FINISHED")
+        elif is_instance_valid(owner):
+            print("BURST: No _apply_damage found. Children: ", owner.get_children().map(func(c): return c.name))
 
 func _run_wave_logic() -> void:
     while true:
