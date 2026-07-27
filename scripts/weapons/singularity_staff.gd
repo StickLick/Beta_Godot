@@ -3,6 +3,9 @@ extends BaseWeapon
 
 const ORB_SCENE: PackedScene = preload("res://Assets/Scenes/Weapons/SingularityOrb.tscn")
 
+@export var pull_strength: float = 1500.0
+@export var pull_radius: float = 250.0
+
 
 func _weapon_ready() -> void:
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
@@ -30,6 +33,8 @@ func _spawn_orb(direction: Vector2) -> void:
     orb.global_position = global_position
     orb.direction = direction
     orb.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    orb.pull_strength = pull_strength
+    orb.pull_radius = pull_radius
 
 
 func _get_closest_enemy() -> Area2D:

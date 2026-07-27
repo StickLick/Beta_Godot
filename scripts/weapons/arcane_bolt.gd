@@ -23,6 +23,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+    # When orbiting as a vortex shard, movement is controlled externally
+    if has_meta("vortex_index"):
+        return
+    
     # If target died, find new closest enemy
     if not is_instance_valid(target):
         target = _find_new_target()
@@ -93,4 +97,6 @@ func _on_area_entered(area: Area2D) -> void:
         return
     
     area._apply_damage(damage)
-    queue_free()
+    # Vortex shards persist during orbit phase — don't self-destruct
+    if not has_meta("vortex_index"):
+        queue_free()

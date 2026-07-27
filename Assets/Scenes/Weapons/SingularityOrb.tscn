@@ -21,7 +21,7 @@ fill_to = Vector2(0.5, 0)
 script = ExtResource("1_sing")
 speed = 120.0
 damage = 40.0
-scale = Vector2(2.0, 2.0)
+scale = Vector2(1.0, 1.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=9929476081]
 shape = SubResource("OrbShape")

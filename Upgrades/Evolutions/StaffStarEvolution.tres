@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dstfstarevo01"]
 
-[ext_resource type="PackedScene" uid="uid://dstrstfq9p6o4y" path="res://Assets/Scenes/StarStaff.tscn" id="1_sstar"]
+[ext_resource type="PackedScene" uid="uid://dstrstfq9p6o4y" path="res://Assets/Scenes/Weapons/StarStaff.tscn" id="1_sstar"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
 
 [resource]

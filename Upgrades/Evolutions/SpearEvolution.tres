@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://fqfur6jy4jp1"]
 
-[ext_resource type="PackedScene" uid="uid://ciwk2a3606juq" path="res://Assets/Scenes/EvolvedSpear.tscn" id="1_udukc"]
+[ext_resource type="PackedScene" uid="uid://ciwk2a3606juq" path="res://Assets/Scenes/Weapons/EvolvedSpear.tscn" id="1_udukc"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_f7qln"]
 
 [resource]

@@ -1,7 +1,7 @@
 class_name LightningStaff
 extends BaseWeapon
 
-@export var tether_count: int = 1
+@export var max_jumps: int = 2
 
 
 func _weapon_ready() -> void:
@@ -15,21 +15,20 @@ func _on_cooldown_timeout() -> void:
         cooldown_timer.start(0.2)
         return
     
-    var count = tether_count
-    if player and player.get("projectile_amount"):
-        count = max(1, tether_count + player.projectile_amount - 1)
-    
-    for i in range(min(count, enemies.size())):
-        _spawn_tether(enemies[i])
-    
+    _spawn_tether()
     cooldown_timer.start(attack_cooldown)
 
 
-func _spawn_tether(target: Node2D) -> void:
+func _spawn_tether() -> void:
     var tether = LightningTether.new()
-    tether.player = player if player else self
-    tether.current_target = target
-    tether.damage_per_tick = base_damage * 0.5 * (player.get_final_damage_multiplier() if player else 1.0)
+    if is_instance_valid(player):
+        tether.player = player
+        tether.damage_per_tick = base_damage * 0.5 * player.get_final_damage_multiplier()
+    else:
+        tether.player = self
+        tether.damage_per_tick = base_damage * 0.5
+    tether.max_jumps = max_jumps
+    tether.jump_range = 200.0
     
     var root = get_tree().current_scene
     root.add_child(tether)

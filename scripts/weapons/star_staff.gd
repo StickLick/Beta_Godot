@@ -15,23 +15,31 @@ func _on_cooldown_timeout() -> void:
         cooldown_timer.start(0.2)
         return
     
-    var dir = (target.global_position - global_position).normalized()
     var amount = player.projectile_amount if player else 1
     amount = max(1, amount)
-    _spawn_shard_base(dir, amount)
+    _spawn_shard_base(target, amount)
     cooldown_timer.start(attack_cooldown)
 
 
-func _spawn_shard_base(direction: Vector2, shard_count: int) -> void:
+func _spawn_shard_base(enemy_target: Area2D, shard_count: int) -> void:
     var shard = SHARD_BASE_SCENE.instantiate() as StarShardBase
     if not shard:
         return
     
+    # Predictive lead aim: target where the enemy will be, not where it is
+    var enemy_vel = Vector2.ZERO
+    var parent_node = enemy_target.get_parent()
+    if parent_node and parent_node is CharacterBody2D:
+        enemy_vel = parent_node.velocity
+    
+    var predicted_pos = enemy_target.global_position + enemy_vel * 0.5
+    
     var root = get_tree().current_scene
     root.add_child(shard)
     shard.global_position = global_position
-    shard.direction = direction
-    shard.shard_count = 5 + shard_count  # base 5 + extra per projectile_amount
+    shard.direction = (predicted_pos - global_position).normalized()
+    shard.target_pos = predicted_pos
+    shard.shard_count = 5 + shard_count
     shard.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
 
 

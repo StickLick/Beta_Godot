@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://0rl7oy0vmkjc"]
 
-[ext_resource type="PackedScene" uid="uid://dlgtstfq9p5m3x" path="res://Assets/Scenes/LightningStaff.tscn" id="1_lstaff"]
+[ext_resource type="PackedScene" uid="uid://dlgtstfq9p5m3x" path="res://Assets/Scenes/Weapons/LightningStaff.tscn" id="1_lstaff"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
 
 [resource]
