@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dstfstarevo01"]
+
+[ext_resource type="PackedScene" uid="uid://dstrstfq9p6o4y" path="res://Assets/Scenes/StarStaff.tscn" id="1_sstar"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+
+[resource]
+script = ExtResource("2_upg")
+name = "Звёздные Осколки"
+description = "Эволюция Магического Посоха: осколочная звезда, разлетающаяся на самонаводящиеся шарды"
+rarity = 3
+is_unique = true
+required_passive_tag = "ProjectileAmount"
+required_passive_level = 1
+weapon_tag = "Staff"
+target_weapon_name = "Staff"
+evolved_weapon_tag = "StarStaff"
+evolved_weapon_scene = ExtResource("1_sstar")
+change_mechanic_on_apply = true
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

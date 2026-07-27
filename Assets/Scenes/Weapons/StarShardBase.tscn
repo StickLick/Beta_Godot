@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://dssbq4qar8m6k"]
+
+[ext_resource type="Script" path="res://scripts/weapons/star_shard_base.gd" id="1_ssb"]
+
+[sub_resource type="CircleShape2D" id="ShardBaseShape"]
+radius = 16.0
+
+[node name="StarShardBase" type="Area2D" unique_id=9929476110]
+script = ExtResource("1_ssb")
+speed = 300.0
+damage = 30.0
+scale = Vector2(1.5, 1.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=9929476111]
+shape = SubResource("ShardBaseShape")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=9929476112]
+modulate = Color(1.0, 0.8, 0.1, 0.9)

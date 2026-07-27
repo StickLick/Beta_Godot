@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dstfsingevo01"]
+
+[ext_resource type="PackedScene" uid="uid://dsngstfq9p4m2w" path="res://Assets/Scenes/SingularityStaff.tscn" id="1_singstaff"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+
+[resource]
+script = ExtResource("2_upg")
+name = "Сингулярность"
+description = "Эволюция Магического Посоха: гравитационная сфера, коллапс"
+rarity = 3
+is_unique = true
+required_passive_tag = "Damage"
+required_passive_level = 1
+weapon_tag = "Staff"
+target_weapon_name = "Staff"
+evolved_weapon_tag = "SingularityStaff"
+evolved_weapon_scene = ExtResource("1_singstaff")
+change_mechanic_on_apply = true
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

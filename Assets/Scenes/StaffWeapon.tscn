@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://dstfq2qam4rk8"]
+
+[ext_resource type="Script" path="res://scripts/weapons/magic_staff.gd" id="1_staff"]
+
+[sub_resource type="CircleShape2D" id="DetectionShape"]
+radius = 350.0
+
+[node name="StaffWeapon" type="Node2D" unique_id=9929476070]
+script = ExtResource("1_staff")
+weapon_name = "Staff"
+base_damage = 15.0
+attack_cooldown = 0.8
+max_attack_distance = 350.0
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=9929476071]
+collision_layer = 0
+collision_mask = 12
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=9929476072]
+shape = SubResource("DetectionShape")
+
+[node name="CooldownTimer" type="Timer" parent="." unique_id=9929476073]
+
+[node name="VisualPivot" type="Node2D" parent="." unique_id=9929476074]

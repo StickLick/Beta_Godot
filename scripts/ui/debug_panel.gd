@@ -6,7 +6,10 @@ extends CanvasLayer
 @onready var btn_max_all: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_MaxAll
 @onready var btn_evo_aura: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Aura
 @onready var btn_evo_spectral: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spectral
-@onready var btn_evo_sky: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Sky
+@onready var btn_evo_singularity: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Singularity
+@onready var btn_evo_lightning: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Lightning
+@onready var btn_evo_star: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Star
+
 
 
 @onready var btn_evo_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spear
@@ -26,7 +29,9 @@ func _ready() -> void:
     btn_evo_spear.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/SpearEvolution.tres"))
     btn_evo_siege.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSiegeEvolution.tres"))
     btn_evo_spectral.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSpectralEvolution.tres"))
-    btn_evo_sky.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSkyEvolution.tres"))
+    btn_evo_singularity.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffSingularityEvolution.tres"))
+    btn_evo_lightning.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffLightningEvolution.tres"))
+    btn_evo_star.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffStarEvolution.tres"))
 
 
 func _input(event: InputEvent) -> void:
