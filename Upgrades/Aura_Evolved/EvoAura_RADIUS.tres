@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_RADIUS"
-description = "+25 радиус ауры (Эво-Аура)"
+description = "Aura: +25 радиус ауры (Эво-Аура)"
 stat_to_modify = "max_attack_distance"
 amount = 25.0
 rarity = 0

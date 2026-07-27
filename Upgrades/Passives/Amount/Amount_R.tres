@@ -8,6 +8,6 @@ passive_id = "ProjectileAmount"
 name = "Amount_R"
 description = "+1 projectile"
 stat_to_modify = "projectile_amount"
-amount = 1.0
+amount = 2.0
 rarity = 1
 weapon_tag = "ProjectileAmount"

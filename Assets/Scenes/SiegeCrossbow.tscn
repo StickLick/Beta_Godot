@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dgh5hcwc3ky6a"]
+[gd_scene format=3 uid="uid://dqxcuw1mt3kxa"]
 
 [ext_resource type="Script" path="res://scripts/weapons/siege_crossbow.gd" id="1_siege"]
 
@@ -8,7 +8,7 @@ radius = 320.0
 [node name="SiegeCrossbow" type="Node2D" unique_id=5829476040]
 script = ExtResource("1_siege")
 weapon_name = "SiegeCrossbow"
-base_damage = 80.0
+base_damage = 130.0
 attack_cooldown = 2.0
 max_attack_distance = 320.0
 

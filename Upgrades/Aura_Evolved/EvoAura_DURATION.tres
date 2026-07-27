@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_DURATION"
-description = "+0.2 сек длительности импульса (Эво-Аура)"
+description = "Aura: +0.2 сек длительности импульса (Эво-Аура)"
 stat_to_modify = "max_attack_distance"
 amount = 30.0
 rarity = 2

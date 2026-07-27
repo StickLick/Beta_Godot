@@ -65,3 +65,11 @@ text = "Force Evolve: Spear"
 [node name="Btn_Evo_Siege" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373791]
 layout_mode = 2
 text = "Force Evolve: Siege Crossbow"
+
+[node name="Btn_Evo_Spectral" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373792]
+layout_mode = 2
+text = "Force Evolve: Spectral Volley"
+
+[node name="Btn_Evo_Sky" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373793]
+layout_mode = 2
+text = "Force Evolve: Sky Piercer"

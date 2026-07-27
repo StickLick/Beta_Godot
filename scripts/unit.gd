@@ -7,7 +7,7 @@ class_name Unit
 @export var max_hp: float = 30.0
 
 var target: Node2D = null
-var parent_camp: Node2D = null
+var parent_camp: Node = null
 var _attack_pulse_timer: float = 0.0
 
 var is_attacking: bool = false

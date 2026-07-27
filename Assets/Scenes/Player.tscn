@@ -304,6 +304,7 @@ unique_name_in_owner = true
 process_callback = 0
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
+zoom = Vector2(0.5, 0.5)
 script = ExtResource("6_2thea")
 
 [node name="Polygon2D" type="Polygon2D" parent="." unique_id=1927185971]

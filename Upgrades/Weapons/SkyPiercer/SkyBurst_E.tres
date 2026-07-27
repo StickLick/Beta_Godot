@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_upg")
-name = "Bow_L"
-description = "+20 damage, pierce +2, +1 arrow"
-stat_to_modify = "base_damage"
-amount = 20.0
-rarity = 3
-weapon_tag = "Bow"
+name = "Sky Piercer: Burst_E"
+description = "-0.08s burst interval"
+stat_to_modify = "burst_rate"
+amount = -0.08
+rarity = 2
+weapon_tag = "SkyPiercer"

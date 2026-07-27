@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_RANGE"
-description = "+25 дальности (Эво-Копье)"
+description = "Spear: +25 дальности (Эво-Копье)"
 stat_to_modify = "max_attack_distance"
 amount = 25.0
 rarity = 0

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_DMG_C"
-description = "+8 урона (Эво-Аура)"
+description = "Aura: +8 урона (Эво-Аура)"
 stat_to_modify = "base_damage"
 amount = 8.0
 rarity = 0

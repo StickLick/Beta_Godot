@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_DMG_R"
-description = "+15 урона (Эво-Копье)"
+description = "Spear: +15 урона (Эво-Копье)"
 stat_to_modify = "base_damage"
 amount = 15.0
 rarity = 1

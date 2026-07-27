@@ -18,7 +18,9 @@ func _on_cooldown_timeout() -> void:
     
     var dir = (target.global_position - global_position).normalized()
     var base_angle = atan2(dir.y, dir.x)
-    var amount = max(1, int(player.get("projectile_amount")) if player else 1)
+    var amount = player.projectile_amount if player else 1
+    amount = max(1, amount)
+    print("[BOW] firing ", amount, " arrows (player.projectile_amount=", player.get("projectile_amount") if player else "null", ")")
     
     _fire_volley(base_angle, amount)
     cooldown_timer.start(attack_cooldown)

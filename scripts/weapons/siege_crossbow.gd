@@ -3,6 +3,9 @@ extends BaseWeapon
 
 const BOLT_SCENE: PackedScene = preload("res://Assets/Scenes/Weapons/SiegeBolt.tscn")
 
+@export var pierce_limit: int = 3
+@export var aoe_radius: float = 80.0
+
 
 func _weapon_ready() -> void:
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
@@ -31,6 +34,8 @@ func _spawn_bolt(angle: float) -> void:
     bolt.global_position = global_position
     bolt.rotation = angle
     bolt.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    bolt.pierce_limit = pierce_limit
+    bolt.aoe_radius = aoe_radius
 
 
 func _get_closest_enemy() -> Area2D:

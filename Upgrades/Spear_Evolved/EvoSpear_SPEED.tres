@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_SPEED"
-description = "+0.08 атк. скорости (Эво-Копье)"
+description = "Spear: +0.08 атк. скорости (Эво-Копье)"
 stat_to_modify = "attack_cooldown"
 amount = -0.08
 rarity = 1

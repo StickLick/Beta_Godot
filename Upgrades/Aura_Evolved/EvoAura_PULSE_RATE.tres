@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_PULSE_RATE"
-description = "+20% частота пульсации (Эво-Аура)"
+description = "Aura: +20% частота пульсации (Эво-Аура)"
 stat_to_modify = "attack_cooldown"
 amount = -0.08
 rarity = 0

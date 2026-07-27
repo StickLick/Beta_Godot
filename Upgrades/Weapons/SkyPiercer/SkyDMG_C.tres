@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_upg")
-name = "Bow_R"
-description = "+8 damage, +0.1 attack speed"
+name = "Sky Piercer: DMG_C"
+description = "+5 урона"
 stat_to_modify = "base_damage"
-amount = 8.0
-rarity = 1
-weapon_tag = "Bow"
+amount = 5.0
+rarity = 0
+weapon_tag = "SkyPiercer"

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Sky Piercer: Reload_R"
+description = "-0.5s reload"
+stat_to_modify = "attack_cooldown"
+amount = -0.5
+rarity = 1
+weapon_tag = "SkyPiercer"

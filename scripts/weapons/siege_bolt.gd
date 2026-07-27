@@ -9,6 +9,8 @@ extends Area2D
 
 const EXPLOSION_SCENE: PackedScene = preload("res://Assets/Scenes/Effects/Explosion.tscn")
 
+@onready var _tip: Marker2D = $Tip
+
 var faction: String = "player"
 var _pierced: int = 0
 
@@ -51,7 +53,7 @@ func _spawn_explosion() -> void:
     
     var root = get_tree().current_scene
     root.add_child(explosion)
-    explosion.global_position = global_position + Vector2.RIGHT.rotated(rotation) * 30.0
+    explosion.global_position = _tip.global_position if is_instance_valid(_tip) else global_position + Vector2.RIGHT.rotated(rotation) * 30.0
     
     var shockwave = explosion.get_node_or_null("Shockwave")
     var sparks = explosion.get_node_or_null("Sparks")

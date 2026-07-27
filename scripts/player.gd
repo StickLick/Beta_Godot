@@ -77,7 +77,7 @@ func _ready() -> void:
         magnet_area.add_to_group("player_magnet")
     
     # Заполняем первый слот стартовым копьём
-    var spear_upgrade = load("res://Upgrades/Spear/BaseSpear.tres") as Upgrade
+    var spear_upgrade = load("res://Upgrades/Weapons/Spear/BaseSpear.tres") as Upgrade
     if spear_upgrade:
         active_weapons.append(spear_upgrade)
         applied_upgrade_names.append(spear_upgrade.name)
@@ -454,4 +454,5 @@ func _on_death() -> void:
 
 func _deferred_restart() -> void:
     GameManager.reset_game()
-    get_tree().reload_current_scene()
+    if is_inside_tree():
+        get_tree().reload_current_scene()

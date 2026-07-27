@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://ct8iqk3m4rwl1"]
+
+[sub_resource type="Gradient" id="IndicatorGrad"]
+colors = PackedColorArray(0.2, 0.6, 1.0, 0.4, 0.1, 0.4, 1.0, 0.05)
+offsets = PackedFloat32Array(0.0, 1.0)
+
+[sub_resource type="GradientTexture2D" id="IndicatorTex"]
+gradient = SubResource("IndicatorGrad")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="TargetIndicator" type="Node2D" unique_id=7102476040]
+z_index = 100
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=7102476041]
+texture = SubResource("IndicatorTex")
+scale = Vector2(1.5, 1.5)
+modulate = Color(0.3, 0.7, 1.0, 0.15)

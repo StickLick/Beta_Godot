@@ -7,6 +7,6 @@ script = ExtResource("1_upg")
 name = "Bow_C"
 description = "+5 damage"
 stat_to_modify = "base_damage"
-amount = 5.0
+amount = 3
 rarity = 0
 weapon_tag = "Bow"

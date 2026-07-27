@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Siege Crossbow: SiegePierce"
+description = "+1 pierce"
+stat_to_modify = "pierce_limit"
+amount = 1.0
+rarity = 0
+weapon_tag = "SiegeCrossbow"

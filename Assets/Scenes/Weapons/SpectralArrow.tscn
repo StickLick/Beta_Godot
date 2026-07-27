@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://dsp1xq7kl8r3v"]
+
+[ext_resource type="Script" path="res://scripts/weapons/spectral_arrow.gd" id="1_sarrow"]
+[ext_resource type="Texture2D" path="res://Assets/Textures/SiegeBolt.svg" id="2_svg"]
+
+[sub_resource type="RectangleShape2D" id="ArrowShape"]
+size = Vector2(24, 6)
+
+[node name="SpectralArrow" type="Area2D" unique_id=5829476050]
+script = ExtResource("1_sarrow")
+speed = 550.0
+damage = 15.0
+bounce_limit = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=5829476051]
+shape = SubResource("ArrowShape")
+position = Vector2(12, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=5829476052]
+texture = ExtResource("2_svg")
+position = Vector2(12, 0)
+scale = Vector2(0.5, 0.5)
+modulate = Color(0.3, 0.6, 1.0, 1.0)
+
+[node name="Trail" type="Polygon2D" parent="." unique_id=5829476053]
+color = Color(0.3, 0.6, 1.0, 0.3)
+polygon = PackedVector2Array(0, -2, 20, 0, 0, 2)

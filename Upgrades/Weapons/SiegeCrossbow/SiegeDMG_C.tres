@@ -4,10 +4,9 @@
 
 [resource]
 script = ExtResource("1_upg")
-name = "Bow_Base"
-description = "+1 Bow weapon"
-stat_to_modify = ""
-amount = 0.0
+name = "Siege Crossbow: SiegeDMG"
+description = "+25 damage"
+stat_to_modify = "base_damage"
+amount = 25.0
 rarity = 0
-is_weapon = true
-weapon_tag = "Bow"
+weapon_tag = "SiegeCrossbow"

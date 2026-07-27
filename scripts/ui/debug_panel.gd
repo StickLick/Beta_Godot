@@ -5,6 +5,10 @@ extends CanvasLayer
 @onready var btn_levelup: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_LevelUp
 @onready var btn_max_all: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_MaxAll
 @onready var btn_evo_aura: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Aura
+@onready var btn_evo_spectral: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spectral
+@onready var btn_evo_sky: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Sky
+
+
 @onready var btn_evo_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spear
 @onready var btn_evo_siege: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Siege
 
@@ -21,6 +25,8 @@ func _ready() -> void:
     btn_evo_aura.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/AuraEvolution.tres"))
     btn_evo_spear.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/SpearEvolution.tres"))
     btn_evo_siege.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSiegeEvolution.tres"))
+    btn_evo_spectral.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSpectralEvolution.tres"))
+    btn_evo_sky.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSkyEvolution.tres"))
 
 
 func _input(event: InputEvent) -> void:
@@ -37,10 +43,8 @@ func _toggle_panel() -> void:
     else:
         var other_ui_visible = _is_any_ui_visible()
         get_tree().paused = other_ui_visible
-        if other_ui_visible:
-            Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-        else:
-            Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+        Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+        get_window().grab_focus()
 
 
 func _is_any_ui_visible() -> bool:
