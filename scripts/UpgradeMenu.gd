@@ -27,21 +27,40 @@ func open_upgrade_menu() -> void:
     if not player: return
 
     var eligible_pool = _get_eligible_upgrades(player)
-    if eligible_pool.is_empty():
-        # TODO: Gold/resources reward when all builds are maxed
-        # player.add_gold(randi_range(50, 150))
-        get_tree().paused = false; return
-
+    
     get_tree().paused = true
     var selected_upgrades: Array[Upgrade] = []
     var temp_pool = eligible_pool.duplicate()
+    var picked_tags: Array[String] = []
     
-    for i in range(min(3, temp_pool.size())):
+    for i in range(3):
+        if temp_pool.is_empty():
+            # Fallback when pool is exhausted
+            var fallback = _create_fallback_upgrade(player)
+            selected_upgrades.append(fallback)
+            continue
+        
         var up = _pick_weighted_upgrade(temp_pool, player)
         selected_upgrades.append(up)
-        temp_pool.erase(up)
-
+        
+        # Remove all upgrades with the same weapon_tag to prevent duplicates
+        var tag = up.weapon_tag
+        if tag == "" or tag == "General":
+            tag = up.passive_id
+        if tag == "":
+            tag = up.name
+        picked_tags.append(tag)
+        temp_pool = temp_pool.filter(func(u): return _get_tag(u) != tag)
+    
     _spawn_menu(selected_upgrades, player)
+
+
+func _get_tag(u: Upgrade) -> String:
+    if u.weapon_tag != "" and u.weapon_tag != "General":
+        return u.weapon_tag
+    if u.passive_id != "":
+        return u.passive_id
+    return u.name
 
 
 # ═══════════════════════════════════════════════════════════
@@ -179,6 +198,18 @@ func _can_take_passive(u: Upgrade, player: Player, passives_full: bool) -> bool:
 # ═══════════════════════════════════════════════════════════
 # ВЗВЕШЕННЫЙ СЛУЧАЙНЫЙ ВЫБОР
 # ═══════════════════════════════════════════════════════════
+
+func _create_fallback_upgrade(player: Player) -> Upgrade:
+    var f = Upgrade.new()
+    f.name = "Minor Heal"
+    f.description = "Восстанавливает 50 HP"
+    f.rarity = Upgrade.Rarity.COMMON
+    f.weapon_tag = "Fallback"
+    f.amount = 50.0
+    if is_instance_valid(player) and is_instance_valid(player.health_component):
+        player.health_component.heal(50.0)
+    return f
+
 
 func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
     var total_weight = 0.0

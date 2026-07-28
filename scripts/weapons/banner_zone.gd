@@ -1,0 +1,68 @@
+class_name BannerZone
+extends Node2D
+
+@export var radius: float = 300.0
+@export var duration: float = 8.0
+
+var banner_owner: Node2D = null
+
+
+func _ready() -> void:
+	z_index = 5
+	
+	var ring = Sprite2D.new()
+	ring.name = "Ring"
+	ring.texture = _create_ring_texture(64, Color(0.2, 0.6, 1.0, 0.6))
+	ring.scale = Vector2.ONE * 3.0
+	ring.modulate = Color(0.2, 0.6, 1.0, 0.6)
+	add_child(ring)
+	
+	var flag = Sprite2D.new()
+	flag.name = "Flag"
+	flag.texture = _create_radial_texture(24, Color(0.2, 0.6, 1.0, 0.9))
+	flag.scale = Vector2.ONE * 2.0
+	flag.modulate = Color(0.2, 0.6, 1.0, 0.9)
+	add_child(flag)
+	
+	var tw = create_tween().set_loops()
+	tw.tween_property(ring, "modulate:a", 0.0, 1.0)
+	tw.tween_property(ring, "scale", Vector2.ONE * 4.5, 1.0)
+	tw.tween_callback(func(): ring.modulate.a = 0.6; ring.scale = Vector2.ONE * 3.0)
+	
+	get_tree().create_timer(duration).timeout.connect(_on_expire)
+
+
+func _on_expire() -> void:
+	if is_instance_valid(banner_owner) and banner_owner.has_method("_on_banner_zone_expired"):
+		banner_owner._on_banner_zone_expired()
+	var t = create_tween().set_parallel(true)
+	t.tween_property(self, "scale", Vector2.ZERO, 0.3)
+	t.tween_property(self, "modulate:a", 0.0, 0.3)
+	t.tween_callback(queue_free)
+
+
+func _create_radial_texture(size: int, color: Color) -> ImageTexture:
+	var img = Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center = Vector2(size, size) / 2.0
+	var max_dist = size / 2.0
+	for x in range(size):
+		for y in range(size):
+			var dist = Vector2(x + 0.5, y + 0.5).distance_to(center)
+			var alpha = clamp(1.0 - dist / max_dist, 0.0, 1.0)
+			alpha = ease(alpha, 2.0)
+			img.set_pixel(x, y, Color(color.r, color.g, color.b, color.a * alpha))
+	return ImageTexture.create_from_image(img)
+
+
+func _create_ring_texture(size: int, color: Color) -> ImageTexture:
+	var img = Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center = Vector2(size, size) / 2.0
+	var half_size = size / 2.0
+	var thickness = 6.0
+	for x in range(size):
+		for y in range(size):
+			var d = Vector2(x + 0.5, y + 0.5).distance_to(center)
+			var ring_dist = abs(d - half_size * 0.7)
+			var alpha = clamp(1.0 - ring_dist / thickness, 0.0, 1.0)
+			img.set_pixel(x, y, Color(color.r, color.g, color.b, color.a * alpha))
+	return ImageTexture.create_from_image(img)

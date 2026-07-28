@@ -81,8 +81,8 @@ func _stop_pulse() -> void:
     _is_pulsing = false; if _tween: _tween.kill(); _update_visual_state()
 
 func _get_intersection_point(center: Vector2, dir: Vector2, rect: Rect2, margin: float) -> Vector2:
-    var size = rect.size / 2 - Vector2(margin, margin)
-    var x_ratio = abs(size.x / dir.x) if dir.x != 0 else INF
-    var y_ratio = abs(size.y / dir.y) if dir.y != 0 else INF
+    var half_rect = rect.size / 2 - Vector2(margin, margin)
+    var x_ratio = abs(half_rect.x / dir.x) if dir.x != 0 else INF
+    var y_ratio = abs(half_rect.y / dir.y) if dir.y != 0 else INF
     var min_ratio = min(x_ratio, y_ratio)
     return center + dir * min_ratio

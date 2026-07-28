@@ -184,49 +184,43 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
     var stat = upgrade.stat_to_modify
     if stat != "":
         if stat in self:
-            var old_val = get(stat)
             set(stat, get(stat) + upgrade.amount)
-            print("[UPGRADE] ", upgrade.name)
-            print("target=Player")
-            print("stat=", stat)
-            print("old=", old_val)
-            print("new=", get(stat))
+            # Global stat changed → refresh all child weapons
+            for child in get_children():
+                if child is BaseWeapon and child.has_method("on_modifier_applied"):
+                    child.on_modifier_applied()
         else:
             var weapons: Array[Node] = []
             for child in get_children():
                 if child is BaseWeapon:
                     weapons.append(child)
-            print("   [DEBUG] looking for weapon_tag=", tag, " among ", weapons.size(), " BaseWeapons:")
+            # (debug removed)
             var matched = false
             for w in weapons:
-                print("   [DEBUG]   found: name=", w.get("weapon_name"), " tag=", w.get("weapon_tag"))
                 if w.get("weapon_tag") == tag or w.get("weapon_name") == tag or w.get("weapon_name") == upgrade.target_weapon_name:
                     matched = true
-                    if stat in w: 
-                        var old_val = w.get(stat)
-                        w.set(stat, w.get(stat) + upgrade.amount)
-                        print("[UPGRADE] ", upgrade.name)
-                        print("target=BaseWeapon ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ")")
-                        print("stat=", stat)
-                        print("old=", old_val)
-                        print("new=", w.get(stat))
-                    if w.has_method("on_modifier_applied"): 
+                    _apply_stat_to_weapon(w, stat, upgrade.amount)
+                    if w.has_method("on_modifier_applied"):
                         w.on_modifier_applied()
-                        print("  -> on_modifier_applied called on ", w.get("weapon_name"))
-            # Пассивные модификаторы (Book, Stone) — применяем ко всем BaseWeapons и накапливаем для новых
             if not matched:
                 _accumulated_weapon_bonuses[stat] = _accumulated_weapon_bonuses.get(stat, 0.0) + upgrade.amount
                 for w in weapons:
-                    if stat in w:
-                        var old_val = w.get(stat)
-                        w.set(stat, w.get(stat) + upgrade.amount)
-                        print("[UPGRADE] ", upgrade.name)
-                        print("target=BaseWeapon ", w.get("weapon_name"), " (tag=", w.get("weapon_tag"), ") [passive fallback]")
-                        print("stat=", stat)
-                        print("old=", old_val)
-                        print("new=", w.get(stat))
-                        if w.has_method("on_modifier_applied"):
-                            w.on_modifier_applied()
+                    _apply_stat_to_weapon(w, stat, upgrade.amount)
+                    if w.has_method("on_modifier_applied"):
+                        w.on_modifier_applied()
+
+
+func _apply_stat_to_weapon(w: Node, stat: String, amount: float) -> void:
+    print("[MOD TRACE] Weapon: ", w.weapon_tag if "weapon_tag" in w else w.name, " | Stat: ", stat, " | Amount: ", amount)
+    if stat == "max_attack_distance" or stat == "max_attack_distance":
+        print("[MOD TRACE] Branch: max_attack_distance bonus")
+        w.weapon_range_bonus += amount
+    elif stat == "base_damage":
+        print("[MOD TRACE] Branch: base_damage bonus")
+        w.weapon_dmg_bonus += amount
+    elif stat in w:
+        print("[MOD TRACE] Branch: generic setter (stat in weapon)")
+        w.set(stat, w.get(stat) + amount)
             
     inventory_updated.emit()
 
@@ -251,41 +245,30 @@ func _debug_add_aura_evolution() -> void:
     range_entry.name = "AttackRange"
     range_entry.passive_id = "AttackRange"
     active_passives.append(range_entry)
-    print("[DEBUG] Direct spawn of EvolvedAuraWave complete")
 
 func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     # Загружаем сцену из Assets/Scenes/{weapon_tag}Weapon.tscn
-    var scene_path = "res://Assets/Scenes/" + upgrade.weapon_tag + "Weapon.tscn"
-    print("[SPAWN] trying to load: ", scene_path)
+    var scene_path = "res://Assets/Scenes/Weapons/" + upgrade.weapon_tag + "Weapon.tscn"
     var weapon_scene = load(scene_path) as PackedScene
     if not weapon_scene:
         push_warning("No weapon scene found at: " + scene_path)
-        print("[SPAWN] FAILED: scene not found at ", scene_path)
         return
     var new_weapon = weapon_scene.instantiate()
     # Устанавливаем weapon_tag из ресурса Upgrade
     new_weapon.weapon_tag = upgrade.weapon_tag
-    print("[SPAWN] adding ", new_weapon.name, " (tag=", new_weapon.weapon_tag, ", class=", new_weapon.get_class(), ") to player")
     # Сдвигаем позицию, чтобы оружия не накладывались друг на друга
     var offset = active_weapons.size() * 20
     new_weapon.position = Vector2(offset, -offset)
     add_child(new_weapon)
-    print("   parent after add_child: ", new_weapon.get_parent())
-    print("   player child_count: ", get_child_count())
     # Перемещаем BaseWeapon в начало списка детей Player,
     # чтобы визуал (Aura, Spear) был ПОД AnimatedSprite2D персонажа
     move_child(new_weapon, 0)
     # Применяем накопленные пассивные/глобальные бонусы к новому оружию
     for bonus_stat in _accumulated_weapon_bonuses:
-        if bonus_stat in new_weapon:
-            var old_val = new_weapon.get(bonus_stat)
-            new_weapon.set(bonus_stat, new_weapon.get(bonus_stat) + _accumulated_weapon_bonuses[bonus_stat])
-            print("[INHERIT] ", bonus_stat, " for ", new_weapon.weapon_name, ": ", old_val, " -> ", new_weapon.get(bonus_stat))
+        _apply_stat_to_weapon(new_weapon, bonus_stat, _accumulated_weapon_bonuses[bonus_stat])
     if new_weapon.has_method("on_modifier_applied"):
         new_weapon.on_modifier_applied()
     
-    print("[SPAWN] SUCCESS. Player children BaseWeapons now: ", find_children("*", "BaseWeapon", true).size())
-    print("   all player children: ", get_children().map(func(c): return c.name))
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_tag: String = "") -> void:
     var old_pos = Vector2.ZERO
@@ -299,16 +282,11 @@ func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_ta
     if evolved_tag != "":
         new_weapon.weapon_tag = evolved_tag
     add_child(new_weapon)
-    # Применяем накопленные пассивные/глобальные бонусы к эволюционному оружию
-    for bonus_stat in _accumulated_weapon_bonuses:
-        if bonus_stat in new_weapon:
-            var old_val = new_weapon.get(bonus_stat)
-            new_weapon.set(bonus_stat, new_weapon.get(bonus_stat) + _accumulated_weapon_bonuses[bonus_stat])
-            print("[EVOLVE INHERIT] ", bonus_stat, " for ", evolved_tag, ": ", old_val, " -> ", new_weapon.get(bonus_stat))
+    # Evolved weapons start fresh — no inheritance of old weapon upgrades
+    # Only global passives (radius_weapons, damage_multiplier) apply via _setup_physics_auto
     if new_weapon.has_method("on_modifier_applied"):
         new_weapon.on_modifier_applied()
     _play_evolution_fx()
-    print("[EVOLVE] replaced ", weapon_name, " with ", new_weapon.name, " tag=", new_weapon.weapon_tag)
 
 func _play_evolution_fx() -> void:
     var camera = get_viewport().get_camera_2d()

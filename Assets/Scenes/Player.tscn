@@ -294,7 +294,7 @@ animations = [{
 [node name="Player" type="CharacterBody2D" unique_id=887924388 groups=["Player"]]
 collision_layer = 2
 script = ExtResource("1_3e2tf")
-radius_weapons = 1.5
+radius_weapons = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1875892484]
 shape = SubResource("CircleShape2D_gd7ey")

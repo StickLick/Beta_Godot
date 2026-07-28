@@ -20,7 +20,7 @@ extends CanvasLayer
 @onready var weapon_container: HBoxContainer = %WeaponSlots
 @onready var passive_container: HBoxContainer = %PassiveSlots
 
-var _player_health_component: HealthComponent = null
+# unused - kept for forward compat
 var _pending_camp: Node2D = null
 var _active_anomaly_key: String = ""
 var _current_anomaly_visual = null
@@ -133,7 +133,7 @@ func _on_anomaly_ended():
         anomaly_label.modulate.a = 0
     _update_overlay_shader(0, 10, Color(0,0,0,0), 1.0)
 
-func _update_overlay_shader(radius, soft, color, duration):
+func _update_overlay_shader(radius, _soft, color, duration):
     var mat = anomaly_overlay.material as ShaderMaterial
     if mat:
         var tw = create_tween().set_parallel(true)

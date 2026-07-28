@@ -10,10 +10,14 @@ extends CanvasLayer
 @onready var btn_evo_lightning: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Lightning
 @onready var btn_evo_star: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Star
 
-
-
 @onready var btn_evo_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spear
 @onready var btn_evo_siege: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Siege
+
+@onready var btn_base_staff: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Staff
+@onready var btn_base_bow: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Bow
+@onready var btn_base_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Spear
+@onready var btn_base_aura: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Aura
+@onready var btn_base_banner: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Banner
 
 var _was_paused_before: bool = false
 
@@ -25,13 +29,19 @@ func _ready() -> void:
     
     btn_levelup.pressed.connect(_on_btn_levelup)
     btn_max_all.pressed.connect(_on_btn_max_all)
-    btn_evo_aura.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/AuraEvolution.tres"))
-    btn_evo_spear.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/SpearEvolution.tres"))
-    btn_evo_siege.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSiegeEvolution.tres"))
-    btn_evo_spectral.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/BowSpectralEvolution.tres"))
-    btn_evo_singularity.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffSingularityEvolution.tres"))
-    btn_evo_lightning.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffLightningEvolution.tres"))
-    btn_evo_star.pressed.connect(_on_btn_evo.bind("res://Upgrades/Evolutions/StaffStarEvolution.tres"))
+    btn_evo_aura.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/AuraEvolution.tres"))
+    btn_evo_spear.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/SpearEvolution.tres"))
+    btn_evo_siege.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BowSiegeEvolution.tres"))
+    btn_evo_spectral.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BowSpectralEvolution.tres"))
+    btn_evo_singularity.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffSingularityEvolution.tres"))
+    btn_evo_lightning.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffLightningEvolution.tres"))
+    btn_evo_star.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffStarEvolution.tres"))
+    
+    btn_base_staff.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Staff/BaseStaff.tres"))
+    btn_base_bow.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Bow/BaseBow.tres"))
+    btn_base_spear.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Spear/BaseSpear.tres"))
+    btn_base_aura.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Aura/BaseAura.tres"))
+    btn_base_banner.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Banner/BaseBanner.tres"))
 
 
 func _input(event: InputEvent) -> void:
@@ -53,13 +63,11 @@ func _toggle_panel() -> void:
 
 
 func _is_any_ui_visible() -> bool:
-    # Check group
     var ui_nodes = get_tree().get_nodes_in_group("ui")
     for node in ui_nodes:
         if is_instance_valid(node) and node is CanvasItem and node.visible:
             if node != self:
                 return true
-    # Check by name
     var upgrade_menu = get_tree().root.find_child("UpgradeMenu", true, false)
     if is_instance_valid(upgrade_menu) and upgrade_menu is CanvasItem and upgrade_menu.visible:
         return true
@@ -88,16 +96,16 @@ func _on_btn_max_all() -> void:
     print("[DEBUG] All tags set to level 8: ", player.tag_levels)
 
 
-func _on_btn_evo(resource_path: String) -> void:
+func _on_btn_add_upgrade(resource_path: String) -> void:
     var player = get_player()
     if not player:
         return
-    var evo = load(resource_path) as Upgrade
-    if not evo:
-        push_error("[DEBUG] Failed to load evolution: " + resource_path)
+    var upg = load(resource_path) as Upgrade
+    if not upg:
+        push_error("[DEBUG] Failed to load: " + resource_path)
         return
-    player.apply_custom_upgrade(evo)
-    print("[DEBUG] Force evolution applied: ", evo.name)
+    player.apply_custom_upgrade(upg)
+    print("[DEBUG] Applied: ", upg.name)
 
 
 func get_player() -> Player:
