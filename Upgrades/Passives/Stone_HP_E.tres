@@ -4,11 +4,13 @@
 
 [resource]
 script = ExtResource("1_upg")
-passive_id = "MaxHP"
 name = "MaxHP_E"
 description = "+200-300 HP (Stone)"
-stat_to_modify = "max_health"
-amount = 250.0
+modifiers = Array[Dictionary]([{
+"amount": 250,
+"stat": "max_health"
+}])
 rarity = 2
+passive_id = "MaxHP"
 weapon_tag = "MaxHP"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

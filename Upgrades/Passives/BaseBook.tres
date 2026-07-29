@@ -6,8 +6,9 @@
 script = ExtResource("1_upg")
 name = "AttackRange"
 description = "+30 к дальности оружия"
-stat_to_modify = "max_attack_distance"
-amount = 30.0
+stat_to_modify = ""
+amount = 0.0
 rarity = 0
 weapon_tag = ""
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"
+modifiers = [{"amount": 30, "stat": "max_attack_distance"}]

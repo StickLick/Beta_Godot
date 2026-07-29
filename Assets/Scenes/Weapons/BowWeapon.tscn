@@ -9,6 +9,7 @@ radius = 280.0
 [node name="BowWeapon" type="Node2D" unique_id=-1900096273]
 script = ExtResource("1_bow")
 weapon_name = "Bow"
+base_dmg = 10.0
 attack_cooldown = 1.2
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=-1900096272]

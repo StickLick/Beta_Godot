@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://k3i6x6ca6aah"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Star Shards: +burst range"
 description = "+burst range"
-stat_to_modify = "orbit_radius"
-amount = 60
+modifiers = Array[Dictionary]([{
+"amount": 60,
+"stat": "orbit_radius"
+}])
 rarity = 3
 weapon_tag = "StarStaff"

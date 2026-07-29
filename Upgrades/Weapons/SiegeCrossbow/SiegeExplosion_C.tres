@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bi3unpsr74jos"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,8 @@
 script = ExtResource("1_upg")
 name = "Siege Crossbow: SiegeExplosion"
 description = "+10 AoE radius"
-stat_to_modify = "aoe_radius"
-amount = 10.0
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 10,
+"stat": "aoe_radius"
+}])
 weapon_tag = "SiegeCrossbow"

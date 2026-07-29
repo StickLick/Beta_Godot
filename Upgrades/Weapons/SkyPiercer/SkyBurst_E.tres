@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://ch43e10lfs6jc"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,10 @@
 script = ExtResource("1_upg")
 name = "Sky Piercer: Burst_E"
 description = "-0.08s burst interval"
-stat_to_modify = "burst_rate"
 amount = -0.08
+modifiers = Array[Dictionary]([{
+"amount": 0,
+"stat": "burst_rate"
+}])
 rarity = 2
 weapon_tag = "SkyPiercer"

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://rtsgsx7gji6o"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Siege Crossbow: SiegePierce"
 description = "+3 pierce, massive"
-stat_to_modify = "pierce_limit"
-amount = 3.0
+modifiers = Array[Dictionary]([{
+"amount": 3,
+"stat": "pierce_limit"
+}])
 rarity = 3
 weapon_tag = "SiegeCrossbow"

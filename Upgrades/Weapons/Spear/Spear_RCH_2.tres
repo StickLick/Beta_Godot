@@ -6,8 +6,10 @@
 script = ExtResource("1_upg")
 name = "Spear_RCH_2"
 description = "+30 дальности копья"
-stat_to_modify = "max_attack_distance"
-amount = 30.0
+modifiers = Array[Dictionary]([{
+"amount": 30,
+"stat": "max_attack_distance"
+}])
 rarity = 1
 weapon_tag = "Spear"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://d4dctdi0k15q0"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,8 @@
 script = ExtResource("1_upg")
 name = "Sky Piercer: DMG_C"
 description = "+5 урона"
-stat_to_modify = "base_damage"
-amount = 5.0
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 5,
+"stat": "base_damage"
+}])
 weapon_tag = "SkyPiercer"

@@ -6,6 +6,7 @@
 script = ExtResource("1_upg")
 name = "Damage"
 description = "+10% ко всему урону"
-stat_to_modify = "damage_multiplier"
-amount = 0.1
+stat_to_modify = ""
+amount = 0.0
 rarity = 0
+modifiers = [{"amount": 0.1, "stat": "damage_multiplier"}]

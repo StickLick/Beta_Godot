@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bxu1b7665uxys"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,12 @@
 script = ExtResource("1_upg")
 name = "Bow_E"
 description = "+12 damage, pierce +1"
-stat_to_modify = "base_damage"
-amount = 12
+modifiers = Array[Dictionary]([{
+"amount": 12,
+"stat": "base_damage"
+}, {
+"amount": 1,
+"stat": "pierce_limit"
+}])
 rarity = 2
 weapon_tag = "Bow"

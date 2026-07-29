@@ -13,17 +13,11 @@ func _ready() -> void:
     health_changed.emit(current_health, max_health)
 
 func take_damage(amount: float) -> void:
-    print("[DAMAGE TEST] ", get_parent().name, " received damage: ", amount)
-    print("[HP BEFORE] ", current_health, " / ", max_health)
-
     current_health = clampf(current_health - amount, 0.0, max_health)
-
-    print("[HP AFTER] ", current_health, " / ", max_health)
 
     health_changed.emit(current_health, max_health)
 
     if current_health <= 0.0:
-        print("[DEAD] ", get_parent().name, " died")
         health_depleted.emit()
 
 func heal(amount: float) -> void:

@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://duvrcbcsdeval"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
-passive_id = "ProjectileAmount"
 name = "Amount_L"
 description = "+3 projectiles"
-stat_to_modify = "projectile_amount"
-amount = 5.0
+modifiers = Array[Dictionary]([{
+"amount": 5,
+"stat": "projectile_amount"
+}])
 rarity = 3
+passive_id = "ProjectileAmount"
 weapon_tag = "ProjectileAmount"

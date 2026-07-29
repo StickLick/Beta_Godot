@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bh5en12k8wg70"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
-passive_id = "CritChance"
 name = "CritChance_E"
 description = "+7% крит. шанса"
-stat_to_modify = "crit_chance"
-amount = 0.07
+modifiers = Array[Dictionary]([{
+"amount": 0.07,
+"stat": "crit_chance"
+}])
 rarity = 2
+passive_id = "CritChance"
 weapon_tag = "CritChance"

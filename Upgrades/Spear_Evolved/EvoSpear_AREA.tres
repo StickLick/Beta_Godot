@@ -6,8 +6,9 @@
 script = ExtResource("1_upg")
 name = "EvoSpear_AREA"
 description = "Spear: +20% площади атаки (Эво-Копье)"
-stat_to_modify = "max_attack_distance"
-amount = 25.0
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 25,
+"stat": "max_attack_distance"
+}])
 weapon_tag = "Spear_Evolved"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

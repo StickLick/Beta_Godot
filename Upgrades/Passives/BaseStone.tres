@@ -6,8 +6,9 @@
 script = ExtResource("1_upg")
 name = "MaxHP"
 description = "+100 к здоровью"
-stat_to_modify = "max_health"
-amount = 100.0
+stat_to_modify = ""
+amount = 0.0
 rarity = 0
 weapon_tag = ""
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"
+modifiers = [{"amount": 100, "stat": "max_health"}]

@@ -6,8 +6,10 @@
 script = ExtResource("1_upg")
 name = "EvoAura_DURATION"
 description = "Aura: +0.2 сек длительности импульса (Эво-Аура)"
-stat_to_modify = "max_attack_distance"
-amount = 30.0
+modifiers = Array[Dictionary]([{
+"amount": 30,
+"stat": "max_attack_distance"
+}])
 rarity = 2
 weapon_tag = "Aura_Evolved"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

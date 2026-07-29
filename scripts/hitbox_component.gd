@@ -19,7 +19,6 @@ func _on_area_entered(area: Area2D) -> void:
     _try_damage(area)
 
 func _try_damage(area: Area2D) -> void:
-    print("[HITBOX DAMAGE] owner=", get_parent().name, " damage=", damage)
     deal_damage_to_area(area, damage, faction)
 
 static func deal_damage_to_area(area: Area2D, amount: float, attacker_faction: String) -> void:

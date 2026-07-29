@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://brogcjn13if0"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,8 +6,10 @@
 script = ExtResource("1_upg")
 name = "EvoSpear_DMG_L"
 description = "Spear: +30 урона (Эво-Копье)"
-stat_to_modify = "base_damage"
-amount = 30.0
+modifiers = Array[Dictionary]([{
+"amount": 30,
+"stat": "base_damage"
+}])
 rarity = 3
 weapon_tag = "Spear_Evolved"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

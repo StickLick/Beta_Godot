@@ -9,6 +9,9 @@ enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var stat_to_modify: String 
 @export var amount: float
 
+# NEW: Multi-modifier system (Dictionary: {"stat":"base_damage","amount":5.0})
+@export var modifiers: Array[Dictionary] = []
+
 @export_group("Evolution System")
 @export var rarity: Rarity = Rarity.COMMON
 @export var prerequisites: Array[String] = [] 

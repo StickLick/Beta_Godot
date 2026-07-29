@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dfn8xxmb18bo2"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,10 @@
 script = ExtResource("1_upg")
 name = "Sky Piercer: Reload_L"
 description = "-1.2s reload"
-stat_to_modify = "attack_cooldown"
 amount = -1.2
+modifiers = Array[Dictionary]([{
+"amount": 0,
+"stat": "attack_cooldown"
+}])
 rarity = 3
 weapon_tag = "SkyPiercer"

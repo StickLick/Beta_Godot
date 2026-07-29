@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://w18mvc5e78dv"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,8 +6,10 @@
 script = ExtResource("1_upg")
 name = "EvoAura_DMG_E"
 description = "Aura: +16 урона (Эво-Аура)"
-stat_to_modify = "base_damage"
-amount = 16.0
+modifiers = Array[Dictionary]([{
+"amount": 16,
+"stat": "base_damage"
+}])
 rarity = 2
 weapon_tag = "Aura_Evolved"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -6,8 +6,11 @@
 script = ExtResource("1_upg")
 name = "EvoSpear_COOLDOWN"
 description = "Spear: -0.12 сек кулдауна (Эво-Копье)"
-stat_to_modify = "attack_cooldown"
 amount = -0.12
+modifiers = Array[Dictionary]([{
+"amount": 0,
+"stat": "attack_cooldown"
+}])
 rarity = 2
 weapon_tag = "Spear_Evolved"
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

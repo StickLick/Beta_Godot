@@ -46,10 +46,11 @@ func _spawn_arrow(angle: float) -> void:
         return
     
     var root = get_tree().current_scene
+    arrow.damage = final_damage
+    arrow.pierce_limit = final_pierce
     root.add_child(arrow)
     arrow.global_position = global_position
     arrow.rotation = angle
-    arrow.damage = final_damage
 
 
 func _get_closest_enemy() -> Area2D:

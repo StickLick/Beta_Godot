@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://c2am74e2jjwkq"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
-passive_id = "Damage"
 name = "Damage_L"
 description = "+25% урона"
-stat_to_modify = "damage_multiplier"
-amount = 0.35
+modifiers = Array[Dictionary]([{
+"amount": 0.35,
+"stat": "damage_multiplier"
+}])
 rarity = 3
+passive_id = "Damage"
 weapon_tag = "Damage"

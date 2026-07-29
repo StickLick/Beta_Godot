@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bspke0ld7hn2s"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Star Shards: +shards count"
 description = "+shards count"
-stat_to_modify = "shard_count"
-amount = 3
+modifiers = Array[Dictionary]([{
+"amount": 3,
+"stat": "shard_count"
+}])
 rarity = 2
 weapon_tag = "StarStaff"

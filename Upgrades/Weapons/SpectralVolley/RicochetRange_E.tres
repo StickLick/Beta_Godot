@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cl28vlhvdupio"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Spectral Volley: RicochetRange"
 description = "+100 bounce range"
-stat_to_modify = "bounce_radius"
-amount = 100.0
+modifiers = Array[Dictionary]([{
+"amount": 100,
+"stat": "bounce_radius"
+}])
 rarity = 2
 weapon_tag = "SpectralVolley"

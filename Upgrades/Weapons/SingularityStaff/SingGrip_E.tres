@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dbx367qqwvng3"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Singularity: +pull force"
 description = "+pull force"
-stat_to_modify = "pull_strength"
-amount = 700
+modifiers = Array[Dictionary]([{
+"amount": 700,
+"stat": "pull_strength"
+}])
 rarity = 2
 weapon_tag = "SingularityStaff"

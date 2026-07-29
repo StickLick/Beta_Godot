@@ -6,9 +6,10 @@
 script = ExtResource("1_upg")
 name = "Spear"
 description = "Базовое оружие: копьё ближнего боя"
-stat_to_modify = "base_damage"
-amount = 15.0
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 15,
+"stat": "base_damage"
+}])
 is_weapon = true
 weapon_tag = "Spear"
 target_weapon_name = "Spear"

@@ -11,6 +11,7 @@ var weapon_tag: String = ""
 @export_group("Base Stats (Ingredients)")
 @export var base_dmg: float = 15.0
 @export var base_range: float = 250.0
+@export var base_pierce: int = 1
 @export var attack_cooldown: float = 1.0:
     set(value):
         attack_cooldown = max(0.05, value)
@@ -20,6 +21,7 @@ var weapon_tag: String = ""
 # Runtime bonuses (modified by upgrades/passives)
 var weapon_dmg_bonus: float = 0.0
 var weapon_range_bonus: float = 0.0
+var weapon_pierce_bonus: int = 0
 
 # Computed Final Stats (Single Source of Truth)
 var final_damage: float:
@@ -31,6 +33,9 @@ var final_range: float:
     get:
         var mult = player.radius_weapons if is_instance_valid(player) else 1.0
         return (base_range + weapon_range_bonus) * mult
+
+var final_pierce: int:
+    get: return int(base_pierce + weapon_pierce_bonus)
 
 # Backward compatibility aliases (read-only — SSOT protection)
 var base_damage: float:
@@ -90,9 +95,7 @@ func _process(delta: float) -> void:
 
 func on_modifier_applied() -> void:
     _setup_physics_auto()
-    var rmult = player.radius_weapons if is_instance_valid(player) else 1.0
-    var dmult = player.damage_multiplier if is_instance_valid(player) else 1.0
-    print("[SYNC] ", weapon_tag, " | (Base: ", base_range, " + Bonus: ", weapon_range_bonus, ") * Mult: ", rmult, " = Final: ", final_range, " | Dmg: ", final_damage, " (D_Mult: ", dmult, ")")
+    print("[SYNC] ", weapon_tag, " | Dist: ", final_range, " | Dmg: ", final_damage, " | Pierce: ", final_pierce)
 
 
 func _setup_physics_auto() -> void:

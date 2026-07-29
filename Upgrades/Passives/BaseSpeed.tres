@@ -6,6 +6,7 @@
 script = ExtResource("1_upg")
 name = "MoveSpeed"
 description = "+20 к скорости"
-stat_to_modify = "max_speed"
-amount = 20.0
+stat_to_modify = ""
+amount = 0.0
 rarity = 0
+modifiers = [{"amount": 20, "stat": "max_speed"}]

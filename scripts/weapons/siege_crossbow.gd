@@ -34,7 +34,7 @@ func _spawn_bolt(angle: float) -> void:
     bolt.global_position = global_position
     bolt.rotation = angle
     bolt.damage = final_damage
-    bolt.pierce_limit = pierce_limit
+    bolt.pierce_limit = final_pierce
     bolt.aoe_radius = aoe_radius
 
 

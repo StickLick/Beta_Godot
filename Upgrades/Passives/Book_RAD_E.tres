@@ -4,12 +4,14 @@
 
 [resource]
 script = ExtResource("1_upg")
-passive_id = "AttackRange"
 name = "AttackRange_E"
 description = "+50-80 дальности (Book)"
-stat_to_modify = "radius_weapons"
-amount = 0.50
+modifiers = Array[Dictionary]([{
+"amount": 0.5,
+"stat": "radius_weapons"
+}])
 rarity = 2
-is_global_modifier = true
+passive_id = "AttackRange"
 weapon_tag = ""
+is_global_modifier = true
 metadata/_custom_type_script = "uid://dshfc0npo0r8o"

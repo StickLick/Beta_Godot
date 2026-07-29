@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://ci3ellwjubv7k"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,9 @@
 script = ExtResource("1_upg")
 name = "Lightning: +damage"
 description = "+damage"
-stat_to_modify = "base_damage"
-amount = 50
+modifiers = Array[Dictionary]([{
+"amount": 50,
+"stat": "base_damage"
+}])
 rarity = 2
 weapon_tag = "LightningStaff"

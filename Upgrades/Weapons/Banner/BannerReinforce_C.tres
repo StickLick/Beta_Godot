@@ -6,7 +6,8 @@
 script = ExtResource("1_upg")
 name = "Banner: +units"
 description = "+units count"
-stat_to_modify = "max_banner_units"
-amount = 1
+stat_to_modify = ""
+amount = 0.0
 rarity = 0
 weapon_tag = "Banner"
+modifiers = [{"amount": 1, "stat": "max_banner_units"}]

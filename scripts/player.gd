@@ -180,55 +180,71 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
             tag_levels[evo_tag] = 1
         apply_evolution(upgrade.target_weapon_name, upgrade.evolved_weapon_scene, evo_tag)
     
-    # 4. Применение статов
-    var stat = upgrade.stat_to_modify
-    print(
-    "[WEAPON INIT MOD]",
-    " tag=", tag,
-    " stat=", stat,
-    " amount=", upgrade.amount,
-    " name=", upgrade.name
-    )
-    if stat != "":
-        if stat in self:
-            set(stat, get(stat) + upgrade.amount)
-            # Global stat changed → refresh all child weapons
-            for child in get_children():
-                if child is BaseWeapon and child.has_method("on_modifier_applied"):
-                    child.on_modifier_applied()
-        else:
-            var weapons: Array[Node] = []
-            for child in get_children():
-                if child is BaseWeapon:
-                    weapons.append(child)
-            # (debug removed)
-            var matched = false
-            for w in weapons:
-                if w.get("weapon_tag") == tag or w.get("weapon_name") == tag or w.get("weapon_name") == upgrade.target_weapon_name:
-                    matched = true
-                    _apply_stat_to_weapon(w, stat, upgrade.amount)
-                    if w.has_method("on_modifier_applied"):
-                        w.on_modifier_applied()
-            if not matched:
-                _accumulated_weapon_bonuses[stat] = _accumulated_weapon_bonuses.get(stat, 0.0) + upgrade.amount
-                for w in weapons:
-                    _apply_stat_to_weapon(w, stat, upgrade.amount)
-                    if w.has_method("on_modifier_applied"):
-                        w.on_modifier_applied()
+    # 4. Применение статов (Multi-Modifier Phase 1 — Dictionary format)
+    if upgrade.modifiers.size() > 0:
+        for modifier in upgrade.modifiers:
+            var mod_stat: String = modifier.get("stat", "")
+            var mod_amount: float = modifier.get("amount", 0.0)
+            if mod_stat == "":
+                continue
+            print("[WEAPON INIT MOD] tag=", tag, " stat=", mod_stat, " amount=", mod_amount, " name=", upgrade.name, " (multi)")
+            if mod_stat in self:
+                set(mod_stat, get(mod_stat) + mod_amount)
+                for child in get_children():
+                    if child is BaseWeapon and child.has_method("on_modifier_applied"):
+                        child.on_modifier_applied()
+            else:
+                _apply_upgrade_stat_to_weapons(tag, upgrade.target_weapon_name, mod_stat, mod_amount)
+    else:
+        # FALLBACK: старый single-stat для обратной совместимости
+        var stat = upgrade.stat_to_modify
+        print("[WEAPON INIT MOD] tag=", tag, " stat=", stat, " amount=", upgrade.amount, " name=", upgrade.name, " (legacy)")
+        if stat != "":
+            if stat in self:
+                set(stat, get(stat) + upgrade.amount)
+                for child in get_children():
+                    if child is BaseWeapon and child.has_method("on_modifier_applied"):
+                        child.on_modifier_applied()
+            else:
+                _apply_upgrade_stat_to_weapons(tag, upgrade.target_weapon_name, stat, upgrade.amount)
+
+
+func _apply_upgrade_stat_to_weapons(tag: String, target_name: String, stat: String, amount: float) -> void:
+    var weapons: Array[Node] = []
+    for child in get_children():
+        if child is BaseWeapon:
+            weapons.append(child)
+    var matched = false
+    for w in weapons:
+        if w.get("weapon_tag") == tag or w.get("weapon_name") == tag or w.get("weapon_name") == target_name:
+            matched = true
+            _apply_stat_to_weapon(w, stat, amount)
+            if w.has_method("on_modifier_applied"):
+                w.on_modifier_applied()
+    if not matched:
+        _accumulated_weapon_bonuses[stat] = _accumulated_weapon_bonuses.get(stat, 0.0) + amount
+        for w in weapons:
+            _apply_stat_to_weapon(w, stat, amount)
+            if w.has_method("on_modifier_applied"):
+                w.on_modifier_applied()
 
 
 func _apply_stat_to_weapon(w: Node, stat: String, amount: float) -> void:
-    print(
-    "[UPGRADE TRACE] weapon=",
-    w.weapon_tag if "weapon_tag" in w else w.name,
-    " stat=", stat,
-    " amount=", amount
-    )
-    if stat == "base_damage":
-        w.weapon_dmg_bonus += amount
-    elif stat == "max_attack_distance":
-        w.weapon_range_bonus += amount
-            
+    print("[UPGRADE TRACE] weapon=", w.weapon_tag if "weapon_tag" in w else w.name, " stat=", stat, " amount=", amount)
+    match stat:
+        "base_damage":
+            w.weapon_dmg_bonus += amount
+        "max_attack_distance":
+            w.weapon_range_bonus += amount
+        "pierce_limit":
+            w.weapon_pierce_bonus += int(amount)
+        _:
+            if stat in w:
+                var current = w.get(stat)
+                if current is int:
+                    w.set(stat, current + int(amount))
+                else:
+                    w.set(stat, current + amount)
     inventory_updated.emit()
 
 

@@ -1,12 +1,20 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cos3af6p1p2e2"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Lightning: +damage"
-description = "+damage"
-stat_to_modify = "base_damage"
-amount = 25
+description = "+20 damage, pierce +2, +1 arrow"
+modifiers = Array[Dictionary]([{
+"amount": 20,
+"stat": "base_damage"
+}, {
+"amount": 2,
+"stat": "pierce_limit"
+}, {
+"amount": 1,
+"stat": "projectile_amount"
+}])
 rarity = 1
 weapon_tag = "LightningStaff"

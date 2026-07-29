@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://djh135fcbji0m"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
@@ -6,7 +6,11 @@
 script = ExtResource("1_upg")
 name = "Singularity: +damage"
 description = "+damage"
-stat_to_modify = "base_damage"
-amount = 5
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 12,
+"stat": "base_damage"
+}, {
+"amount": 1,
+"stat": "pierce_limit"
+}])
 weapon_tag = "SingularityStaff"
