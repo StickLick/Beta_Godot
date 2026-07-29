@@ -60,6 +60,9 @@ var current_xp: int = 0
 var xp_to_next_level: int = 100
 var current_camp: Node2D = null
 
+# War Banner inspired state (set externally by WarBanner weapon)
+var banner_inspired: bool = false
+
 @onready var magnet_area: Area2D = %MagnetArea
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -99,12 +102,20 @@ func _physics_process(delta: float) -> void:
     if total_regen > 0 and health_component.current_health < max_health:
         health_component.heal(total_regen * delta)
     
-    var debuff = 1.0
+    var debuff: float = 1.0
     if _disruptor_debuff_timer > 0:
         _disruptor_debuff_timer -= delta
         debuff = 0.4
         modulate = Color(0.7, 0.3, 1.0)
-        if _disruptor_debuff_timer <= 0: modulate = Color.WHITE
+        if _disruptor_debuff_timer <= 0:
+            # Restore based on active effects priority
+            _update_modulate_from_state()
+    elif banner_inspired:
+        modulate = Color(1.0, 0.84, 0.0, 1.0)
+    elif camp_buffs.get("speed", 0.0) != 0.0 or camp_buffs.get("damage", 0.0) != 0.0:
+        modulate = Color(0.8, 0.8, 1.5, 1.0)
+    else:
+        modulate = Color.WHITE
     
     var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
     _move_player(delta, input_vector, debuff)
@@ -121,11 +132,23 @@ func get_final_damage_multiplier() -> float:
 
 func apply_complex_camp_buffs(data: Dictionary) -> void:
     camp_buffs = data
-    if _disruptor_debuff_timer <= 0: modulate = Color(0.8, 0.8, 1.5)
+    _update_modulate_from_state()
 
 func remove_camp_buffs() -> void:
     camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
-    if _disruptor_debuff_timer <= 0: modulate = Color.WHITE
+    _update_modulate_from_state()
+
+
+func _update_modulate_from_state() -> void:
+    # Priority: Disruptor > Banner Inspired > Camp Buffs > Normal
+    if _disruptor_debuff_timer > 0:
+        modulate = Color(0.7, 0.3, 1.0, 1.0)
+    elif banner_inspired:
+        modulate = Color(1.0, 0.84, 0.0, 1.0)
+    elif camp_buffs.get("speed", 0.0) != 0.0 or camp_buffs.get("damage", 0.0) != 0.0:
+        modulate = Color(0.8, 0.8, 1.5, 1.0)
+    else:
+        modulate = Color.WHITE
 
 # --- ИНВЕНТАРЬ И УЛУЧШЕНИЯ ---
 
