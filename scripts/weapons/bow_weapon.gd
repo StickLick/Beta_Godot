@@ -49,7 +49,7 @@ func _spawn_arrow(angle: float) -> void:
     root.add_child(arrow)
     arrow.global_position = global_position
     arrow.rotation = angle
-    arrow.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    arrow.damage = final_damage
 
 
 func _get_closest_enemy() -> Area2D:

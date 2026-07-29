@@ -32,7 +32,7 @@ func _spawn_orb(direction: Vector2) -> void:
     root.add_child(orb)
     orb.global_position = global_position
     orb.direction = direction
-    orb.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    orb.damage = final_damage
     orb.pull_strength = pull_strength
     orb.pull_radius = pull_radius
 

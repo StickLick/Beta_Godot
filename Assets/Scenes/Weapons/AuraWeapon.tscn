@@ -23,9 +23,8 @@ fill_to = Vector2(0.5, 0)
 [node name="WeaponComponent" type="Node2D" unique_id=1817784419]
 script = ExtResource("1_84dbl")
 weapon_name = "Aura"
-base_damage = 10.0
+base_range = 80.0
 attack_cooldown = 1.2
-max_attack_distance = 80.0
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=66046695]
 collision_layer = 0

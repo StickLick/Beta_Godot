@@ -30,7 +30,7 @@ func _on_cooldown_timeout() -> void:
 func _perform_glitch_strike(target_dist: float) -> void:
     # Урон — выполняется ВСЕГДА, независимо от визуала
     if is_instance_valid(hitbox):
-        hitbox.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+        hitbox.damage = final_damage
         _set_hitbox_active(true)
     
     # Визуал — только если есть canvas-элемент

@@ -53,7 +53,7 @@ func _spawn_bolt(angle: float, target: Node2D) -> void:
     bolt.global_position = global_position
     bolt.direction = Vector2.RIGHT.rotated(angle)
     bolt.target = target
-    bolt.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    bolt.damage = final_damage
 
 
 func _get_closest_enemy() -> Area2D:

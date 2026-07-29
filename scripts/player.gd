@@ -182,6 +182,13 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
     
     # 4. Применение статов
     var stat = upgrade.stat_to_modify
+    print(
+    "[WEAPON INIT MOD]",
+    " tag=", tag,
+    " stat=", stat,
+    " amount=", upgrade.amount,
+    " name=", upgrade.name
+    )
     if stat != "":
         if stat in self:
             set(stat, get(stat) + upgrade.amount)
@@ -211,16 +218,16 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
 
 
 func _apply_stat_to_weapon(w: Node, stat: String, amount: float) -> void:
-    print("[MOD TRACE] Weapon: ", w.weapon_tag if "weapon_tag" in w else w.name, " | Stat: ", stat, " | Amount: ", amount)
-    if stat == "max_attack_distance" or stat == "max_attack_distance":
-        print("[MOD TRACE] Branch: max_attack_distance bonus")
-        w.weapon_range_bonus += amount
-    elif stat == "base_damage":
-        print("[MOD TRACE] Branch: base_damage bonus")
+    print(
+    "[UPGRADE TRACE] weapon=",
+    w.weapon_tag if "weapon_tag" in w else w.name,
+    " stat=", stat,
+    " amount=", amount
+    )
+    if stat == "base_damage":
         w.weapon_dmg_bonus += amount
-    elif stat in w:
-        print("[MOD TRACE] Branch: generic setter (stat in weapon)")
-        w.set(stat, w.get(stat) + amount)
+    elif stat == "max_attack_distance":
+        w.weapon_range_bonus += amount
             
     inventory_updated.emit()
 

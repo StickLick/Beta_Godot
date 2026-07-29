@@ -33,7 +33,7 @@ func _spawn_bolt(angle: float) -> void:
     root.add_child(bolt)
     bolt.global_position = global_position
     bolt.rotation = angle
-    bolt.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    bolt.damage = final_damage
     bolt.pierce_limit = pierce_limit
     bolt.aoe_radius = aoe_radius
 

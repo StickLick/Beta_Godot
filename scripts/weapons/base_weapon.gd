@@ -32,13 +32,11 @@ var final_range: float:
         var mult = player.radius_weapons if is_instance_valid(player) else 1.0
         return (base_range + weapon_range_bonus) * mult
 
-# Backward compatibility aliases
+# Backward compatibility aliases (read-only — SSOT protection)
 var base_damage: float:
     get: return base_dmg
-    set(v): base_dmg = v
 var max_attack_distance: float:
-    get: return base_range
-    set(v): base_range = v
+    get: return final_range
 
 @export_group("Glitch Juice")
 @export var strike_duration: float = 0.05

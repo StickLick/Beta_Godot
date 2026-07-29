@@ -40,7 +40,7 @@ func _spawn_shard_base(enemy_target: Area2D, shard_count: int) -> void:
     shard.direction = (predicted_pos - global_position).normalized()
     shard.target_pos = predicted_pos
     shard.shard_count = 5 + shard_count
-    shard.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    shard.damage = final_damage
 
 
 func _get_closest_enemy() -> Area2D:

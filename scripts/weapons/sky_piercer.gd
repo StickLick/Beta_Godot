@@ -139,7 +139,7 @@ func _spawn_arrow(target_pos: Vector2) -> void:
     var world_root = player.get_parent() if player else get_tree().current_scene
     arrow.target_pos = target_pos
     world_root.add_child(arrow)
-    arrow.damage = base_damage * (player.get_final_damage_multiplier() if player else 1.0)
+    arrow.damage = final_damage
     arrow.aoe_radius = aoe_radius
 
 

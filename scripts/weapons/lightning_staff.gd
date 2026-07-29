@@ -23,10 +23,10 @@ func _spawn_tether() -> void:
     var tether = LightningTether.new()
     if is_instance_valid(player):
         tether.player = player
-        tether.damage_per_tick = base_damage * 0.5 * player.get_final_damage_multiplier()
+        tether.damage_per_tick = final_damage * 0.5
     else:
         tether.player = self
-        tether.damage_per_tick = base_damage * 0.5
+        tether.damage_per_tick = final_damage * 0.5
     tether.max_jumps = max_jumps
     tether.jump_range = 200.0
     
