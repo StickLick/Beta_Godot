@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Add 16 WarBanner upgrades to UpgradeMenu.tscn safely."""
+
+import os
+import re
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+UPGRADES_FILES = [
+    "BannerDrill_C.tres", "BannerDrill_R.tres", "BannerDrill_E.tres", "BannerDrill_L.tres",
+    "BannerMorale_C.tres", "BannerMorale_R.tres", "BannerMorale_E.tres", "BannerMorale_L.tres",
+    "BannerRally_C.tres", "BannerRally_R.tres", "BannerRally_E.tres", "BannerRally_L.tres",
+    "BannerGuardSlots_C.tres", "BannerGuardSlots_R.tres", "BannerGuardSlots_E.tres", "BannerGuardSlots_L.tres",
+]
+
+def main():
+    menu_path = os.path.join(SCRIPT_DIR, "Assets", "Scenes", "UpgradeMenu.tscn")
+    with open(menu_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Check if already added
+    if 'wb_bannerdrill_c' in content:
+        print("WarBanner upgrades already in UpgradeMenu.tscn. Skipping.")
+        return
+
+    # Step 1: Add ext_resource lines after the last ext_resource line
+    last_ext_match = list(re.finditer(r'^\[ext_resource\b.*\]$', content, re.MULTILINE))
+    if not last_ext_match:
+        print("ERROR: No ext_resource lines found!")
+        return
+
+    last_ext = last_ext_match[-1]
+    insert_pos = last_ext.end()  # right after the line
+
+    ext_lines = []
+    for fname in UPGRADES_FILES:
+        rid = f"wb_{fname.replace('.tres','').lower()}"
+        ext_lines.append(f'[ext_resource type="Resource" path="res://Upgrades/Weapons/WarBanner/{fname}" id="{rid}"]')
+
+    ext_block = "\n" + "\n".join(ext_lines) + "\n"
+    content = content[:insert_pos] + ext_block + content[insert_pos:]
+
+    # Step 2: Add ExtResource refs to all_available_upgrades array
+    # Find the closing bracket of the array: ]))
+    # Pattern: all_available_upgrades = Array[ExtResource(...)]([ ... ]))
+    array_match = re.search(r'(all_available_upgrades\s*=\s*Array\[ExtResource\([^\)]*\)\]\()(\[[^\]]*\]\))', content)
+    if not array_match:
+        print("ERROR: Could not find all_available_upgrades array!")
+        return
+
+    prefix = array_match.group(1)
+    existing = array_match.group(2)
+    # Remove trailing ])
+    existing_inner = existing[1:-1]  # remove [ and ]
+
+    # Build new refs
+    new_refs = []
+    for fname in UPGRADES_FILES:
+        rid = f"wb_{fname.replace('.tres','').lower()}"
+        new_refs.append(f'ExtResource("{rid}")')
+
+    # Combine
+    all_refs = existing_inner + ", " + ", ".join(new_refs)
+    new_array = f"[{all_refs}])"
+    new_line = f"{prefix}{new_array}"
+
+    content = content[:array_match.start()] + new_line + content[array_match.end():]
+
+    with open(menu_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print(f"Added {len(UPGRADES_FILES)} WarBanner upgrades to UpgradeMenu.tscn")
+
+if __name__ == "__main__":
+    main()

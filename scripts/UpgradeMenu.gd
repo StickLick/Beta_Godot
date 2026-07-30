@@ -7,6 +7,22 @@ extends Node
 var _active_menu: Control = null
 var _pending_upgrades: int = 0
 
+const BANNER_UPGRADES: Array[String] = [
+    "BannerDrill_C.tres", "BannerDrill_R.tres", "BannerDrill_E.tres", "BannerDrill_L.tres",
+    "BannerMorale_C.tres", "BannerMorale_R.tres", "BannerMorale_E.tres", "BannerMorale_L.tres",
+    "BannerRally_C.tres", "BannerRally_R.tres", "BannerRally_E.tres", "BannerRally_L.tres",
+    "BannerGuardSlots_C.tres", "BannerGuardSlots_R.tres", "BannerGuardSlots_E.tres", "BannerGuardSlots_L.tres",
+]
+
+func _ready() -> void:
+    var banner_path: String = "res://Upgrades/Weapons/WarBanner/"
+    for fname: String in BANNER_UPGRADES:
+        var full_path: String = banner_path + fname
+        if ResourceLoader.exists(full_path):
+            var res: Upgrade = load(full_path) as Upgrade
+            if res and res not in all_available_upgrades:
+                all_available_upgrades.append(res)
+
 
 const BASE_WEIGHTS = {
     Upgrade.Rarity.COMMON: 100.0,
@@ -35,7 +51,6 @@ func open_upgrade_menu() -> void:
     
     for i in range(3):
         if temp_pool.is_empty():
-            # Fallback when pool is exhausted
             var fallback = _create_fallback_upgrade(player)
             selected_upgrades.append(fallback)
             continue
@@ -43,7 +58,6 @@ func open_upgrade_menu() -> void:
         var up = _pick_weighted_upgrade(temp_pool, player)
         selected_upgrades.append(up)
         
-        # Remove all upgrades with the same weapon_tag to prevent duplicates
         var tag = up.weapon_tag
         if tag == "" or tag == "General":
             tag = up.passive_id
@@ -62,10 +76,6 @@ func _get_tag(u: Upgrade) -> String:
         return u.passive_id
     return u.name
 
-
-# ═══════════════════════════════════════════════════════════
-# ОСНОВНОЙ ФИЛЬТР — одна ветка на upgrade
-# ═══════════════════════════════════════════════════════════
 
 func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
     var weapons_full = player.active_weapons.size() >= player.unlocked_weapon_slots
@@ -90,10 +100,6 @@ func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
     return pool
 
 
-# ═══════════════════════════════════════════════════════════
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# ═══════════════════════════════════════════════════════════
-
 func _already_taken(u: Upgrade, player: Player) -> bool:
     return u.is_unique and player.applied_upgrade_names.has(u.name)
 
@@ -106,7 +112,6 @@ func _prerequisites_met(u: Upgrade, player: Player) -> bool:
 
 
 func _can_take_evolution(u: Upgrade, player: Player) -> bool:
-    # Оружие должно существовать в active_weapons (источник истины)
     var owns_weapon = false
     for w in player.active_weapons:
         if w.weapon_tag == u.weapon_tag:
@@ -115,11 +120,9 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
     if not owns_weapon:
         return false
     
-    # Уровень оружия ≥ требуемого
     if player.tag_levels.get(u.weapon_tag, 0) < u.max_level_for_evo:
         return false
     
-    # Нужная пассивка должна быть в active_passives — проверяем по passive_id
     if u.required_passive_tag != "":
         var has_passive = false
         for p in player.active_passives:
@@ -128,12 +131,10 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
                 break
         if not has_passive:
             return false
-        # Проверяем уровень пассивки
         var passive_level = player.tag_levels.get(u.required_passive_tag, 0)
         if passive_level < u.required_passive_level:
             return false
     
-    # Запрещаем другие эволюции Bow, если одна уже взята
     if u.weapon_tag == "Bow":
         for w in player.active_weapons:
             if w.weapon_tag in ["SiegeCrossbow", "SpectralVolley", "SkyPiercer"]:
@@ -143,61 +144,40 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
 
 
 func _can_take_weapon(u: Upgrade, player: Player, weapons_full: bool) -> bool:
-    # Уже есть такое оружие?
     for w in player.active_weapons:
         if w.name == u.name:
             return false
-    
-    # Слоты полны?
     if weapons_full:
         return false
-    
     return true
 
 
 func _can_take_modifier(u: Upgrade, player: Player) -> bool:
-    # Глобальные модификаторы — доступны всегда, без ограничения по уровню
     if u.is_global_modifier:
         return true
-    
-    # Проверяем active_weapons — есть оружие с таким weapon_tag?
     for w in player.active_weapons:
         if w.weapon_tag == u.weapon_tag:
             return player.tag_levels.get(u.weapon_tag, 0) < 8
-    
-    # Проверяем active_passives — пассивки матчатся по name
     for p in player.active_passives:
         if p.name == u.weapon_tag:
             return player.tag_levels.get(u.weapon_tag, 0) < 8
-    
-    # Сирота — ни оружия, ни пассивки с таким тегом нет
     return false
 
 
 func _can_take_passive_by_id(u: Upgrade, player: Player, passives_full: bool) -> bool:
-    # Проверяем, есть ли уже такая пассивная семья
     for p in player.active_passives:
         if p.get("passive_id") == u.passive_id:
             return player.tag_levels.get(u.passive_id, 0) < 8
-    # Новое пассивное семейство — нужен свободный слот
     return not passives_full
 
 func _can_take_passive(u: Upgrade, player: Player, passives_full: bool) -> bool:
-    # Уже есть такая пассивка?
     for p in player.active_passives:
         if p.name == u.name:
             return false
-    
-    # Слоты полны?
     if passives_full:
         return false
-    
     return true
 
-
-# ═══════════════════════════════════════════════════════════
-# ВЗВЕШЕННЫЙ СЛУЧАЙНЫЙ ВЫБОР
-# ═══════════════════════════════════════════════════════════
 
 func _create_fallback_upgrade(player: Player) -> Upgrade:
     var f = Upgrade.new()
@@ -226,10 +206,6 @@ func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
         if roll <= cursor: return pool[i]
     return pool[0]
 
-
-# ═══════════════════════════════════════════════════════════
-# МЕНЮ (визуал)
-# ═══════════════════════════════════════════════════════════
 
 func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
     _active_menu = upgrade_menu_scene.instantiate()

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bannerevo001"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="PackedScene" uid="uid://warbanner01" path="res://Assets/Scenes/Weapons/BannerWeapon.tscn" id="2_evo"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Banner Evolution"
+description = "Улучшает знамя до элитной версии"
+stat_to_modify = ""
+amount = 0.0
+modifiers = []
+rarity = 3
+is_unique = true
+weapon_tag = "Banner"
+target_weapon_name = "War Banner Base"
+evolved_weapon_tag = "Banner_Evolved"
+evolved_weapon_scene = ExtResource("2_evo")
+change_mechanic_on_apply = true
+max_level_for_evo = 8

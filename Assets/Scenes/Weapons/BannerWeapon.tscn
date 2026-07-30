@@ -1,16 +1,15 @@
 [gd_scene format=3 uid="uid://warbanner01"]
 
-[ext_resource type="Script" path="res://scripts/weapons/war_banner.gd" id="1_wb"]
+[ext_resource type="Script" uid="uid://nq8o5asmtdtp" path="res://scripts/weapons/war_banner.gd" id="1_wb"]
 
-[node name="WarBanner" type="Node2D"]
+[node name="WarBanner" type="Node2D" unique_id=732944381]
 script = ExtResource("1_wb")
+base_dmg = 5.0
 
-[node name="CooldownTimer" type="Timer" parent="."]
+[node name="CooldownTimer" type="Timer" parent="." unique_id=830866187]
 
-[node name="DetectionArea" type="Area2D" parent="."]
+[node name="DetectionArea" type="Area2D" parent="." unique_id=1283110294]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1519789298]
 
-[node name="VisualPivot" type="Node2D" parent="."]
-
-[node name="CanvasItem" parent="VisualPivot" index="0"]
+[node name="VisualPivot" type="Node2D" parent="." unique_id=2003672791]
