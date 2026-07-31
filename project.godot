@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameManager="*uid://bsi4k05gbhmdr"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
@@ -28,7 +29,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/flatten_for_llm/plugin.cfg")
+enabled=PackedStringArray("res://addons/flatten_for_llm/plugin.cfg", "res://addons/godot_ai/plugin.cfg")
 
 [input]
 

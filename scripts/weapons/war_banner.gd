@@ -286,7 +286,6 @@ func _spawn_banner_unit() -> void:
     var offset: Vector2 = Vector2.from_angle(offset_angle) * offset_dist
     _formation_offsets[unit.get_instance_id()] = offset
     
-    unit.is_pawn = true
     unit.banner_owner = self
     unit.alignment = 1
     unit.guard_target = player

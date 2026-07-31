@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d20rde8mctoaf"]
 
-[ext_resource type="Script" uid="uid://bo24jnh0i5jy4" path="res://scripts/unit.gd" id="1_8g2on"]
+[ext_resource type="Script" path="res://scripts/pawn_unit.gd" id="1_pawn"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_p6fen"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_fh0in"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_ulnwk"]
@@ -177,7 +177,7 @@ animations = [{
 
 [node name="Unit" type="CharacterBody2D" unique_id=1221776637 groups=["rival"]]
 collision_layer = 4
-script = ExtResource("1_8g2on")
+script = ExtResource("1_pawn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1620627197]
 shape = SubResource("CircleShape2D_gd7ey")
