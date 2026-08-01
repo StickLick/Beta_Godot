@@ -105,19 +105,21 @@ func _combat(delta: float) -> void:
     
     var enemy_dist: float = parent_unit.global_position.distance_to(assigned_target.global_position)
     var dir: Vector2 = (assigned_target.global_position - parent_unit.global_position).normalized()
+    var separation: Vector2 = parent_unit._get_separation_velocity()
     
     if enemy_dist < attack_range:
         if not parent_unit.is_attacking:
             parent_unit._play_sequential_attack()
-            parent_unit.velocity = dir * parent_unit.speed * 1.2
+            parent_unit.velocity = (dir * 1.2 + separation * 0.5).normalized() * parent_unit.speed * 1.2
         else:
-            parent_unit.velocity = parent_unit.velocity.lerp(dir * parent_unit.speed * 0.6, delta * 8.0)
+            var blend_target: Vector2 = (dir * 0.6 + separation * 0.5).normalized() * parent_unit.speed * 0.6
+            parent_unit.velocity = parent_unit.velocity.lerp(blend_target, delta * 8.0)
         _attack_pulse_timer += delta
         if _attack_pulse_timer >= 0.8:
             _attack_pulse_timer = 0.0
             parent_unit._toggle_hitbox()
     else:
-        var desired: Vector2 = dir * parent_unit.speed
+        var desired: Vector2 = (dir * parent_unit.speed + separation).normalized() * parent_unit.speed
         parent_unit.velocity = parent_unit.velocity.lerp(desired, delta * 8.0)
         if is_instance_valid(parent_unit.animated_sprite):
             if parent_unit.animated_sprite.animation != "Run":

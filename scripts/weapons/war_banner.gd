@@ -23,7 +23,7 @@ const UNIT_BASE_SPEED: float = 240.0
 
 # Health scaling constants
 const PLAYER_BASE_HP: float = 1000.0
-const BASE_UNIT_HP: float = 30.0
+const BASE_UNIT_HP: float = 45.0
 
 # War Cry radius (scales with weapon final_range via apply_player_stats_to_units)
 var war_cry_radius: float = 250.0
@@ -38,6 +38,10 @@ const MAX_LEASH_DISTANCE: float = 400.0
 const MAX_PAWNS_PER_ENEMY: int = 2
 const MAX_PAWNS_PER_BOSS: int = 4
 
+# ── Pawn Respawn Cooldown ──
+@export var pawn_respawn_cooldown: float = 5.0
+var _pawn_death_timestamps: Dictionary = {}  # int instance_id → float death_time (seconds)
+
 # ── War Cry State ──
 var war_cry_timer: float = 0.0
 var inspired_timer: float = 0.0
@@ -45,11 +49,18 @@ var is_inspired_active: bool = false
 
 # ── Banner Visual ──
 var banner_sprite: Sprite2D = null
+@onready var leash_visual: Line2D = $LeashVisual
 
 
 # ═══════════════════════════════════════════════════════════════
 # WEAPON LIFECYCLE
 # ═══════════════════════════════════════════════════════════════
+
+func _ready() -> void:
+    super._ready()
+    if leash_visual:
+        leash_visual.position = -position
+
 
 func _weapon_ready() -> void:
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
@@ -213,6 +224,10 @@ func _activate_war_cry() -> void:
     war_cry_triggered.emit(true)
     inspired_changed.emit(true)
     
+    var anim_player = get_node_or_null("AnimationPlayer")
+    if anim_player and anim_player.has_animation("InspiredPulse"):
+        anim_player.play("InspiredPulse")
+    
     print("[WAR CRY] Inspired! +", inspired_regen_bonus, "HP/s, +", int((inspired_damage_mult - 1.0) * 100), "% damage for ", inspired_duration, "s")
 
 
@@ -257,8 +272,17 @@ func _remove_inspired_buffs_from_player() -> void:
 
 func reconcile_pawn_count() -> void:
     _banner_units = _banner_units.filter(func(u: Unit): return is_instance_valid(u))
-    var final_max: int = max_banner_units + max(0, (player.projectile_amount - 1)) if is_instance_valid(player) else max_banner_units
-    while _banner_units.size() < final_max:
+    var final_max: int = max_banner_units
+    if is_instance_valid(player):
+        final_max += max(0, player.projectile_amount - 1)
+    var now: float = Time.get_ticks_msec() / 1000.0
+    for dead_id in _pawn_death_timestamps.keys():
+        if _pawn_death_timestamps[dead_id] + pawn_respawn_cooldown < now:
+            _pawn_death_timestamps.erase(dead_id)
+    var slots_on_cooldown: int = _pawn_death_timestamps.size()
+    var alive_count: int = _banner_units.size()
+    var ready_to_spawn: int = final_max - alive_count - slots_on_cooldown
+    for i in range(ready_to_spawn):
         _spawn_banner_unit()
 
 
@@ -310,6 +334,7 @@ func _on_banner_unit_died(unit: Unit) -> void:
     _banner_units.erase(unit)
     _pawn_targets.erase(unit_id)
     _formation_offsets.erase(unit_id)
+    _pawn_death_timestamps[unit_id] = Time.get_ticks_msec() / 1000.0
 
     if war_cry_triggered.is_connected(unit._on_war_cry):
         war_cry_triggered.disconnect(unit._on_war_cry)
@@ -357,6 +382,10 @@ func _clean_dead_assignments() -> void:
     _formation_offsets = safe_offsets
 
     _banner_units = _banner_units.filter(func(u: Unit): return is_instance_valid(u) and not u.is_queued_for_deletion())
+
+    for dead_id in _pawn_death_timestamps.keys():
+        if not is_instance_valid(instance_from_id(dead_id)):
+            _pawn_death_timestamps.erase(dead_id)
 
 
 func _assign_targets() -> void:

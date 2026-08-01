@@ -117,7 +117,7 @@ func _apply_gravity_logic(delta: float) -> void:
 
 func _update_target() -> void:
     if GameManager.current_anomaly == "HUNT":
-        target_node = get_tree().get_first_node_in_group("player"); return
+        target_node = _find_closest_target(["player"]); return
     if GameManager.current_anomaly == "SEIZE":
         var seize_targets = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.has_meta("is_seize_target") and c.get_meta("is_seize_target") == true)
         if not seize_targets.is_empty():
@@ -132,7 +132,24 @@ func _update_target() -> void:
             for camp in player_camps:
                 var d = global_position.distance_to(camp.global_position); if d < min_d: min_d = d; closest = camp
             target_node = closest; return
-    target_node = get_tree().get_first_node_in_group("player")
+    target_node = _find_closest_target(["player", "ally_units", "camps"])
+
+func _find_closest_target(groups: Array) -> Node2D:
+    var candidates: Array[Node2D] = []
+    for group_name in groups:
+        for node in get_tree().get_nodes_in_group(group_name):
+            if is_instance_valid(node) and node is Node2D:
+                candidates.append(node)
+    if candidates.is_empty():
+        return null
+    var closest: Node2D = candidates[0]
+    var min_d: float = global_position.distance_to(closest.global_position)
+    for node in candidates:
+        var d: float = global_position.distance_to(node.global_position)
+        if d < min_d:
+            min_d = d
+            closest = node
+    return closest
 
 func _execute_attack() -> void:
     is_attacking = true; attack_cooldown_timer = attack_delay
