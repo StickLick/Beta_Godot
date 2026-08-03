@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://naxvtpck3vp7"]
 
-[ext_resource type="Script" uid="uid://b35066a23u77a" path="res://scripts/unit.gd" id="1_kykp8"]
+[ext_resource type="Script" path="res://scripts/camp_unit.gd" id="1_kykp8"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_kykp8"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_b3m76"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_kykp8"]

@@ -62,6 +62,13 @@ func _ready() -> void:
         leash_visual.position = -position
 
 
+func _exit_tree() -> void:
+    for unit in _banner_units:
+        if is_instance_valid(unit):
+            unit.queue_free()
+    _banner_units.clear()
+
+
 func _weapon_ready() -> void:
     cooldown_timer.timeout.connect(_on_cooldown_timeout)
     cooldown_timer.start(attack_cooldown)

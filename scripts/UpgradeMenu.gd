@@ -31,6 +31,7 @@ func open_upgrade_menu() -> void:
     var player = get_tree().get_first_node_in_group("player") as Player
     if not player: return
 
+    print("[SYNC] Upgrade Menu | Slots refreshed. Active Weapons: %d" % player.active_weapons.size())
     var eligible_pool = _get_eligible_upgrades(player)
     
     get_tree().paused = true
@@ -213,7 +214,8 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
             lvl_info = "\n[EVOLUTION]"
         
         btn.text = up.name + lvl_info + "\n" + up.description
-        btn.custom_minimum_size = Vector2(320, 160)
+        btn.autowrap_mode = TextServer.AUTOWRAP_WORD
+        btn.custom_minimum_size = Vector2(400, 160)
         btn.self_modulate = RARITY_COLORS[up.rarity]
         btn.scale = Vector2.ZERO
         btn.pivot_offset = Vector2(160, 80)

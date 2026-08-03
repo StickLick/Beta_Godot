@@ -152,8 +152,16 @@ func _handle_tiers(delta: float) -> void:
 func _spawn_unit() -> void:
     if not UNIT_SCENE: return
     var u = UNIT_SCENE.instantiate(); u.global_position = global_position + Vector2.from_angle(randf()*TAU) * 60
-    u.alignment = int(alignment); u.parent_camp = self; get_tree().current_scene.add_child(u)
+    u.alignment = int(alignment)
+    if u is CampUnit:
+        u.parent_camp = self
+    get_tree().current_scene.add_child(u)
+    if u.alignment == 1:
+        u.add_to_group("ally_units")
+    else:
+        u.add_to_group("enemy")
     active_units.append(u); GameManager.log_event("unit_spawned")
+    print("[SYNC] Camp Level Up | Guarded unit assignments.")
 
 func _fire_at_enemy() -> void:
     if not BULLET_SCENE: return

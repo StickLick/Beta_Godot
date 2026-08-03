@@ -24,6 +24,7 @@ _data = {
 
 [node name="WarBanner" type="Node2D" unique_id=732944381]
 script = ExtResource("1_wb")
+weapon_name = "Banner"
 base_dmg = 5.0
 
 [node name="CooldownTimer" type="Timer" parent="." unique_id=830866187]

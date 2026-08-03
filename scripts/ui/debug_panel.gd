@@ -107,7 +107,9 @@ func _on_btn_add_upgrade(resource_path: String) -> void:
         push_error("[DEBUG] Failed to load: " + resource_path)
         return
     player.apply_custom_upgrade(upg)
+    player.inventory_updated.emit()
     print("[DEBUG] Applied: ", upg.name)
+    print("[SYNC] Debug UI | Inventory signal emitted.")
 
 
 func get_player() -> Player:
