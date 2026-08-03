@@ -230,6 +230,9 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
                         child.on_modifier_applied()
             else:
                 _apply_upgrade_stat_to_weapons(tag, upgrade.target_weapon_name, stat, upgrade.amount)
+    
+    # Слоты UI обновляем сразу после применения апгрейда
+    inventory_updated.emit()
 
 
 func _apply_upgrade_stat_to_weapons(tag: String, target_name: String, stat: String, amount: float) -> void:
