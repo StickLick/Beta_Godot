@@ -1,115 +1,115 @@
 [gd_scene format=3 uid="uid://c5q8khj0b3t6l"]
 
-[ext_resource type="Script" path="res://scripts/ui/debug_panel.gd" id="1_debug"]
+[ext_resource type="Script" uid="uid://d3ew2gd8wdf46" path="res://scripts/ui/debug_panel.gd" id="1_debug"]
 
-[node name="DebugPanel" type="CanvasLayer" unique_id=6001373779]
-layer = 100
+[node name="DebugPanel" type="CanvasLayer" unique_id=1706406483]
 process_mode = 3
+layer = 100
 script = ExtResource("1_debug")
 
-[node name="Control" type="Control" parent="." unique_id=6001373780]
-layout_mode = 1
+[node name="Control" type="Control" parent="." unique_id=1706406484]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="Control" unique_id=6001373781]
+[node name="PanelContainer" type="PanelContainer" parent="Control" unique_id=1706406485]
 layout_mode = 0
-offset_right = 300.0
-offset_bottom = 400.0
-anchor_top = 0.0
-anchor_right = 0.0
-anchor_bottom = 0.0
 offset_left = 10.0
 offset_top = 10.0
-mouse_filter = 0
+offset_right = 300.0
+offset_bottom = 400.0
 
-[node name="Panel" type="Panel" parent="Control/PanelContainer" unique_id=6001373782]
-layout_mode = 2
+[node name="Panel" type="Panel" parent="Control/PanelContainer" unique_id=1706406486]
 self_modulate = Color(0.1, 0.1, 0.15, 0.9)
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Control/PanelContainer" unique_id=6001373783]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/PanelContainer/ScrollContainer" unique_id=6001373784]
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/PanelContainer" unique_id=1706406487]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PanelContainer/ScrollContainer" unique_id=1706406488]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleLabel" type="Label" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373785]
+[node name="TitleLabel" type="Label" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406489]
+self_modulate = Color(0.2, 1, 0.4, 1)
 layout_mode = 2
 text = "DEBUG PANEL"
 horizontal_alignment = 1
-self_modulate = Color(0.2, 1.0, 0.4, 1.0)
 
-[node name="Btn_LevelUp" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373786]
+[node name="Btn_LevelUp" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406490]
 layout_mode = 2
 text = "Add 1 Level"
 
-[node name="Btn_MaxAll" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373787]
+[node name="Btn_MaxAll" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406491]
 layout_mode = 2
 text = "Max All Tags (8)"
 
-[node name="HSeparator" type="HSeparator" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373788]
+[node name="HSeparator" type="HSeparator" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406492]
 layout_mode = 2
 
-[node name="Btn_Evo_Aura" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373789]
+[node name="Btn_Evo_Aura" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406493]
 layout_mode = 2
 text = "Force Evolve: Aura"
 
-[node name="Btn_Evo_Spear" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373790]
+[node name="Btn_Evo_Spear" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406494]
 layout_mode = 2
 text = "Force Evolve: Spear"
 
-[node name="Btn_Evo_Siege" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373791]
+[node name="Btn_Evo_Siege" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406495]
 layout_mode = 2
 text = "Force Evolve: Siege Crossbow"
 
-[node name="Btn_Evo_Spectral" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373792]
+[node name="Btn_Evo_Spectral" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406496]
 layout_mode = 2
 text = "Force Evolve: Spectral Volley"
 
-[node name="Btn_Evo_Sky" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373793]
+[node name="Btn_Evo_Sky" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406497]
 layout_mode = 2
 text = "Force Evolve: Sky Piercer"
 
-[node name="Btn_Evo_Singularity" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373794]
+[node name="Btn_Evo_Singularity" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406498]
 layout_mode = 2
 text = "Force Evolve: Singularity"
 
-[node name="Btn_Evo_Lightning" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373795]
+[node name="Btn_Evo_Lightning" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406499]
 layout_mode = 2
 text = "Force Evolve: Lightning"
 
-[node name="Btn_Evo_Star" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373796]
+[node name="Btn_Evo_Star" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406500]
 layout_mode = 2
 text = "Force Evolve: Star Shards"
 
-[node name="HSeparator2" type="HSeparator" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373797]
+[node name="HSeparator2" type="HSeparator" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406501]
 layout_mode = 2
 
-[node name="LabelBase" type="Label" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373798]
+[node name="LabelBase" type="Label" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406502]
+self_modulate = Color(0.3, 1, 0.6, 1)
 layout_mode = 2
 text = "--- BASE WEAPONS ---"
-self_modulate = Color(0.3, 1.0, 0.6, 1.0)
 
-[node name="Btn_Base_Staff" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373799]
+[node name="Btn_Base_Staff" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406503]
 layout_mode = 2
 text = "Get Staff"
 
-[node name="Btn_Base_Bow" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373800]
+[node name="Btn_Base_Bow" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406504]
 layout_mode = 2
 text = "Get Bow"
 
-[node name="Btn_Base_Spear" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373801]
+[node name="Btn_Base_Spear" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406505]
 layout_mode = 2
 text = "Get Spear"
 
-[node name="Btn_Base_Aura" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373802]
+[node name="Btn_Base_Aura" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406506]
 layout_mode = 2
 text = "Get Aura"
 
-[node name="Btn_Base_Banner" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=6001373803]
+[node name="Btn_Base_Banner" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406507]
 layout_mode = 2
 text = "Get War Banner"
+
+[node name="Btn_Archer_Banner" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=632862473]
+layout_mode = 2
+text = "Get Archer Banner"

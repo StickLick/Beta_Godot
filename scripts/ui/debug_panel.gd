@@ -18,6 +18,7 @@ extends CanvasLayer
 @onready var btn_base_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Spear
 @onready var btn_base_aura: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Aura
 @onready var btn_base_banner: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Banner
+@onready var btn_archer_banner: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Archer_Banner
 
 var _was_paused_before: bool = false
 
@@ -42,6 +43,7 @@ func _ready() -> void:
     btn_base_spear.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Spear/BaseSpear.tres"))
     btn_base_aura.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Aura/BaseAura.tres"))
     btn_base_banner.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Banner/BaseBanner.tres"))
+    btn_archer_banner.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Weapons/Banner/BannerArcher.tres"))
 
 
 func _input(event: InputEvent) -> void:

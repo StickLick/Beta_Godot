@@ -13,7 +13,7 @@ class_name Unit
 @export var follow_sprint_dist: float = 200.0
 @export var separation_distance: float = 45.0
 @export var separation_strength: float = 1.2
-@export var attack_range: float = 60.0
+@export var attack_range: float = 80.0
 
 var target: Node2D = null
 var _attack_pulse_timer: float = 0.0
@@ -25,6 +25,10 @@ var attack_index: int = 0
 var guard_target: Node2D = null
 var guard_radius: float = 350.0
 var is_inspired: bool = false
+
+# ── Ranged / Kite Support (default: melee) ──
+var is_ranged: bool = false
+var comfort_distance: float = 0.0
 
 @onready var hitbox: HitboxComponent = $HitboxComponent
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
@@ -91,7 +95,7 @@ func _on_damage_received(_amount: float) -> void:
     tween.tween_property(self, "modulate", Color.RED, 0.05)
     tween.tween_property(self, "modulate", _default_modulate, 0.15)
 
-func _play_sequential_attack() -> void:
+func _play_sequential_attack(_target: Node2D = null, _banner: WarBanner = null) -> void:
     # Override in subclasses
     pass
 

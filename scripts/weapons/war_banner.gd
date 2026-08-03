@@ -15,7 +15,7 @@ signal inspired_changed(is_inspired: bool)
 @export var inspired_regen_bonus: float = 5.0       # HP/sec while inspired
 @export var inspired_damage_mult: float = 1.3        # 30% bonus damage
 
-const UNIT_SCENE: PackedScene = preload("res://Assets/Scenes/Pawn.tscn")
+var unit_scene: PackedScene = preload("res://Assets/Scenes/Pawn.tscn")
 
 # Speed scaling constants
 const PLAYER_BASE_SPEED: float = 250.0
@@ -296,10 +296,10 @@ func _on_cooldown_timeout() -> void:
 
 
 func _spawn_banner_unit() -> void:
-    if not UNIT_SCENE:
+    if not unit_scene:
         return
     
-    var unit: Unit = UNIT_SCENE.instantiate() as Unit
+    var unit: Unit = unit_scene.instantiate() as Unit
     if not unit:
         return
     
@@ -445,3 +445,7 @@ func get_pawn_target(pawn: Unit) -> Node2D:
 
 func get_formation_offset(pawn: Unit) -> Vector2:
     return _formation_offsets.get(pawn.get_instance_id(), Vector2(80, 0))
+
+
+func release_pawn_target(pawn: Unit) -> void:
+    _pawn_targets.erase(pawn.get_instance_id())

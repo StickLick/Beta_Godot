@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_upg")
 name = "Amount_L"
-description = "+3 projectiles"
+description = "+5 projectiles"
 modifiers = Array[Dictionary]([{
 "amount": 5,
 "stat": "projectile_amount"

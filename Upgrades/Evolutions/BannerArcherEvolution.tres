@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Scenes/Weapons/BannerArcherWeapon.tscn" id="1_barcher"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+
+[resource]
+script = ExtResource("2_upg")
+name = "Знамя Лучников"
+description = "Эволюция Знамени: павны становятся лучниками, атакующими с безопасной дистанции"
+rarity = 3
+is_unique = true
+weapon_tag = "Banner"
+evolved_weapon_tag = "BannerArcher"
+evolved_weapon_scene = ExtResource("1_barcher")
+change_mechanic_on_apply = true
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

@@ -7,22 +7,6 @@ extends Node
 var _active_menu: Control = null
 var _pending_upgrades: int = 0
 
-const BANNER_UPGRADES: Array[String] = [
-    "BannerDrill_C.tres", "BannerDrill_R.tres", "BannerDrill_E.tres", "BannerDrill_L.tres",
-    "BannerMorale_C.tres", "BannerMorale_R.tres", "BannerMorale_E.tres", "BannerMorale_L.tres",
-    "BannerRally_C.tres", "BannerRally_R.tres", "BannerRally_E.tres", "BannerRally_L.tres",
-    "BannerGuardSlots_C.tres", "BannerGuardSlots_R.tres", "BannerGuardSlots_E.tres", "BannerGuardSlots_L.tres",
-]
-
-func _ready() -> void:
-    var banner_path: String = "res://Upgrades/Weapons/WarBanner/"
-    for fname: String in BANNER_UPGRADES:
-        var full_path: String = banner_path + fname
-        if ResourceLoader.exists(full_path):
-            var res: Upgrade = load(full_path) as Upgrade
-            if res and res not in all_available_upgrades:
-                all_available_upgrades.append(res)
-
 
 const BASE_WEIGHTS = {
     Upgrade.Rarity.COMMON: 100.0,
@@ -36,6 +20,11 @@ const RARITY_COLORS = {
     Upgrade.Rarity.RARE: Color(0.2, 0.5, 1.0),
     Upgrade.Rarity.EPIC: Color(0.7, 0.2, 1.0),
     Upgrade.Rarity.LEGENDARY: Color(1.0, 0.8, 0.0)
+}
+
+const EVOLUTION_FAMILIES := {
+    "Bow": ["SiegeCrossbow", "SpectralVolley", "SkyPiercer"],
+    "Banner": ["BannerArcher", "BannerTank", "BannerMarshal"],
 }
 
 func open_upgrade_menu() -> void:    
@@ -135,9 +124,10 @@ func _can_take_evolution(u: Upgrade, player: Player) -> bool:
         if passive_level < u.required_passive_level:
             return false
     
-    if u.weapon_tag == "Bow":
+    var family: Array = EVOLUTION_FAMILIES.get(u.weapon_tag, [])
+    if family.size() > 0:
         for w in player.active_weapons:
-            if w.weapon_tag in ["SiegeCrossbow", "SpectralVolley", "SkyPiercer"]:
+            if w.weapon_tag in family:
                 return false
     
     return true

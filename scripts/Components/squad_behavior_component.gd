@@ -2,6 +2,8 @@ extends Node2D
 
 enum State { IDLE_FOLLOW, COMBAT }
 
+const FLEE_SPEED_MULT: float = 0.7
+
 var parent_unit: Unit
 var current_state: State = State.IDLE_FOLLOW
 
@@ -61,12 +63,15 @@ func _update_state() -> void:
         if is_instance_valid(parent_unit):
             parent_unit.target = null
             parent_unit.is_attacking = false
+            if is_instance_valid(banner) and banner.has_method("release_pawn_target"):
+                banner.release_pawn_target(parent_unit)
 
 
 func _in_leash(target: Node2D) -> bool:
     if not is_instance_valid(player) or not is_instance_valid(target):
         return false
-    return player.global_position.distance_to(target.global_position) <= 400.0
+    var max_dist: float = banner.MAX_LEASH_DISTANCE if is_instance_valid(banner) else 400.0
+    return player.global_position.distance_to(target.global_position) <= max_dist
 
 
 func _idle_follow(delta: float) -> void:
@@ -80,7 +85,8 @@ func _idle_follow(delta: float) -> void:
             parent_unit.animated_sprite.play("Idle")
     else:
         var dir: Vector2 = (target_pos - parent_unit.global_position).normalized()
-        var desired: Vector2 = dir * parent_unit.speed
+        var speed_mult: float = min(parent_unit._get_elastic_speed_mult(dist), 1.0)
+        var desired: Vector2 = dir * parent_unit.speed * speed_mult
         parent_unit.velocity = parent_unit.velocity.lerp(desired, delta * 8.0)
         if is_instance_valid(parent_unit.animated_sprite):
             if parent_unit.animated_sprite.animation != "Run":
@@ -106,25 +112,55 @@ func _combat(delta: float) -> void:
     var enemy_dist: float = parent_unit.global_position.distance_to(assigned_target.global_position)
     var dir: Vector2 = (assigned_target.global_position - parent_unit.global_position).normalized()
     var separation: Vector2 = parent_unit._get_separation_velocity()
-    
-    if enemy_dist < attack_range:
-        if not parent_unit.is_attacking:
-            parent_unit._play_sequential_attack()
-            parent_unit.velocity = (dir * 1.2 + separation * 0.5).normalized() * parent_unit.speed * 1.2
-        else:
-            var blend_target: Vector2 = (dir * 0.6 + separation * 0.5).normalized() * parent_unit.speed * 0.6
-            parent_unit.velocity = parent_unit.velocity.lerp(blend_target, delta * 8.0)
-        _attack_pulse_timer += delta
-        if _attack_pulse_timer >= 0.8:
-            _attack_pulse_timer = 0.0
-            parent_unit._toggle_hitbox()
-    else:
-        var desired: Vector2 = (dir * parent_unit.speed + separation).normalized() * parent_unit.speed
-        parent_unit.velocity = parent_unit.velocity.lerp(desired, delta * 8.0)
-        if is_instance_valid(parent_unit.animated_sprite):
-            if parent_unit.animated_sprite.animation != "Run":
-                parent_unit.animated_sprite.play("Run")
-            if dir.x != 0:
+
+    if parent_unit.is_ranged:
+        if enemy_dist <= parent_unit.attack_range:
+            if enemy_dist < parent_unit.comfort_distance:
+                var flee_dir = -dir
+                var offset: Vector2 = banner.get_formation_offset(parent_unit) if is_instance_valid(banner) else Vector2(80, 0)
+                var formation_pos: Vector2 = player.global_position + offset
+                var dist_to_formation: float = parent_unit.global_position.distance_to(formation_pos)
+                if dist_to_formation > 280.0:
+                    var pull_dir: Vector2 = (formation_pos - parent_unit.global_position).normalized()
+                    var t: float = clamp((dist_to_formation - 280.0) / 120.0, 0.0, 0.7)
+                    flee_dir = (flee_dir.lerp(pull_dir, t)).normalized()
+                var desired: Vector2 = (flee_dir * parent_unit.speed * FLEE_SPEED_MULT + separation).normalized() * parent_unit.speed * FLEE_SPEED_MULT
+                parent_unit.velocity = parent_unit.velocity.lerp(desired, delta * 8.0)
+            else:
+                parent_unit.velocity = parent_unit.velocity.lerp(separation * 0.5, delta * 8.0)
+            if is_instance_valid(parent_unit.animated_sprite) and dir.x != 0:
                 parent_unit.animated_sprite.flip_h = dir.x < 0
-    
+            if not parent_unit.is_attacking:
+                parent_unit._play_sequential_attack(assigned_target, banner)
+            _attack_pulse_timer += delta
+            if _attack_pulse_timer >= 0.8:
+                _attack_pulse_timer = 0.0
+                parent_unit._toggle_hitbox()
+        else:
+            if is_instance_valid(banner) and banner.has_method("release_pawn_target"):
+                banner.release_pawn_target(parent_unit)
+            current_state = State.IDLE_FOLLOW
+            _idle_follow(delta)
+            return
+    else:
+        if enemy_dist < parent_unit.attack_range:
+            if not parent_unit.is_attacking:
+                parent_unit._play_sequential_attack(assigned_target, banner)
+                parent_unit.velocity = (dir * 1.2 + separation * 0.5).normalized() * parent_unit.speed * 1.2
+            else:
+                var blend_target: Vector2 = (dir * 0.6 + separation * 0.5).normalized() * parent_unit.speed * 0.6
+                parent_unit.velocity = parent_unit.velocity.lerp(blend_target, delta * 8.0)
+            _attack_pulse_timer += delta
+            if _attack_pulse_timer >= 0.8:
+                _attack_pulse_timer = 0.0
+                parent_unit._toggle_hitbox()
+        else:
+            var desired: Vector2 = (dir * parent_unit.speed + separation).normalized() * parent_unit.speed
+            parent_unit.velocity = parent_unit.velocity.lerp(desired, delta * 8.0)
+            if is_instance_valid(parent_unit.animated_sprite):
+                if parent_unit.animated_sprite.animation != "Run":
+                    parent_unit.animated_sprite.play("Run")
+                if dir.x != 0:
+                    parent_unit.animated_sprite.flip_h = dir.x < 0
+
     parent_unit.move_and_slide()

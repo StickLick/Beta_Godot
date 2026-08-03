@@ -1,25 +1,24 @@
 [gd_scene format=3 uid="uid://dspvqrakn3t7x"]
 
-[ext_resource type="Script" path="res://scripts/weapons/spectral_volley.gd" id="1_svolley"]
+[ext_resource type="Script" uid="uid://bkaol3se2s6mw" path="res://scripts/weapons/spectral_volley.gd" id="1_svolley"]
 
 [sub_resource type="CircleShape2D" id="DetectionShape"]
 radius = 300.0
 
-[node name="SpectralVolley" type="Node2D" unique_id=6829476050]
+[node name="SpectralVolley" type="Node2D" unique_id=-1760458542]
 script = ExtResource("1_svolley")
+base_arrow_count = 1
 weapon_name = "SpectralVolley"
-base_damage = 15.0
 attack_cooldown = 0.6
-max_attack_distance = 300.0
 
-[node name="DetectionArea" type="Area2D" parent="." unique_id=6829476051]
+[node name="DetectionArea" type="Area2D" parent="." unique_id=-1760458541]
 collision_layer = 0
 collision_mask = 12
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=6829476052]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=-1760458540]
 shape = SubResource("DetectionShape")
 
-[node name="CooldownTimer" type="Timer" parent="." unique_id=6829476053]
+[node name="CooldownTimer" type="Timer" parent="." unique_id=-1760458539]
 
-[node name="VisualPivot" type="Node2D" parent="." unique_id=6829476054]
+[node name="VisualPivot" type="Node2D" parent="." unique_id=-1760458538]

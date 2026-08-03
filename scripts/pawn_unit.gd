@@ -30,7 +30,13 @@ func _on_death() -> void:
         banner_owner._on_banner_unit_died(self)
     super._on_death()
 
-func _play_sequential_attack() -> void:
+func _on_animation_finished() -> void:
+    if animated_sprite.animation in ["Attack", "Attack1"]:
+        is_attacking = false
+        if animated_sprite.sprite_frames.has_animation("Run"):
+            animated_sprite.play("Run")
+
+func _play_sequential_attack(_target: Node2D = null, _banner: WarBanner = null) -> void:
     is_attacking = true
     if animated_sprite.sprite_frames.has_animation("Attack"):
         animated_sprite.play("Attack")
