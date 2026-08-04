@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://d20rde8mctoaf"]
+[gd_scene format=3 uid="uid://irnbulwarkpawn1"]
 
-[ext_resource type="Script" uid="uid://6llkq2lybw26" path="res://scripts/pawn_unit.gd" id="1_pawn"]
-[ext_resource type="SpriteFrames" uid="uid://cn0yg0sm6wshn" path="res://Assets/SpriteFrames/blue_pawn_frames.tres" id="2_ek2ck"]
+[ext_resource type="Script" path="res://scripts/iron_bulwark_pawn_unit.gd" id="1_bulwark"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_p6fen"]
+[ext_resource type="SpriteFrames" uid="uid://dbe2blteajwka" path="res://Assets/SpriteFrames/blue_warrior_frames.tres" id="2_rlfil"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_fh0in"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_ulnwk"]
-[ext_resource type="SpriteFrames" uid="uid://c2620sqj8hvy3" path="res://Assets/SpriteFrames/red_pawn_frames.tres" id="6_qgh6o"]
+[ext_resource type="SpriteFrames" uid="uid://dwxbar8ok40s5" path="res://Assets/SpriteFrames/red_warrior_frames.tres" id="5_n2vkn"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 7.0
@@ -37,8 +37,8 @@ color_ramp = SubResource("GradientTexture1D_oxcls")
 
 [node name="Unit" type="CharacterBody2D" unique_id=1221776637]
 collision_layer = 4
-script = ExtResource("1_pawn")
-red_sprite_frames = ExtResource("6_qgh6o")
+script = ExtResource("1_bulwark")
+red_sprite_frames = ExtResource("5_n2vkn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1620627197]
 shape = SubResource("CircleShape2D_gd7ey")
@@ -50,12 +50,15 @@ polygon = PackedVector2Array(19, -10, 19, 8, 33, -1)
 [node name="HitboxComponent" type="Area2D" parent="." unique_id=633797733]
 collision_layer = 16
 collision_mask = 2
+monitoring = false
+monitorable = false
 script = ExtResource("2_p6fen")
 faction = "enemy"
 metadata/_custom_type_script = "uid://c2578100uqvx"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=1021160278]
 shape = SubResource("CircleShape2D_4ouxv")
+disabled = true
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1664580529]
 script = ExtResource("3_fh0in")
@@ -72,8 +75,8 @@ metadata/_custom_type_script = "uid://beg66r2q1vu01"
 shape = SubResource("CircleShape2D_fsuuu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=332418237]
-scale = Vector2(0.5276693, 0.5328776)
-sprite_frames = ExtResource("2_ek2ck")
+scale = Vector2(0.49283856, 0.49283856)
+sprite_frames = ExtResource("2_rlfil")
 animation = &"Run"
 
 [node name="SpawnBurst" type="GPUParticles2D" parent="." unique_id=1653099004]

@@ -70,6 +70,14 @@ text = "Force Evolve: Spectral Volley"
 layout_mode = 2
 text = "Force Evolve: Sky Piercer"
 
+[node name="Btn_Evo_BannerTank" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=812345671]
+layout_mode = 2
+text = "Force Evolve: Iron Bulwark"
+
+[node name="Btn_Evo_BannerMarshal" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=812345672]
+layout_mode = 2
+text = "Force Evolve: Grand Marshal"
+
 [node name="Btn_Evo_Singularity" type="Button" parent="Control/PanelContainer/ScrollContainer/VBoxContainer" unique_id=1706406498]
 layout_mode = 2
 text = "Force Evolve: Singularity"

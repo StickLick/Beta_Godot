@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bannerironbulwarkevo"]
+
+[ext_resource type="PackedScene" uid="uid://bannerironbulwark01" path="res://Assets/Scenes/Weapons/BannerIronBulwarkWeapon.tscn" id="1_bulwark"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+
+[resource]
+script = ExtResource("2_upg")
+name = "Железный Бастион"
+description = "Эволюция Знамени: павны становятся тяжелыми бойцами с мощным отталкиванием"
+rarity = 3
+is_unique = true
+max_level_for_evo = 8
+required_passive_tag = "MaxHP"
+required_passive_level = 1
+weapon_tag = "Banner"
+target_weapon_name = "Banner"
+evolved_weapon_tag = "BannerTank"
+evolved_weapon_scene = ExtResource("1_bulwark")
+change_mechanic_on_apply = true
+metadata/_custom_type_script = "uid://dshfc0npo0r8o"

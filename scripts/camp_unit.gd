@@ -70,7 +70,6 @@ func _physics_process(delta: float) -> void:
                 if not is_attacking and animated_sprite.animation != "Idle":
                     animated_sprite.play("Idle")
     elif is_instance_valid(target):
-        print("[SYNC] CampUnit | Hunting without guard_target.")
         var breaker: Node2D = _get_nearby_enemy_breaker()
         if breaker:
             target = breaker

@@ -14,16 +14,21 @@ class_name Unit
 @export var separation_distance: float = 45.0
 @export var separation_strength: float = 1.2
 @export var attack_range: float = 80.0
+@export var red_sprite_frames: SpriteFrames
 
 var target: Node2D = null
 var _attack_pulse_timer: float = 0.0
 var _default_modulate: Color
+var _default_sprite_frames: SpriteFrames
 
 var is_attacking: bool = false
 var attack_index: int = 0 
 
 var guard_target: Node2D = null
 var guard_radius: float = 350.0
+# Knockback strength applied by this unit on hit (tuned up by IronBulwark tank pawn).
+var knockback_force: float = 150.0
+var always_knockback: bool = false
 var is_inspired: bool = false
 
 # ── Ranged / Kite Support (default: melee) ──
@@ -36,11 +41,13 @@ var comfort_distance: float = 0.0
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
-    add_to_group("units")
+    _sync_faction_groups()
     if animated_sprite:
         animated_sprite.animation_finished.connect(_on_animation_finished)
         animated_sprite.play("Run")
     _default_modulate = modulate
+    if is_instance_valid(animated_sprite):
+        _default_sprite_frames = animated_sprite.sprite_frames
     if is_instance_valid(health_component):
         health_component.max_health = max_hp
         health_component.current_health = max_hp
@@ -57,6 +64,22 @@ func _on_death() -> void:
 
 func _on_animation_finished() -> void:
     pass
+
+func _sync_faction_groups() -> void:
+    if not is_in_group("units"):
+        add_to_group("units")
+    var target_group: String = "ally_units" if alignment == 1 else "enemy"
+    var opposite_group: String = "enemy" if alignment == 1 else "ally_units"
+    if alignment != 1 and alignment != 2:
+        push_warning("Unit._sync_faction_groups(): unexpected alignment value '%d'" % alignment)
+        target_group = "enemy"
+        opposite_group = "ally_units"
+    if not is_in_group(target_group):
+        add_to_group(target_group)
+    if is_in_group(opposite_group):
+        remove_from_group(opposite_group)
+    if is_in_group("rival"):
+        remove_from_group("rival")
 
 func _setup_physics_and_factions() -> void:
     var f_name: String = "player" if alignment == 1 else "rival"
@@ -105,8 +128,11 @@ func _toggle_hitbox() -> void:
         if shape:
             shape.disabled = true
             if is_inspired and is_instance_valid(guard_target):
-                hitbox.knockback_force = 150.0
+                hitbox.knockback_force = knockback_force
                 hitbox.knockback_origin = guard_target.global_position
+            elif always_knockback:
+                hitbox.knockback_force = knockback_force
+                hitbox.knockback_origin = global_position
             else:
                 hitbox.knockback_force = 0.0
             hitbox.check_hit()
@@ -138,11 +164,18 @@ func _on_war_cry(is_active: bool) -> void:
 func flip_alignment(new_align: int) -> void:
     alignment = new_align
     _setup_physics_and_factions()
+    _sync_faction_groups()
     _update_visuals()
     target = null
 
 func _update_visuals() -> void:
     if alignment == 1:
         modulate = _default_modulate
+        if is_instance_valid(animated_sprite):
+            animated_sprite.sprite_frames = _default_sprite_frames
     else:
-        modulate = Color.INDIAN_RED
+        if red_sprite_frames != null and is_instance_valid(animated_sprite):
+            animated_sprite.sprite_frames = red_sprite_frames
+            modulate = _default_modulate
+        else:
+            modulate = Color.INDIAN_RED

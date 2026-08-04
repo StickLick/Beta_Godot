@@ -132,7 +132,7 @@ func _update_target() -> void:
             for camp in player_camps:
                 var d = global_position.distance_to(camp.global_position); if d < min_d: min_d = d; closest = camp
             target_node = closest; return
-    target_node = _find_closest_target(["player", "ally_units", "camps"])
+    target_node = _find_closest_target(["player", "ally_units"])
 
 func _find_closest_target(groups: Array) -> Node2D:
     var candidates: Array[Node2D] = []

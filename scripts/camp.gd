@@ -127,7 +127,7 @@ func _handle_capture(delta: float) -> void:
         capture_progress += (8.0 + p_bonus + invaders * 4.0) / current_level * delta
         if capture_progress >= 100:
             if alignment == Alignment.RIVAL: GameManager.log_event("camp_destroyed")
-            _flip_to(Alignment.PLAYER if p_inside else Alignment.RIVAL)
+            _flip_to(Alignment.PLAYER)
     elif capture_progress > 0: capture_progress = max(0, capture_progress - 5.0 * delta)
 
 func _handle_tiers(delta: float) -> void:
@@ -156,10 +156,6 @@ func _spawn_unit() -> void:
     if u is CampUnit:
         u.parent_camp = self
     get_tree().current_scene.add_child(u)
-    if u.alignment == 1:
-        u.add_to_group("ally_units")
-    else:
-        u.add_to_group("enemy")
     active_units.append(u); GameManager.log_event("unit_spawned")
     print("[SYNC] Camp Level Up | Guarded unit assignments.")
 

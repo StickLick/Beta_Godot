@@ -12,6 +12,9 @@ extends CanvasLayer
 
 @onready var btn_evo_spear: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Spear
 @onready var btn_evo_siege: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Siege
+@onready var btn_evo_sky: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_Sky
+@onready var btn_evo_banner_tank: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_BannerTank
+@onready var btn_evo_banner_marshal: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Evo_BannerMarshal
 
 @onready var btn_base_staff: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Staff
 @onready var btn_base_bow: Button = $Control/PanelContainer/ScrollContainer/VBoxContainer/Btn_Base_Bow
@@ -34,6 +37,9 @@ func _ready() -> void:
     btn_evo_spear.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/SpearEvolution.tres"))
     btn_evo_siege.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BowSiegeEvolution.tres"))
     btn_evo_spectral.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BowSpectralEvolution.tres"))
+    btn_evo_sky.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BowSkyEvolution.tres"))
+    btn_evo_banner_tank.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BannerIronBulwarkEvolution.tres"))
+    btn_evo_banner_marshal.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/BannerGrandMarshalEvolution.tres"))
     btn_evo_singularity.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffSingularityEvolution.tres"))
     btn_evo_lightning.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffLightningEvolution.tres"))
     btn_evo_star.pressed.connect(_on_btn_add_upgrade.bind("res://Upgrades/Evolutions/StaffStarEvolution.tres"))

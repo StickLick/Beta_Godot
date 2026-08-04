@@ -2,11 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dq8afekhy1nlx" path="res://scripts/archer_pawn_unit.gd" id="1_arch"]
 [ext_resource type="Script" uid="uid://c2578100uqvx" path="res://scripts/hitbox_component.gd" id="2_p6fen"]
+[ext_resource type="SpriteFrames" uid="uid://b3x5apct0jjxj" path="res://Assets/SpriteFrames/blue_archer_frames.tres" id="2_rlfil"]
 [ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="3_fh0in"]
 [ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="4_ulnwk"]
-[ext_resource type="Texture2D" uid="uid://04vuftntfjik" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Shoot.png" id="5_3kfpc"]
-[ext_resource type="Texture2D" uid="uid://dtqrmrtofuqf3" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Idle.png" id="6_u4wi2"]
-[ext_resource type="Texture2D" uid="uid://cm4nta7uygc7r" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Run.png" id="7_bgm7j"]
+[ext_resource type="SpriteFrames" uid="uid://bt5f2piygoru6" path="res://Assets/SpriteFrames/red_archer_frames.tres" id="5_n2vkn"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gd7ey"]
 radius = 7.0
@@ -16,150 +15,6 @@ radius = 7.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fsuuu"]
 radius = 7.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_m6vpf"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(0, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2w5ca"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(192, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ferq8"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(384, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_b6bd8"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(576, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_uisbt"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(768, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ukrj7"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(960, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_28o2f"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(1152, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_dn2ng"]
-atlas = ExtResource("5_3kfpc")
-region = Rect2(1344, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yfp2w"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(0, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cqllt"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(192, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_5sp6o"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(384, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_kviex"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(576, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_j3ajt"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(768, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0dc3u"]
-atlas = ExtResource("6_u4wi2")
-region = Rect2(960, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hxoik"]
-atlas = ExtResource("7_bgm7j")
-region = Rect2(0, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_vcpgr"]
-atlas = ExtResource("7_bgm7j")
-region = Rect2(192, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_mjpi4"]
-atlas = ExtResource("7_bgm7j")
-region = Rect2(384, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_dcmq0"]
-atlas = ExtResource("7_bgm7j")
-region = Rect2(576, 0, 192, 192)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_m6vpf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2w5ca")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ferq8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_b6bd8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_uisbt")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ukrj7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_28o2f")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dn2ng")
-}],
-"loop": 0,
-"name": &"Attack1",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yfp2w")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_cqllt")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_5sp6o")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_kviex")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_j3ajt")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0dc3u")
-}],
-"loop": 0,
-"name": &"Idle",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hxoik")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_vcpgr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjpi4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dcmq0")
-}],
-"loop": 1,
-"name": &"Run",
-"speed": 5.0
-}]
 
 [sub_resource type="Gradient" id="Gradient_qgh6o"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -180,9 +35,10 @@ scale_max = 0.12
 color = Color(0.9, 0.75, 0.2, 1)
 color_ramp = SubResource("GradientTexture1D_oxcls")
 
-[node name="Unit" type="CharacterBody2D" unique_id=1221776637 groups=["rival"]]
+[node name="Unit" type="CharacterBody2D" unique_id=1221776637]
 collision_layer = 4
 script = ExtResource("1_arch")
+red_sprite_frames = ExtResource("5_n2vkn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1620627197]
 shape = SubResource("CircleShape2D_gd7ey")
@@ -220,7 +76,7 @@ shape = SubResource("CircleShape2D_fsuuu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=332418237]
 scale = Vector2(0.6544596, 0.6622721)
-sprite_frames = SubResource("SpriteFrames_gd7ey")
+sprite_frames = ExtResource("2_rlfil")
 animation = &"Run"
 
 [node name="SpawnBurst" type="GPUParticles2D" parent="." unique_id=1653099004]

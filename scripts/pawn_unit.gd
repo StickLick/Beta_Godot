@@ -5,7 +5,6 @@ var banner_owner: Node2D = null
 
 func _ready() -> void:
     super._ready()
-    add_to_group("ally_units")
     _attach_squad_ai()
     var spawn_vfx = get_node_or_null("SpawnBurst")
     if spawn_vfx:
