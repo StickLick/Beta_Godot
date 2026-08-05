@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Marshal: Cry_C"
+description = "+5% war cry damage"
+rarity = 0
+weapon_tag = "BannerMarshal"
+modifiers = [{"amount": 0.05, "stat": "inspired_damage_mult"}]

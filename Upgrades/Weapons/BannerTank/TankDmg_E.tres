@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Tank: DMG_E"
+description = "+25 damage"
+rarity = 2
+weapon_tag = "BannerTank"
+modifiers = [{"amount": 25.0, "stat": "base_damage"}]

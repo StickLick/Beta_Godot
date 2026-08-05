@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Archer: Pierce_R"
+description = "+2 arrow pierce"
+rarity = 1
+weapon_tag = "BannerArcher"
+modifiers = [{"amount": 2, "stat": "base_pierce"}]

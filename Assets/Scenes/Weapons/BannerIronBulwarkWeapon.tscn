@@ -33,6 +33,7 @@ base_dmg = 5.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1519789298]
 
 [node name="VisualPivot" type="Node2D" parent="." unique_id=2003672791]
+scale = Vector2(1, 1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1240751380]
 libraries/ = SubResource("AnimationLibrary_9nf2b")
