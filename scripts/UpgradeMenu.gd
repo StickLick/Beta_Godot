@@ -28,6 +28,11 @@ const EVOLUTION_FAMILIES := {
 }
 
 func open_upgrade_menu() -> void:    
+    # Закрыть открытую панель паузы, чтобы она не оставалась поверх меню апгрейдов.
+    var hud = get_tree().get_first_node_in_group("hud")
+    if hud and hud.has_method("close_pause"):
+        hud.close_pause()
+
     var player = get_tree().get_first_node_in_group("player") as Player
     if not player: return
 

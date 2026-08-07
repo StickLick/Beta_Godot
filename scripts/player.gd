@@ -37,8 +37,8 @@ signal inventory_updated
 # --- ИНВЕНТАРЬ И ТЕГИ ---
 var max_weapon_slots: int = 3
 var max_passive_slots: int = 3
-var unlocked_weapon_slots: int = 2
-var unlocked_passive_slots: int = 2
+var unlocked_weapon_slots: int = 1
+var unlocked_passive_slots: int = 1
 var active_weapons: Array[Upgrade] = []
 var active_passives: Array[Upgrade] = []
 var applied_upgrade_names: Array[String] = []
@@ -71,6 +71,7 @@ func _ready() -> void:
     mass = base_mass
     stability = base_stability
     add_to_group("player")
+    _load_meta_slots()
     if animated_sprite: 
         animated_sprite.animation_finished.connect(_on_animation_finished)
     if is_instance_valid(health_component):
@@ -79,12 +80,8 @@ func _ready() -> void:
     if is_instance_valid(magnet_area): 
         magnet_area.add_to_group("player_magnet")
     
-    # Заполняем первый слот стартовым копьём
-    var spear_upgrade = load("res://Upgrades/Weapons/Spear/BaseSpear.tres") as Upgrade
-    if spear_upgrade:
-        active_weapons.append(spear_upgrade)
-        applied_upgrade_names.append(spear_upgrade.name)
-        tag_levels["Spear"] = 1
+    # Инициализация стартового оружия и статов от выбранного героя
+    _init_hero_starting()
     
     if debug_give_aura_evolution:
         call_deferred("_debug_add_aura_evolution")
@@ -274,6 +271,166 @@ func _apply_stat_to_weapon(w: Node, stat: String, amount: float) -> void:
     inventory_updated.emit()
 
 
+# --- ГЕРОИ (стартовое оружие и модификаторы из HeroData) ---
+
+const HERO_DATA := preload("res://scripts/hero_data.gd")
+
+
+# Хранилище пассивки героя (пересчитывается по уровню).
+var _hero_passive_stat: String = ""
+var _hero_passive_percent: float = 0.0
+var _hero_passive_base: float = 0.0
+var _hero_id: String = HERO_DATA.DEFAULT_HERO_ID
+var _attack_speed_bonus: float = 0.0
+var _weapon_base_cooldowns: Dictionary = {} # BaseWeapon -> исходный attack_cooldown
+
+
+## Инициализация героя: стат-модификаторы + стартовое оружие.
+func _init_hero_starting() -> void:
+    var gm := get_node_or_null("/root/GameManager")
+    var hero_id: String = HERO_DATA.DEFAULT_HERO_ID
+    if gm and gm.get("selected_hero_id") != "":
+        hero_id = String(gm.get("selected_hero_id"))
+    var hero: Dictionary = HERO_DATA.get_hero(hero_id)
+    _hero_id = hero_id
+
+    apply_hero_modifiers(hero.get("stat_modifiers", {}))
+    apply_hero_passive(hero_id)
+    _apply_hero_visual(hero_id)
+
+    var weapon_path: String = String(hero.get("starting_weapon_upgrade", ""))
+    if weapon_path == "":
+        return
+    var weapon_upgrade: Upgrade = load(weapon_path) as Upgrade
+    if weapon_upgrade == null:
+        return
+
+    # Регистрация в инвентаре и прогрессии (как для стартового копья ранее).
+    active_weapons.append(weapon_upgrade)
+    applied_upgrade_names.append(weapon_upgrade.name)
+    var wtag: String = String(hero.get("weapon_tag", ""))
+    if wtag != "":
+        tag_levels[wtag] = 1
+
+    # Для героев, чьё стартовое оружие НЕ копьё: заменяем сценный Spear-инстанс
+    # сценой оружия героя (Spearman сохраняет поведение — SpearWeapon.tscn уже в Player.tscn).
+    if hero_id != HERO_DATA.DEFAULT_HERO_ID:
+        var old_weapon: Node = get_node_or_null("WeaponComponent")
+        if old_weapon:
+            old_weapon.free()
+        _spawn_weapon_scene(weapon_upgrade)
+
+    # Кэшируем базовые cooldown'ы оружий (для пассивки скорости атаки Archer).
+    _cache_weapon_cooldowns()
+    # Пересчёт пассивки после кэширования: применяет бонус attack_speed к реальным cooldown'ам.
+    _recalc_hero_passive()
+
+
+## Сохраняет исходные attack_cooldown всех имеющихся оружий.
+func _cache_weapon_cooldowns() -> void:
+    _weapon_base_cooldowns.clear()
+    for child in get_children():
+        if child is BaseWeapon:
+            _weapon_base_cooldowns[child] = child.attack_cooldown
+
+
+## Явное применение стат-модификаторов героя (без динамических set/get по строкам).
+func apply_hero_modifiers(mods: Dictionary) -> void:
+    if mods.has("damage_multiplier"):
+        damage_multiplier += float(mods["damage_multiplier"])
+    if mods.has("radius_weapons"):
+        radius_weapons += float(mods["radius_weapons"])
+    if mods.has("max_speed"):
+        max_speed += float(mods["max_speed"])
+    if mods.has("max_health"):
+        max_health += float(mods["max_health"])
+    if mods.has("xp_gain"):
+        xp_gain += float(mods["xp_gain"])
+
+
+## Универсальная пассивка героя: масштабируется с уровнем игрока.
+func apply_hero_passive(hero_id: String) -> void:
+    var hero: Dictionary = HERO_DATA.get_hero(hero_id)
+    var passive: Variant = hero.get("hero_passive", {})
+    if typeof(passive) != TYPE_DICTIONARY or passive.is_empty():
+        return
+    _hero_passive_stat = String(passive.get("stat", ""))
+    _hero_passive_percent = float(passive.get("percent_per_level", 0.0))
+    _hero_passive_base = _get_stat_value(_hero_passive_stat) if _hero_passive_stat != "" else 0.0
+    _recalc_hero_passive()
+
+
+## Пересчёт пассивки по текущему уровню (вызывается при level-up).
+func _recalc_hero_passive() -> void:
+    if _hero_passive_stat == "":
+        return
+    var mult: float = 1.0 + _hero_passive_percent * float(current_level - 1)
+    if _hero_passive_stat == "attack_speed":
+        _attack_speed_bonus = mult
+        _apply_attack_speed_bonus()
+    elif _hero_passive_stat == "crit_chance":
+        # Шанс крита — процентная характеристика: аддитивно +0.5% за уровень.
+        crit_chance = _hero_passive_base + _hero_passive_percent * float(current_level - 1)
+    else:
+        _set_stat_value(_hero_passive_stat, _hero_passive_base * mult)
+
+
+## Уменьшает cooldown всех оружий пропорционально бонусу скорости атаки.
+func _apply_attack_speed_bonus() -> void:
+    for child in get_children():
+        if child is BaseWeapon and _weapon_base_cooldowns.has(child):
+            child.attack_cooldown = _weapon_base_cooldowns[child] / _attack_speed_bonus
+
+
+func _get_stat_value(stat: String) -> float:
+    match stat:
+        "damage_multiplier": return damage_multiplier
+        "radius_weapons": return radius_weapons
+        "attack_speed": return _attack_speed_bonus
+        "crit_chance": return crit_chance
+        "max_speed": return max_speed
+        "xp_gain": return xp_gain
+    return 0.0
+
+
+func _set_stat_value(stat: String, value: float) -> void:
+    match stat:
+        "damage_multiplier": damage_multiplier = value
+        "radius_weapons": radius_weapons = value
+        "attack_speed": _attack_speed_bonus = value
+        "crit_chance": crit_chance = value
+        "max_speed": max_speed = value
+        "xp_gain": xp_gain = value
+
+
+## Замена визуала игрока: загрузка готового SpriteFrames-ресурса героя.
+## Spearman не имеет ключа "visual" — используются сценные Lancer-спрайты из Player.tscn.
+func _apply_hero_visual(hero_id: String) -> void:
+    var hero: Dictionary = HERO_DATA.get_hero(hero_id)
+    var visual_path: String = str(hero.get("visual", ""))
+    if visual_path == "":
+        return
+    if not is_instance_valid(animated_sprite):
+        return
+    var frames: SpriteFrames = load(visual_path) as SpriteFrames
+    if frames == null:
+        push_warning("HeroData: SpriteFrames not found at: " + visual_path)
+        return
+    animated_sprite.sprite_frames = frames
+    if animated_sprite.sprite_frames.has_animation("Idle"):
+        animated_sprite.play("Idle")
+
+
+# --- МЕТА-СЛОТЫ (из MetaProgress; дефолты из SaveManager) ---
+
+func _load_meta_slots() -> void:
+    var meta_progress := get_node_or_null("/root/MetaProgress")
+    if meta_progress:
+        unlocked_weapon_slots = meta_progress.get_weapon_slots()
+        unlocked_passive_slots = meta_progress.get_passive_slots()
+        max_weapon_slots = max(max_weapon_slots, meta_progress.MAX_WEAPON_SLOTS)
+        max_passive_slots = max(max_passive_slots, meta_progress.MAX_PASSIVE_SLOTS)
+
 func _debug_add_aura_evolution() -> void:
     # Прямой спавн EvolvedAuraWave без нормальной Aura
     var evo_scene = load("res://Assets/Scenes/EvolvedAuraWave.tscn") as PackedScene
@@ -429,18 +586,40 @@ func _apply_gravity_logic(delta: float) -> void:
             velocity += dir * (400.0 * f_pct * delta)
 
 func _update_animations(input_vector: Vector2) -> void:
+    if not is_instance_valid(animated_sprite):
+        return
     if input_vector != Vector2.ZERO:
-        animated_sprite.play("Run"); animated_sprite.flip_h = (input_vector.x < 0)
+        if animated_sprite.sprite_frames.has_animation("Run"):
+            animated_sprite.play("Run")
+        animated_sprite.flip_h = (input_vector.x < 0)
     else:
-        animated_sprite.play("Idle")
+        if animated_sprite.sprite_frames.has_animation("Idle"):
+            animated_sprite.play("Idle")
 
 func play_attack_animation(target_position: Vector2) -> void:
-    is_attacking = true
+    if not is_instance_valid(animated_sprite):
+        return
     var direction = (target_position - global_position).normalized()
-    animated_sprite.play(_get_attack_animation_name(direction))
+    var anim_name := _get_attack_animation_name(direction)
+    # Нет подходящей анимации (например, у Монаха) — не блокируем движение.
+    if anim_name == "":
+        return
+    if not animated_sprite.sprite_frames.has_animation(anim_name):
+        return
+    is_attacking = true
+    animated_sprite.play(anim_name)
     animated_sprite.flip_h = (direction.x < 0)
 
 func _get_attack_animation_name(dir: Vector2) -> String:
+    # Spearman использует полный набор направленных атак (сценные спрайты).
+    if _hero_id == HERO_DATA.DEFAULT_HERO_ID:
+        return _get_directional_attack_name(dir)
+    # Остальные герои: если есть анимация "Attack" — используем её для всех направлений.
+    if is_instance_valid(animated_sprite) and animated_sprite.sprite_frames.has_animation("Attack"):
+        return "Attack"
+    return ""
+
+func _get_directional_attack_name(dir: Vector2) -> String:
     var angle = rad_to_deg(dir.angle())
     if angle > -22.5 and angle <= 22.5: return "RightAttack"
     elif angle > 22.5 and angle <= 67.5: return "DownRightAttack"
@@ -452,7 +631,7 @@ func _get_attack_animation_name(dir: Vector2) -> String:
     else: return "RightAttack"
 
 func _on_animation_finished() -> void:
-    var attack_anims = ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack"]
+    var attack_anims = ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack", "Attack"]
     if animated_sprite.animation in attack_anims: is_attacking = false
 
 func collect_xp(amount: int) -> void:
@@ -461,6 +640,7 @@ func collect_xp(amount: int) -> void:
     if GameManager.has_method("log_event"): GameManager.log_event("xp", total_gain)
     while current_xp >= xp_to_next_level:
         current_xp -= xp_to_next_level; current_level += 1
+        _recalc_hero_passive()
         xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
         inventory_updated.emit()
     xp_changed.emit(current_xp, xp_to_next_level)
@@ -480,6 +660,4 @@ func _on_death() -> void:
     call_deferred("_deferred_restart")
 
 func _deferred_restart() -> void:
-    GameManager.reset_game()
-    if is_inside_tree():
-        get_tree().reload_current_scene()
+    GameManager.end_run(false)

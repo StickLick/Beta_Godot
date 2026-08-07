@@ -22,6 +22,8 @@ func _on_cooldown_timeout() -> void:
     amount = max(1, amount)
     print("[BOW] firing ", amount, " arrows (player.projectile_amount=", player.get("projectile_amount") if player else "null", ")")
     
+    if is_instance_valid(player):
+        player.play_attack_animation(target.global_position)
     _fire_volley(base_angle, amount)
     cooldown_timer.start(attack_cooldown)
 

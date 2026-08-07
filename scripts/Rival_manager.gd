@@ -115,15 +115,11 @@ func _execute_expansion() -> void:
     if best_zone:
         best_zone.remove_from_group("zones")
         _log("STRATEGIC", "EXPANSION - Spawning Rival Camp at safe distance: %dpx" % int(min_dist))
-        zone_system._on_zone_evolved(best_zone.global_position, "RivalExpansion", 2.0, best_zone)
-        
-        (func(): 
-            await get_tree().process_frame
-            var camps = get_tree().get_nodes_in_group("camps")
-            if camps.size() > 0:
-                var last_camp = camps.back()
-                if is_instance_valid(last_camp): last_camp.alignment = 2
-        ).call()
+        var spawned_camp = zone_system._on_zone_evolved(best_zone.global_position, "RivalExpansion", 2.0, best_zone)
+        if is_instance_valid(spawned_camp) and spawned_camp.has_method("set_alignment"):
+            # Никогда не конвертируем лагерь игрока обратно в соперника.
+            if spawned_camp.alignment != spawned_camp.Alignment.PLAYER:
+                spawned_camp.set_alignment(spawned_camp.Alignment.RIVAL)
 
 func _execute_economy() -> void:
     var r_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 2)

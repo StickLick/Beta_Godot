@@ -11,13 +11,16 @@ config_version=5
 [application]
 
 config/name="Beta_Legion_Godot"
-run/main_scene="uid://cuokqkx774hk4"
+run/main_scene="res://Assets/Scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
+SaveManager="*res://scripts/save_manager.gd"
 GameManager="*uid://bsi4k05gbhmdr"
+MetaProgress="*res://scripts/meta_progress.gd"
+GachaManager="*res://scripts/gacha_manager.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]

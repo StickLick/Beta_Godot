@@ -6,7 +6,13 @@ signal specialty_requested(camp_ref: Camp)
 enum Alignment { NEUTRAL, PLAYER, RIVAL }
 enum Specialty { NONE, INDUSTRY, MILITARY }
 
-@export var alignment: Alignment = Alignment.NEUTRAL
+@export var alignment: Alignment = Alignment.NEUTRAL:
+    set(new_alignment):
+        if new_alignment == alignment:
+            return
+        alignment = new_alignment
+        if _ownership_ready:
+            _apply_ownership_update()
 @export var specialty: Specialty = Specialty.NONE
 @export var current_level: int = 1:
     set(v): current_level = clamp(v, 1, 5)
@@ -31,6 +37,7 @@ var _scale_tween: Tween
 var is_under_attack: bool = false
 var _attack_timer: float = 0.0
 var _last_health: float = 0.0
+var _ownership_ready: bool = false
 
 const BASE_HEALTH: float = 8000.0 
 const ARMOR_THRESHOLD: float = 20.0 
@@ -53,6 +60,7 @@ func _ready() -> void:
     
     _update_visuals()
     _apply_level_scale()
+    _ownership_ready = true
 
 func _on_body_entered(body: Node2D) -> void:
     if body is Player:
@@ -185,11 +193,23 @@ func _fire_at_enemy() -> void:
 
 func _flip_to(new_align: int) -> void:
     alignment = new_align as Alignment
-    current_level = 1; specialty = Specialty.NONE; capture_progress = 0; _upgrade_progress = 0
+
+func set_alignment(new_alignment: Alignment) -> void:
+    _flip_to(new_alignment)
+
+func _apply_ownership_update() -> void:
+    current_level = 1
+    specialty = Specialty.NONE
+    capture_progress = 0
+    _upgrade_progress = 0
     _update_visuals()
     if is_instance_valid(health_component):
-        health_component.max_health = BASE_HEALTH; health_component.current_health = BASE_HEALTH; _last_health = BASE_HEALTH
-    for u in active_units: if is_instance_valid(u): u.flip_alignment(new_align)
+        health_component.max_health = BASE_HEALTH
+        health_component.current_health = BASE_HEALTH
+        _last_health = BASE_HEALTH
+    for u in active_units:
+        if is_instance_valid(u):
+            u.flip_alignment(int(alignment))
     _apply_level_scale()
 
 func upgrade(amount: float) -> void:

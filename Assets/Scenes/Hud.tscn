@@ -8,6 +8,42 @@
 color = Color(0, 0, 0, 0.54901963)
 thickness = 20
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_results_sep"]
+color = Color(1, 1, 1, 0.15)
+thickness = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.1, 0.1, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.22, 0.32, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.15, 0.15, 0.22, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.38, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u84ry"]
 shader = ExtResource("3_5rrfm")
 shader_parameter/radius_px = 0.0
@@ -98,35 +134,211 @@ grow_horizontal = 2
 [node name="ResultsPanel" type="Panel" parent="." unique_id=1714445684]
 unique_name_in_owner = true
 process_mode = 3
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Background" type="ColorRect" parent="ResultsPanel" unique_id=1289090555]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 500.0
-offset_bottom = 922.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.5882353)
 
-[node name="StatsLabel" type="Label" parent="ResultsPanel" unique_id=785186436]
-unique_name_in_owner = true
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
+[node name="CenterContainer" type="CenterContainer" parent="ResultsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="RestartButton" type="Button" parent="ResultsPanel/StatsLabel" unique_id=358643569]
+[node name="VBoxContainer" type="VBoxContainer" parent="ResultsPanel/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "РЕЗУЛЬТАТ"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+
+[node name="HeroRow" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="HeroIcon" type="TextureRect" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeroLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow"]
+unique_name_in_owner = true
+layout_mode = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="Separator" type="HSeparator" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_results_sep")
+
+[node name="StatsVBox" type="VBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_right = 24
+
+[node name="LevelRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Уровень: 0"
+
+[node name="ZonesRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Захвачено зон: 0"
+
+[node name="CampsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Уничтожено баз: 0"
+
+[node name="UnitsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Создано юнитов: 0"
+
+[node name="KillsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Убито врагов: 0"
+
+[node name="XpRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Всего опыта: 0"
+
+[node name="TimeRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Время: 00:00"
+
+[node name="RewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Награда: 0"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="MenuButton" type="Button" parent="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer" unique_id=358643571]
 unique_name_in_owner = true
 process_mode = 3
-layout_mode = 0
-offset_left = 225.0
-offset_top = 720.0
-offset_right = 337.2258
-offset_bottom = 769.0
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+text = "В меню"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_normal")
+
+[node name="RestartButton" type="Button" parent="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer" unique_id=358643569]
+unique_name_in_owner = true
+process_mode = 3
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
 text = "Рестарт"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_normal")
+
+[node name="PauseButton" type="Button" parent="." unique_id=1511142750]
+unique_name_in_owner = true
+process_mode = 3
+offset_left = 504.0
+offset_top = 40.0
+offset_right = 533.0
+offset_bottom = 69.0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 15
+text = "❚❚"
+
+[node name="PausePanel" type="Control" parent="." unique_id=1521142750]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="PausePanel" unique_id=1531142750]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="CenterContainer" type="CenterContainer" parent="PausePanel" unique_id=1541142750]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PausePanel/CenterContainer" unique_id=1551142750]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1561142750]
+layout_mode = 2
+text = "ПАУЗА"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 36
+
+[node name="ContinueButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1571142750]
+unique_name_in_owner = true
+process_mode = 3
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+text = "Продолжить"
+
+[node name="RestartRunButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1581142750]
+unique_name_in_owner = true
+process_mode = 3
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+text = "Начать заново"
+
+[node name="ExitMenuButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1591142750]
+unique_name_in_owner = true
+process_mode = 3
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+text = "Выход в меню"
 
 [node name="SpecialtyPanel" type="Control" parent="." unique_id=1501142750]
 unique_name_in_owner = true
@@ -183,6 +395,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("2_u84ry")
 
 [node name="AnomalyOverlay" type="ColorRect" parent="." unique_id=1217798496]
@@ -212,4 +425,5 @@ theme_override_colors/font_color = Color(1, 0.17000002, 0.17000002, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
-[connection signal="pressed" from="ResultsPanel/StatsLabel/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/MenuButton" to="." method="_on_menu_pressed"]

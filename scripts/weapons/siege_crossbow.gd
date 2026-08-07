@@ -20,6 +20,8 @@ func _on_cooldown_timeout() -> void:
     
     var dir = (target.global_position - global_position).normalized()
     var angle = atan2(dir.y, dir.x)
+    if is_instance_valid(player):
+        player.play_attack_animation(target.global_position)
     _spawn_bolt(angle)
     cooldown_timer.start(attack_cooldown)
 

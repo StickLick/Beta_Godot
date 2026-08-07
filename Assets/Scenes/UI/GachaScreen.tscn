@@ -1,0 +1,186 @@
+[gd_scene load_steps=3 format=3 uid="uid://gachascr0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/gacha_screen.gd" id="1_gacha"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
+bg_color = Color(0.05, 0.05, 0.08, 0.999)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.35, 0.45, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="GachaScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gacha")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.09, 0.95)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer/TitleRow"]
+layout_mode = 2
+text = "СЛОТ-УДАЧА"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 44
+
+[node name="InfoButton" type="Button" parent="CenterContainer/VBoxContainer/TitleRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+text = "?"
+
+[node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Валюта: 0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="ReelsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ComboPreviewLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 16
+
+[node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="SpinButton" type="Button" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+text = "Крутить (50)"
+
+[node name="ContinueButton" type="Button" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+text = "Продолжить"
+visible = false
+
+[node name="CollectButton" type="Button" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+text = "Забрать награду"
+visible = false
+
+[node name="CloseButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+text = "Назад"
+
+[node name="RulesPopup" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+clip_contents = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -175.0
+offset_right = 210.0
+offset_bottom = 175.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
+
+[node name="MarginContainer" type="MarginContainer" parent="RulesPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RulesPopup/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderRow" type="HBoxContainer" parent="RulesPopup/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ПРАВИЛА"
+theme_override_font_sizes/font_size = 20
+
+[node name="CloseXButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+text = "X"
+
+[node name="RulesLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 16
+
+[node name="CloseRulesButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Понятно"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/TitleRow/InfoButton" to="." method="_on_info_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/SpinButton" to="." method="_on_spin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CollectButton" to="." method="_on_collect_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CloseButton" to="." method="_on_close_pressed"]
+[connection signal="pressed" from="RulesPopup/MarginContainer/VBoxContainer/HeaderRow/CloseXButton" to="." method="_on_close_rules_pressed"]
+[connection signal="pressed" from="RulesPopup/MarginContainer/VBoxContainer/CloseRulesButton" to="." method="_on_close_rules_pressed"]

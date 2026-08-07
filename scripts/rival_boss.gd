@@ -112,7 +112,8 @@ func _on_hit_received(base_damage: float) -> void:
 
 func _on_death() -> void:
     if is_dead: return
-    is_dead = true; GameManager.stop_game()
+    is_dead = true
+    GameManager.end_run(true)
     var cam = get_viewport().get_camera_2d()
     if cam and cam.has_method("death_zoom"): cam.death_zoom(global_position)
     var death_tween = create_tween()
@@ -121,7 +122,5 @@ func _on_death() -> void:
         death_tween.tween_property(self, "modulate", Color.ORANGE_RED, 0.05)
     death_tween.tween_property(self, "scale", Vector2.ZERO, 1.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
     death_tween.chain().tween_callback(func():
-        var hud = get_tree().get_first_node_in_group("hud")
-        if hud and hud.has_method("show_results"): hud.show_results()
         queue_free()
     )

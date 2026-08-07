@@ -189,6 +189,7 @@ func _on_hit_received(_damage: float) -> void:
     t.tween_property(self, "modulate", Color.WHITE, 0.1)
 
 func _on_death() -> void:
+    if GameManager.has_method("log_event"): GameManager.log_event("enemy_killed", 1)
     var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     var pos = global_position

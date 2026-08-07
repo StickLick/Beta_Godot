@@ -24,6 +24,8 @@ func _on_cooldown_timeout() -> void:
     var base_angle = atan2(dir.y, dir.x)
     var amount = max(1, base_arrow_count)
     
+    if is_instance_valid(player):
+        player.play_attack_animation(target.global_position)
     _fire_volley(base_angle, amount)
     cooldown_timer.start(attack_cooldown)
 

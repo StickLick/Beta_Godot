@@ -3,6 +3,7 @@ extends Node
 signal anomaly_started(type: String, duration: float)
 signal anomaly_warning(time_left: float)
 signal anomaly_ended()
+signal run_ended(victory: bool, reward: int)
 
 # --- ТЕСТОВАЯ НАСТРОЙКА ---
 const DEBUG_TEST_ANOMALY: String = "" 
@@ -12,6 +13,14 @@ var rival_camps_destroyed: int = 0
 var units_spawned: int = 0
 var zones_captured: int = 0
 var time_elapsed: float = 0.0
+var enemies_killed: int = 0
+
+# --- МЕТА-ПРОГРЕССИЯ (персистентная, переживает смену сцен) ---
+var _meta_currency: int = 0
+var _run_reward_calculated: bool = false
+
+# --- ВЫБОР ГЕРОЯ (сохраняется между забегами; меняется только в HeroSelectScreen) ---
+var selected_hero_id: String = ""
 
 var is_game_over: bool = false
 var map_rect: Rect2 = Rect2(-2000, -2000, 4000, 4000)
@@ -40,6 +49,9 @@ const ANOMALY_NAMES = {
 func _ready() -> void:
     _reset_metas()
     set_meta("map_rect", map_rect)
+    var save_manager := get_node_or_null("/root/SaveManager")
+    if save_manager and save_manager.has_method("get_value"):
+        _meta_currency = int(save_manager.get_value("meta_currency", 0))
 
 func _reset_metas() -> void:
     set_meta("prod_mult", 1.0)
@@ -159,10 +171,60 @@ func log_event(type: String, value: Variant = 1) -> void:
         "camp_destroyed": rival_camps_destroyed += int(value)
         "unit_spawned": units_spawned += int(value)
         "zone_captured": zones_captured += int(value)
+        "enemy_killed": enemies_killed += int(value)
+
+# --- МЕТА-ВАЛЮТА (рантайм-курс; персистенция — через SaveManager) ---
+
+func get_meta_currency() -> int:
+    return _meta_currency
+
+
+func set_meta_currency(value: int) -> void:
+    _meta_currency = max(0, value)
+    var save_manager := get_node_or_null("/root/SaveManager")
+    if save_manager and save_manager.has_method("set_value"):
+        save_manager.set_value("meta_currency", _meta_currency)
+
+
+func add_meta_currency(amount: int) -> void:
+    if amount > 0:
+        set_meta_currency(_meta_currency + amount)
+
+
+# --- ОКОНЧАНИЕ ЗАБЕГА И НАГРАДА ---
+
+func calculate_run_reward() -> int:
+    # Базовая формула: время + бонус за уничтоженные лагеря + бонус за убийства.
+    # Числа намеренно не сбалансированы — балансировка позже.
+    var time_reward: int = int(time_elapsed) * 2
+    var camp_reward: int = rival_camps_destroyed * 50
+    var kill_reward: int = enemies_killed * 1
+    return max(1, time_reward + camp_reward + kill_reward)
+
+func end_run(victory: bool) -> void:
+    if is_game_over and _run_reward_calculated:
+        return
+    is_game_over = true
+    Engine.time_scale = 1.0
+    _run_reward_calculated = true
+    var reward: int = calculate_run_reward()
+    add_meta_currency(reward)
+    run_ended.emit(victory, reward)
 
 func stop_game() -> void: is_game_over = true
 
 func reset_game() -> void:
     total_xp_collected = 0; rival_camps_destroyed = 0; units_spawned = 0; zones_captured = 0
+    enemies_killed = 0
     time_elapsed = 0.0; is_game_over = false; current_anomaly = ""; Engine.time_scale = 1.0
+    _run_reward_calculated = false
+    # selected_hero_id НЕ сбрасывается — герой сохраняется при рестарте забега
     _reset_metas()
+
+func start_new_game() -> void:
+    reset_game()
+    get_tree().change_scene_to_file("res://Assets/Scenes/Main.tscn")
+
+func return_to_menu() -> void:
+    stop_game()
+    get_tree().change_scene_to_file("res://Assets/Scenes/MainMenu.tscn")

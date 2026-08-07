@@ -47,7 +47,9 @@ func _setup_physics_auto() -> void:
 func _weapon_process(delta: float) -> void:
     if weapon_tag != "Aura" and weapon_tag != "Aura_Evolved":
         return
-    position = Vector2.ZERO
+    # Визуальный центр героя (AnimatedSprite2D в Player.tscn) смещён на (-8, -13)
+    # от origin Player (0,0). Аура центруется на этот визуал, а не на origin-ноду.
+    position = Vector2(-8, -13)
     _aura_damage_timer += delta
     if _aura_damage_timer >= 0.5:
         _aura_damage_timer = 0.0

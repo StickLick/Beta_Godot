@@ -1,0 +1,205 @@
+[gd_scene load_steps=2 format=3 uid="uid://heroscr0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/hero_select_screen.gd" id="1_hero"]
+
+[node name="HeroSelectScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hero")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.09, 0.95)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/CenterContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "ВЫБОР ГЕРОЯ"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+
+[node name="HeroCard_0" type="PanelContainer" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Header"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+vertical_alignment = 1
+
+[node name="Passive" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Passive"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Passive"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="LockHeader" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox"]
+layout_mode = 2
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/LockHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="HeroCard_1" type="PanelContainer" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Header"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+vertical_alignment = 1
+
+[node name="Passive" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Passive"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Passive"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="LockHeader" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox"]
+layout_mode = 2
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/LockHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="HeroCard_2" type="PanelContainer" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Header"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+vertical_alignment = 1
+
+[node name="Passive" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Passive"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Passive"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="LockHeader" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox"]
+layout_mode = 2
+
+[node name="LockLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/LockHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 48)
+text = "В БОЙ"
+
+[node name="BackButton" type="Button" parent="ScrollContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "Назад"
+
+[connection signal="pressed" from="ScrollContainer/CenterContainer/VBoxContainer/StartButton" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="ScrollContainer/CenterContainer/VBoxContainer/BackButton" to="." method="hide"]

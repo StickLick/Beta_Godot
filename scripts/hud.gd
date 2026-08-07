@@ -1,13 +1,31 @@
 extends CanvasLayer
 
+const HERO_DATA := preload("res://scripts/hero_data.gd")
+
+# Цвета заголовка экрана результатов (акцентная палитра проекта).
+const RESULT_VICTORY_COLOR := Color(1, 0.85, 0.4, 1)
+const RESULT_DEFEAT_COLOR := Color(0.85, 0.5, 0.5, 1)
+
 @onready var health_bar: ProgressBar = %HealthBar
 @onready var timer_label: Label = %TimerLabel
 @onready var xp_bar: ProgressBar = %XPBar
 @onready var level_label: Label = %LevelLabel
 
 @onready var results_panel: Control = %ResultsPanel
-@onready var stats_label: Label = %StatsLabel
+@onready var title_label: Label = %TitleLabel
+@onready var hero_label: Label = %HeroLabel
+@onready var hero_icon: TextureRect = %HeroIcon
+@onready var stats_vbox: VBoxContainer = %StatsVBox
+@onready var level_row: Label = %LevelRow
+@onready var zones_row: Label = %ZonesRow
+@onready var camps_row: Label = %CampsRow
+@onready var units_row: Label = %UnitsRow
+@onready var kills_row: Label = %KillsRow
+@onready var xp_row: Label = %XpRow
+@onready var time_row: Label = %TimeRow
+@onready var reward_row: Label = %RewardRow
 @onready var restart_button: Button = %RestartButton 
+@onready var menu_button: Button = %MenuButton
 
 @onready var specialty_panel: Control = %SpecialtyPanel
 @onready var industry_button: Button = %IndustryButton
@@ -15,6 +33,13 @@ extends CanvasLayer
 
 @onready var anomaly_label: Label = %AnomalyLabel
 @onready var anomaly_overlay: ColorRect = get_node_or_null("AnomalyOverlay")
+
+# --- ПАУЗА ---
+@onready var pause_button: Button = %PauseButton
+@onready var pause_panel: Control = %PausePanel
+@onready var continue_button: Button = %ContinueButton
+@onready var restart_run_button: Button = %RestartRunButton
+@onready var exit_menu_button: Button = %ExitMenuButton
 
 # --- ИНВЕНТАРЬ ---
 @onready var weapon_container: HBoxContainer = %WeaponSlots
@@ -42,6 +67,7 @@ func _ready() -> void:
     add_to_group("hud")
     if is_instance_valid(results_panel): results_panel.hide()
     if is_instance_valid(specialty_panel): specialty_panel.hide()
+    if is_instance_valid(pause_panel): pause_panel.hide()
     if is_instance_valid(anomaly_label): 
         anomaly_label.hide()
         anomaly_label.modulate.a = 0
@@ -56,7 +82,23 @@ func _ready() -> void:
     if is_instance_valid(restart_button):
         if not restart_button.pressed.is_connected(_on_restart_pressed):
             restart_button.pressed.connect(_on_restart_pressed)
+    if is_instance_valid(menu_button):
+        if not menu_button.pressed.is_connected(_on_menu_pressed):
+            menu_button.pressed.connect(_on_menu_pressed)
+    if is_instance_valid(continue_button):
+        if not continue_button.pressed.is_connected(_on_continue_pressed):
+            continue_button.pressed.connect(_on_continue_pressed)
+    if is_instance_valid(restart_run_button):
+        if not restart_run_button.pressed.is_connected(_on_restart_run_pressed):
+            restart_run_button.pressed.connect(_on_restart_run_pressed)
+    if is_instance_valid(exit_menu_button):
+        if not exit_menu_button.pressed.is_connected(_on_exit_to_menu_pressed):
+            exit_menu_button.pressed.connect(_on_exit_to_menu_pressed)
+    if is_instance_valid(pause_button):
+        if not pause_button.pressed.is_connected(_on_pause_pressed):
+            pause_button.pressed.connect(_on_pause_pressed)
 
+    GameManager.run_ended.connect(_on_run_ended)
     GameManager.anomaly_started.connect(_on_anomaly_started)
     GameManager.anomaly_warning.connect(_on_anomaly_warning)
     GameManager.anomaly_ended.connect(_on_anomaly_ended)
@@ -78,8 +120,8 @@ func _ready() -> void:
 func update_inventory_ui() -> void:
     var player = get_tree().get_first_node_in_group("player") as Player
     if not player: return
-    _fill_slots(weapon_container, player.active_weapons, player.unlocked_weapon_slots, 3, Vector2(20, 20))
-    _fill_slots(passive_container, player.active_passives, player.unlocked_passive_slots, 3, Vector2(20, 20))
+    _fill_slots(weapon_container, player.active_weapons, player.unlocked_weapon_slots, player.max_weapon_slots, Vector2(20, 20))
+    _fill_slots(passive_container, player.active_passives, player.unlocked_passive_slots, player.max_passive_slots, Vector2(20, 20))
 
 func _fill_slots(container: HBoxContainer, items: Array, max_slots: int, total_slots: int, slot_size: Vector2) -> void:
     if not is_instance_valid(container): return
@@ -140,6 +182,91 @@ func _update_overlay_shader(radius, _soft, color, duration):
         tw.tween_method(func(v): mat.set_shader_parameter("radius_px", v), 0, radius, duration)
         tw.tween_method(func(c): mat.set_shader_parameter("fog_color", c), Color(0,0,0,0), color, duration)
 
+func _unhandled_input(event: InputEvent) -> void:
+    if not event.is_action_pressed("ui_cancel"):
+        return
+    # Не перехватываем Esc, когда открыты другие паузы/меню.
+    if is_instance_valid(results_panel) and results_panel.visible:
+        return
+    if is_instance_valid(specialty_panel) and specialty_panel.visible:
+        return
+    if is_instance_valid(pause_panel) and pause_panel.visible:
+        _on_continue_pressed()
+    else:
+        _on_pause_pressed()
+    get_viewport().set_input_as_handled()
+
+
+## True, когда открыто меню выбора апгрейдов (UpgradeMenu._active_menu != null).
+func _is_upgrade_menu_active() -> bool:
+    var upgrade_menu := get_node_or_null("/root/Main/UpgradeMenu")
+    if upgrade_menu == null:
+        return false
+    return upgrade_menu.get("_active_menu") != null
+
+
+# --- ПАУЗА ---
+func _on_pause_pressed() -> void:
+    # Индимпотентность: пауза уже открыта — ничего не делаем.
+    if is_instance_valid(pause_panel) and pause_panel.visible:
+        return
+    # Поднимаем HUD поверх всех CanvasLayer (включая UpgradeMenu).
+    layer = 10
+    # PausePanel показывается даже поверх UpgradeMenu (paused уже true).
+    if is_instance_valid(pause_panel):
+        pause_panel.show()
+        pause_panel.move_to_front()
+    # Игра уже стоит на паузе, если открыто меню апгрейдов.
+    if not get_tree().paused:
+        get_tree().paused = true
+
+
+func _hide_pause() -> void:
+    if is_instance_valid(pause_panel):
+        pause_panel.hide()
+    layer = 0
+
+
+func _on_continue_pressed() -> void:
+    _hide_pause()
+    # Если UpgradeMenu ещё открыт — оставляем паузу.
+    if not _is_upgrade_menu_active():
+        get_tree().paused = false
+
+
+## Закрыть панель паузы и снять паузу. Если UpgradeMenu открыт — только скрыть панель.
+func close_pause() -> void:
+    _hide_pause()
+    if not _is_upgrade_menu_active():
+        get_tree().paused = false
+
+
+func _on_restart_run_pressed() -> void:
+    _cleanup_upgrade_menu_if_active()
+    _hide_pause()
+    get_tree().paused = false
+    GameManager.reset_game()
+    get_tree().reload_current_scene()
+
+
+func _on_exit_to_menu_pressed() -> void:
+    _cleanup_upgrade_menu_if_active()
+    _hide_pause()
+    get_tree().paused = false
+    GameManager.return_to_menu()
+
+
+## Удаляет меню апгрейдов, если оно открыто (не должно висеть в дереве при рестарте/выходе).
+func _cleanup_upgrade_menu_if_active() -> void:
+    var upg := get_node_or_null("/root/Main/UpgradeMenu")
+    if upg == null:
+        return
+    var menu = upg.get("_active_menu")
+    if menu != null and is_instance_valid(menu):
+        menu.queue_free()
+        upg.set("_active_menu", null)
+
+
 func _process(_delta: float) -> void:
     if "time_elapsed" in GameManager:
         timer_label.text = _format_time(GameManager.time_elapsed)
@@ -162,8 +289,6 @@ func _process(_delta: float) -> void:
     if _current_anomaly_visual != null and _current_anomaly_visual.get("follow") == "player":
         var player = get_tree().get_first_node_in_group("player")
         if is_instance_valid(player):
-            # Convert world position to screen pixel coordinates for the shader
-            # Canvas transform maps world -> screen. We need screen pixel coords.
             var cam = get_viewport().get_camera_2d()
             if is_instance_valid(cam):
                 var canvas_transform = cam.get_canvas_transform()
@@ -198,20 +323,78 @@ func _setup_player_connections(player: Player) -> void:
     var health_node: Node = player.find_child("HealthComponent", true, false)
     if health_node is HealthComponent:
         health_node.health_changed.connect(_on_player_health_changed)
-        # Инициализируем health_bar сразу, чтобы не было 0 HP
         _on_player_health_changed(health_node.current_health, health_node.max_health)
     player.xp_changed.connect(_on_player_xp_changed)
     player.level_up.connect(_on_player_level_up)
     level_label.text = "LVL: " + str(player.current_level)
 
-func show_results() -> void:
-    get_tree().paused = true
-    if is_instance_valid(results_panel) and is_instance_valid(stats_label):
-        results_panel.show(); results_panel.move_to_front()
-        var player = get_tree().get_first_node_in_group("player")
-        var final_lvl = player.current_level if player else 0
-        var stats_text = "--- МИССИЯ ВЫПОЛНЕНА ---\n\nУровень: %d\nЗахвачено зон: %d\nУничтожено баз: %d\nВсего опыта: %d\nВремя: %s" % [final_lvl, GameManager.zones_captured, GameManager.rival_camps_destroyed, GameManager.total_xp_collected, _format_time(GameManager.time_elapsed)]
-        stats_label.text = stats_text
-        if is_instance_valid(restart_button): restart_button.show()
+func _on_run_ended(victory: bool, reward: int) -> void:
+    show_results(victory, reward)
 
-func _on_restart_pressed(): GameManager.reset_game(); get_tree().reload_current_scene()
+func show_results(victory: bool = false, reward: int = 0) -> void:
+    get_tree().paused = true
+    if not is_instance_valid(results_panel):
+        return
+    results_panel.show(); results_panel.move_to_front()
+
+    var player = get_tree().get_first_node_in_group("player")
+    var final_lvl = player.current_level if player else 0
+
+    if is_instance_valid(title_label):
+        title_label.text = "ПОБЕДА!" if victory else "ПОРАЖЕНИЕ"
+        title_label.add_theme_color_override("font_color", RESULT_VICTORY_COLOR if victory else RESULT_DEFEAT_COLOR)
+    if is_instance_valid(hero_label):
+        hero_label.text = _get_hero_display_name()
+    if is_instance_valid(hero_icon):
+        hero_icon.texture = _get_hero_icon_texture()
+    if is_instance_valid(level_row):
+        level_row.text = "Уровень: %d" % final_lvl
+    if is_instance_valid(zones_row):
+        zones_row.text = "Захвачено зон: %d" % GameManager.zones_captured
+    if is_instance_valid(camps_row):
+        camps_row.text = "Уничтожено баз: %d" % GameManager.rival_camps_destroyed
+    if is_instance_valid(units_row):
+        units_row.text = "Создано юнитов: %d" % GameManager.units_spawned
+    if is_instance_valid(kills_row):
+        kills_row.text = "Убито врагов: %d" % GameManager.enemies_killed
+    if is_instance_valid(xp_row):
+        xp_row.text = "Всего опыта: %d" % GameManager.total_xp_collected
+    if is_instance_valid(time_row):
+        time_row.text = "Время: %s" % _format_time(GameManager.time_elapsed)
+    if is_instance_valid(reward_row):
+        reward_row.text = "Награда: %d" % reward
+
+    if is_instance_valid(restart_button): restart_button.show()
+    if is_instance_valid(menu_button): menu_button.show()
+
+
+## Имя героя из GameManager.selected_hero_id через HeroData (без новой проводки данных).
+func _get_hero_display_name() -> String:
+    var hero_id: String = GameManager.selected_hero_id if GameManager.get("selected_hero_id") != "" else ""
+    if hero_id == "":
+        hero_id = HERO_DATA.DEFAULT_HERO_ID
+    return str(HERO_DATA.get_hero(hero_id).get("display_name", hero_id))
+
+
+## Иконка героя (первый кадр Idle из visual SpriteFrames) — как в HeroSelectScreen.
+func _get_hero_icon_texture() -> Texture2D:
+    var hero_id: String = GameManager.selected_hero_id if GameManager.get("selected_hero_id") != "" else ""
+    if hero_id == "":
+        hero_id = HERO_DATA.DEFAULT_HERO_ID
+    var hero: Dictionary = HERO_DATA.get_hero(hero_id)
+    var visual: String = str(hero.get("visual", ""))
+    if visual == "":
+        return null
+    var frames: SpriteFrames = load(visual) as SpriteFrames
+    if frames and frames.get_frame_count("Idle") > 0:
+        return frames.get_frame_texture("Idle", 0)
+    return null
+
+func _on_restart_pressed() -> void:
+    get_tree().paused = false
+    GameManager.reset_game()
+    get_tree().reload_current_scene()
+
+func _on_menu_pressed() -> void:
+    get_tree().paused = false
+    GameManager.return_to_menu()

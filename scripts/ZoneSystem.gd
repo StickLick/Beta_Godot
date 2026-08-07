@@ -31,7 +31,7 @@ func _spawn_zone() -> void:
     get_tree().current_scene.add_child(zone)
     current_zones.append(zone)
 
-func _on_zone_evolved(pos: Vector2, _type: String, dom: float, zone_ref: Area2D) -> void:
+func _on_zone_evolved(pos: Vector2, _type: String, dom: float, zone_ref: Area2D):
     current_zones.erase(zone_ref)
     
     # Логируем захват зоны в статистику
@@ -40,11 +40,15 @@ func _on_zone_evolved(pos: Vector2, _type: String, dom: float, zone_ref: Area2D)
     var existing = get_tree().get_nodes_in_group("camps")
     for c in existing:
         if c.global_position.distance_to(pos) < 400:
-            if c.has_method("upgrade"): c.upgrade(dom * 50); return
+            if c.has_method("upgrade"):
+                c.upgrade(dom * 50)
+                return c
+            return null
             
-    if not camp_scene: return
+    if not camp_scene: return null
     var camp = camp_scene.instantiate()
     camp.global_position = pos
     var player = get_tree().get_first_node_in_group("player")
     camp.alignment = 1 if (player and player.global_position.distance_to(pos) < 300) else 2
     get_tree().current_scene.add_child(camp)
+    return camp

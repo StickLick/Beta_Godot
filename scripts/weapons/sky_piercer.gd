@@ -127,6 +127,8 @@ func _fire_one_shot(enemies: Array) -> void:
     _target_index += 1
     var enemy = enemies[idx]
     var impact_pos = _predict_impact(enemy)
+    if is_instance_valid(player):
+        player.play_attack_animation(enemy.global_position)
     _spawn_arrow(impact_pos)
     _drum_ammo -= 1
 

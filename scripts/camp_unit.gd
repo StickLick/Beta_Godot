@@ -105,8 +105,10 @@ func _on_animation_finished() -> void:
             animated_sprite.play("Run")
 
 func _find_target() -> void:
-    if is_instance_valid(target):
+    if is_instance_valid(target) and _is_valid_enemy_target(target):
         return
+    target = null
+    is_attacking = false
     var potential: Array = []
     if alignment == 1:
         potential.append_array(get_tree().get_nodes_in_group("enemy"))
@@ -133,6 +135,26 @@ func _find_target() -> void:
             if d < min_d:
                 min_d = d
                 target = t
+
+func _is_valid_enemy_target(t: Node2D) -> bool:
+    if not is_instance_valid(t):
+        return false
+    if alignment == 1:
+        if t is Enemy:
+            return true
+        if t is Unit:
+            return t.alignment == 2
+        if t is Camp:
+            return t.alignment == 2
+        return false
+    else:
+        if t is Player:
+            return true
+        if t is Unit:
+            return t.alignment == 1
+        if t is Camp:
+            return t.alignment == 1
+        return false
 
 func _get_nearby_enemy_breaker() -> Node2D:
     var enemies: Array = get_tree().get_nodes_in_group("enemy")
