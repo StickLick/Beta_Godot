@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://bminerwkr0001"]
+
+[ext_resource type="Texture2D" uid="uid://d0cjtcqok6qqy" path="res://Texture/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Pickaxe.png" id="1_df1mt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ydtqk"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jmgfa"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5cq7w"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_irmr2"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_62f6p"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(768, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ikslp"]
+atlas = ExtResource("1_df1mt")
+region = Rect2(960, 0, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ydtqk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jmgfa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5cq7w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_irmr2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_62f6p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ikslp")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="MinerWorker" type="Node2D" unique_id=1654581641]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1142782461]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=681953344]
+scale = Vector2(0.6041667, 0.6041667)
+sprite_frames = SubResource("SpriteFrames_gd7ey")
+autoplay = "default"

@@ -36,12 +36,12 @@ func _physics_process(delta: float) -> void:
             banner = banner_owner as WarBanner
     if not is_instance_valid(player):
         return
-    
+
     if Engine.get_physics_frames() % 60 == 0:
         print("[DEBUG] Pawn State: ", current_state)
-    
+
     _update_state()
-    
+
     match current_state:
         State.IDLE_FOLLOW:
             _idle_follow(delta)
@@ -53,9 +53,9 @@ func _update_state() -> void:
     if not is_instance_valid(banner):
         current_state = State.IDLE_FOLLOW
         return
-    
+
     var assigned_target: Node2D = banner.get_pawn_target(parent_unit)
-    
+
     if is_instance_valid(assigned_target) and _in_leash(assigned_target):
         current_state = State.COMBAT
     else:
@@ -78,7 +78,7 @@ func _idle_follow(delta: float) -> void:
     var offset: Vector2 = banner.get_formation_offset(parent_unit) if is_instance_valid(banner) else Vector2(80, 0)
     var target_pos: Vector2 = player.global_position + offset
     var dist: float = parent_unit.global_position.distance_to(target_pos)
-    
+
     if dist < 10.0:
         parent_unit.velocity = parent_unit.velocity.lerp(Vector2.ZERO, delta * 10.0)
         if not parent_unit.is_attacking and is_instance_valid(parent_unit.animated_sprite) and parent_unit.animated_sprite.animation != "Idle":
@@ -93,7 +93,7 @@ func _idle_follow(delta: float) -> void:
                 parent_unit.animated_sprite.play("Run")
             if dir.x != 0:
                 parent_unit.animated_sprite.flip_h = dir.x < 0
-    
+
     parent_unit.move_and_slide()
 
 
@@ -104,11 +104,11 @@ func _combat(delta: float) -> void:
     if not is_instance_valid(assigned_target):
         current_state = State.IDLE_FOLLOW
         return
-    
+
     if not _in_leash(assigned_target):
         current_state = State.IDLE_FOLLOW
         return
-    
+
     var enemy_dist: float = parent_unit.global_position.distance_to(assigned_target.global_position)
     var dir: Vector2 = (assigned_target.global_position - parent_unit.global_position).normalized()
     var separation: Vector2 = parent_unit._get_separation_velocity()

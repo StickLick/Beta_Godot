@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bv4q8hk6c8yzh"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "HPRegen_E"
+description = "+3 HP/сек регенерации"
+modifiers = Array[Dictionary]([{
+"amount": 3,
+"stat": "health_regen"
+}])
+rarity = 2
+passive_id = "HPRegen"
+weapon_tag = "HPRegen"

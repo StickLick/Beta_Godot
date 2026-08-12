@@ -57,7 +57,6 @@ func _on_decay_timer_timeout() -> void:
 
 func _collect() -> void:
     if is_instance_valid(target_player):
-        if target_player.has_method("collect_mass"): target_player.collect_mass(mass_amount)
         if target_player.has_method("collect_xp"): target_player.collect_xp(xp_amount)
     queue_free()
 

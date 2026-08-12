@@ -119,7 +119,9 @@ func _update_target() -> void:
     if GameManager.current_anomaly == "HUNT":
         target_node = _find_closest_target(["player"]); return
     if GameManager.current_anomaly == "SEIZE":
-        var seize_targets = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.has_meta("is_seize_target") and c.get_meta("is_seize_target") == true)
+        var seize_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.has_meta("is_seize_target") and c.get_meta("is_seize_target") == true)
+        var seize_mines = get_tree().get_nodes_in_group("mines").filter(func(m): return is_instance_valid(m) and m.has_meta("is_seize_target") and m.get_meta("is_seize_target") == true)
+        var seize_targets = seize_camps + seize_mines
         if not seize_targets.is_empty():
             var closest = seize_targets[0]; var min_d = global_position.distance_to(closest.global_position)
             for c in seize_targets:
@@ -127,10 +129,12 @@ func _update_target() -> void:
             target_node = closest; return
     if current_archetype == Archetype.BREAKER:
         var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
-        if not player_camps.is_empty():
-            var closest = player_camps[0]; var min_d = global_position.distance_to(closest.global_position)
-            for camp in player_camps:
-                var d = global_position.distance_to(camp.global_position); if d < min_d: min_d = d; closest = camp
+        var player_mines = get_tree().get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
+        var player_territories = player_camps + player_mines
+        if not player_territories.is_empty():
+            var closest = player_territories[0]; var min_d = global_position.distance_to(closest.global_position)
+            for t in player_territories:
+                var d = global_position.distance_to(t.global_position); if d < min_d: min_d = d; closest = t
             target_node = closest; return
     target_node = _find_closest_target(["player", "ally_units"])
 
@@ -139,6 +143,11 @@ func _find_closest_target(groups: Array) -> Node2D:
     for group_name in groups:
         for node in get_tree().get_nodes_in_group(group_name):
             if is_instance_valid(node) and node is Node2D:
+                # Исключение только для защитников зданий (FortArcher):
+                # враги не наводятся на них, а продолжают атаковать шахту/здание.
+                # Обычные юниты (banner-арчер и др.) флага не имеют — остаются целями.
+                if "is_fort_defender" in node and node.is_fort_defender:
+                    continue
                 candidates.append(node)
     if candidates.is_empty():
         return null
@@ -173,7 +182,7 @@ func _play_sequential_melee() -> void:
 func _toggle_hitbox() -> void:
     if is_instance_valid(hitbox):
         var original_dmg = hitbox.damage
-        if current_archetype == Archetype.BREAKER and target_node is Camp: hitbox.damage *= 12.0
+        if current_archetype == Archetype.BREAKER and (target_node is Camp or target_node is Mine): hitbox.damage *= 5.0
         var shape = hitbox.get_node_or_null("CollisionShape2D")
         if shape:
             shape.disabled = false

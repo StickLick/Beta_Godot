@@ -11,6 +11,74 @@ const MAX_PASSIVE_SLOTS: int = 3
 const WEAPON_SLOT_PRICES: Array[int] = [100, 250]
 const PASSIVE_SLOT_PRICES: Array[int] = [100, 250]
 
+## Постоянные улучшения героя (7 статов × 5 уровней).
+## Ключ = upgrade_id. Значения:
+##   display_name  — русское имя для UI
+##   description   — русское описание для UI
+##   stat          — стат Player, к которому применяется бонус
+##   per_level     — прирост за уровень
+##   prices        — цены за уровни [1->2, 2->3, 3->4, 4->5, 5->MAX]
+const HERO_UPGRADES: Dictionary = {
+	"hp": {
+		"display_name": "Максимальное здоровье",
+		"description": "Увеличивает максимальное здоровье героя.",
+		"stat": "max_health",
+		"per_level": 100.0,
+		"prices": [100, 200, 350, 550, 800],
+	},
+	"damage": {
+		"display_name": "Урон",
+		"description": "Увеличивает урон всех оружий.",
+		"stat": "damage_multiplier",
+		"per_level": 0.05,
+		"prices": [100, 200, 350, 550, 800],
+	},
+	"move_speed": {
+		"display_name": "Скорость передвижения",
+		"description": "Увеличивает скорость передвижения героя.",
+		"stat": "max_speed",
+		"per_level": 15.0,
+		"prices": [80, 160, 280, 450, 700],
+	},
+	"luck": {
+		"display_name": "Удача",
+		"description": "Увеличивает шанс выпадения редких улучшений.",
+		"stat": "luck",
+		"per_level": 0.1,
+		"prices": [120, 240, 400, 650, 950],
+	},
+	"attack_speed": {
+		"display_name": "Скорость атаки",
+		"description": "Увеличивает скорость атаки всех оружий.",
+		"stat": "attack_speed",
+		"per_level": 0.1,
+		"prices": [150, 300, 500, 800, 1200],
+	},
+	"attack_range": {
+		"display_name": "Радиус атаки",
+		"description": "Увеличивает радиус действия всех оружий.",
+		"stat": "radius_weapons",
+		"per_level": 0.1,
+		"prices": [120, 240, 400, 650, 950],
+	},
+	"hp_regen": {
+		"display_name": "Регенерация здоровья",
+		"description": "Восстанавливает % от максимального здоровья в секунду.",
+		"stat": "health_regen",
+		"per_level": 0.005,
+		"prices": [150, 300, 500, 800, 1200],
+	},
+}
+
+## Максимальный уровень каждого постоянного улучшения героя.
+const MAX_HERO_UPGRADE_LEVEL: int = 5
+
+## Цены разблокировки уровней шахты: [1->2, 2->3, 3->4, 4->5].
+const MINE_LEVEL_PRICES: Array[int] = [150, 300, 500, 800]
+
+## Максимальный уровень шахты (Mine + Outpost — единая система).
+const MAX_MINE_LEVEL: int = 5
+
 
 func _ready() -> void:
 	pass
@@ -184,6 +252,36 @@ func unlock_hero(hero_id: String) -> bool:
 	return _add_to_list("unlocked_heroes", hero_id)
 
 
+# --- ЭВОЛЮЦИИ (коллекция; не покупаются, не выпадают из гачи) ---
+
+## Получена ли эволюция игроком (по имени Upgrade).
+func is_evolution_unlocked(evolution_name: String) -> bool:
+	return _is_in_list("unlocked_evolutions", evolution_name)
+
+
+## Все полученные эволюции (по имени Upgrade).
+func get_unlocked_evolutions() -> Array:
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return []
+	return sm.get_value("unlocked_evolutions", [])
+
+
+## Записать эволюцию как полученную (идемпотентно).
+func unlock_evolution(evolution_name: String) -> bool:
+	if evolution_name.is_empty():
+		return false
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return false
+	var list: Array = sm.get_value("unlocked_evolutions", [])
+	if list.has(evolution_name):
+		return false
+	list.append(evolution_name)
+	sm.set_value("unlocked_evolutions", list)
+	return true
+
+
 func _is_in_list(save_key: String, item_id: String) -> bool:
 	var sm := get_node_or_null("/root/SaveManager")
 	if not sm:
@@ -203,4 +301,110 @@ func _add_to_list(save_key: String, item_id: String) -> bool:
 		return false
 	list.append(item_id)
 	sm.set_value(save_key, list)
+	return true
+
+
+# --- ПОСТОЯННЫЕ УЛУЧШЕНИЯ ГЕРОЯ (7 статов × 5 уровней) ---
+
+## Текущий уровень улучшения героя (0-5).
+func get_hero_upgrade_level(upgrade_id: String) -> int:
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return 0
+	var levels: Dictionary = sm.get_value("hero_upgrade_levels", {})
+	return int(levels.get(upgrade_id, 0))
+
+
+## Конфиг улучшения по id (пустой словарь, если нет).
+func get_hero_upgrade_config(upgrade_id: String) -> Dictionary:
+	var entry: Variant = HERO_UPGRADES.get(upgrade_id)
+	if typeof(entry) != TYPE_DICTIONARY:
+		return {}
+	return (entry as Dictionary).duplicate()
+
+
+## Все купленные уровни: {upgrade_id: level}.
+func get_all_hero_upgrade_levels() -> Dictionary:
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return {}
+	var levels: Dictionary = sm.get_value("hero_upgrade_levels", {})
+	return levels.duplicate()
+
+
+## Текущий уровень улучшения (1-5). Возвращает 0, если не куплено.
+func get_hero_upgrade_level_value(upgrade_id: String) -> int:
+	return get_hero_upgrade_level(upgrade_id)
+
+
+## Цена следующего уровня улучшения; -1 = уже максимум.
+func get_hero_upgrade_price(upgrade_id: String) -> int:
+	var cfg := get_hero_upgrade_config(upgrade_id)
+	if cfg.is_empty():
+		return -1
+	var level: int = get_hero_upgrade_level(upgrade_id)
+	return get_hero_upgrade_level_price(upgrade_id, level)
+
+
+## Цена конкретного уровня (0-based index в prices); -1 = максимум.
+func get_hero_upgrade_level_price(upgrade_id: String, level: int) -> int:
+	var cfg := get_hero_upgrade_config(upgrade_id)
+	if cfg.is_empty():
+		return -1
+	if level >= MAX_HERO_UPGRADE_LEVEL or level < 0:
+		return -1
+	var prices: Array = cfg.get("prices", [])
+	if level >= prices.size():
+		return -1
+	return int(prices[level])
+
+
+## Купить следующий уровень улучшения. Возвращает true при успехе.
+func buy_hero_upgrade(upgrade_id: String) -> bool:
+	if not HERO_UPGRADES.has(upgrade_id):
+		return false
+	var price: int = get_hero_upgrade_price(upgrade_id)
+	if price < 0:
+		return false
+	if not spend_currency(price):
+		return false
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return false
+	var levels: Dictionary = sm.get_value("hero_upgrade_levels", {})
+	levels[upgrade_id] = int(levels.get(upgrade_id, 0)) + 1
+	sm.set_value("hero_upgrade_levels", levels)
+	return true
+
+
+# --- ШАХТА (Mine + Outpost — единая система) ---
+
+## Текущий разблокированный уровень шахты (1-5).
+func get_mine_level() -> int:
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return 1
+	return int(sm.get_value("mine_unlocked_level", 1))
+
+
+## Цена разблокировки следующего уровня шахты; -1 = уже максимум.
+func get_mine_level_upgrade_price() -> int:
+	var current: int = get_mine_level()
+	if current >= MAX_MINE_LEVEL or current - 1 >= MINE_LEVEL_PRICES.size():
+		return -1
+	return MINE_LEVEL_PRICES[current - 1]
+
+
+## Купить следующий уровень шахты. Возвращает true при успехе.
+func buy_mine_level() -> bool:
+	var price: int = get_mine_level_upgrade_price()
+	if price < 0:
+		return false
+	if not spend_currency(price):
+		return false
+	var sm := get_node_or_null("/root/SaveManager")
+	if not sm:
+		return false
+	var current: int = get_mine_level()
+	sm.set_value("mine_unlocked_level", min(current + 1, MAX_MINE_LEVEL))
 	return true

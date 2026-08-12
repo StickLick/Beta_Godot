@@ -23,7 +23,7 @@ signal inventory_updated
 @export var health_regen: float = 0.0
 @export var projectile_amount: int = 1
 
-@export var max_health: float = 1000.0:
+@export var max_health: float = 100.0:
     set(value):
         max_health = value
         if is_node_ready() and is_instance_valid(health_component):
@@ -31,7 +31,8 @@ signal inventory_updated
 
 @export var radius_weapons: float = 1.0
 @export var xp_radius: float = 1.0
-@export var xp_gain: float = 20.0
+@export var xp_gain: float = 5.0
+@export var gold_gain: float = 1.0
 @export var debug_give_aura_evolution: bool = false
 
 # --- ИНВЕНТАРЬ И ТЕГИ ---
@@ -59,6 +60,11 @@ var current_level: int = 1
 var current_xp: int = 0
 var xp_to_next_level: int = 100
 var current_camp: Node2D = null
+var current_mine: Node2D = null
+
+# --- ЗОЛОТО (run-ресурс) ---
+var gold: int = 0
+var starting_gold_bonus: int = 0
 
 # War Banner inspired state (set externally by WarBanner weapon)
 var banner_inspired: bool = false
@@ -82,6 +88,9 @@ func _ready() -> void:
     
     # Инициализация стартового оружия и статов от выбранного героя
     _init_hero_starting()
+    
+    # Применение купленных постоянных улучшений героя (мета-прогрессия)
+    _apply_meta_hero_upgrades()
     
     if debug_give_aura_evolution:
         call_deferred("_debug_add_aura_evolution")
@@ -186,6 +195,10 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
     
     # 3. Эволюция — заменяет оружие и создаёт новую ветку прогрессии
     if upgrade.change_mechanic_on_apply and upgrade.evolved_weapon_scene != null:
+        # Запись эволюции в коллекцию (персистентно; idempotent).
+        var meta := get_node_or_null("/root/MetaProgress")
+        if meta and meta.has_method("unlock_evolution"):
+            meta.unlock_evolution(upgrade.name)
         var evo_tag = upgrade.evolved_weapon_tag
         if evo_tag != "":
             # 3a. Удаляем старую запись из active_weapons (тег, который был до эволюции)
@@ -208,7 +221,10 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
             if mod_stat == "":
                 continue
             print("[WEAPON INIT MOD] tag=", tag, " stat=", mod_stat, " amount=", mod_amount, " name=", upgrade.name, " (multi)")
-            if mod_stat in self:
+            if mod_stat == "attack_speed":
+                _attack_speed_bonus = max(_attack_speed_bonus, 1.0) + mod_amount
+                _apply_attack_speed_bonus()
+            elif mod_stat in self:
                 set(mod_stat, get(mod_stat) + mod_amount)
                 for child in get_children():
                     if child is BaseWeapon and child.has_method("on_modifier_applied"):
@@ -431,6 +447,56 @@ func _load_meta_slots() -> void:
         max_weapon_slots = max(max_weapon_slots, meta_progress.MAX_WEAPON_SLOTS)
         max_passive_slots = max(max_passive_slots, meta_progress.MAX_PASSIVE_SLOTS)
 
+
+# --- ПОСТОЯННЫЕ УЛУЧШЕНИЯ ГЕРОЯ (из MetaProgress; применяются в начале забега) ---
+
+## Применяет купленные в магазине постоянные улучшения героя.
+## Использует существующие механики статов Player (без переписывания систем).
+func _apply_meta_hero_upgrades() -> void:
+    var meta_progress := get_node_or_null("/root/MetaProgress")
+    if meta_progress == null or not meta_progress.has_method("get_all_hero_upgrade_levels"):
+        return
+    var levels: Dictionary = meta_progress.get_all_hero_upgrade_levels()
+    if levels.is_empty():
+        return
+    for upgrade_id: String in levels:
+        var level: int = int(levels[upgrade_id])
+        if level <= 0:
+            continue
+        var cfg: Dictionary = meta_progress.get_hero_upgrade_config(upgrade_id)
+        if cfg.is_empty():
+            continue
+        var stat: String = String(cfg.get("stat", ""))
+        var per_level: float = float(cfg.get("per_level", 0.0))
+        var bonus: float = per_level * float(level)
+        match stat:
+            "max_health":
+                # max_health сама пробрасывает значение в health_component через setter.
+                max_health += bonus
+            "health_regen":
+                # Регенерация в % от максимального здоровья в секунду.
+                # Хранится как абсолютная величина для совместимости с _physics_process (health_regen * delta).
+                health_regen += bonus * max_health
+            "damage_multiplier":
+                damage_multiplier += bonus
+            "max_speed":
+                max_speed += bonus
+            "luck":
+                luck += bonus
+            "radius_weapons":
+                radius_weapons += bonus
+            "attack_speed":
+                # Множитель скорости атаки: применяется поверх текущих cooldown'ов
+                # (не трогает кэш, чтобы не затирать пассивку героя).
+                var mult: float = 1.0 + bonus
+                for child in get_children():
+                    if child is BaseWeapon and child.get("attack_cooldown") != null:
+                        child.attack_cooldown = child.attack_cooldown / mult
+        # Обновление оружий при изменении глобальных статов (радиус/урон).
+        for child in get_children():
+            if child is BaseWeapon and child.has_method("on_modifier_applied"):
+                child.on_modifier_applied()
+
 func _debug_add_aura_evolution() -> void:
     # Прямой спавн EvolvedAuraWave без нормальной Aura
     var evo_scene = load("res://Assets/Scenes/EvolvedAuraWave.tscn") as PackedScene
@@ -466,6 +532,8 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
     var offset = active_weapons.size() * 20
     new_weapon.position = Vector2(offset, -offset)
     add_child(new_weapon)
+    # Кэшируем базовый cooldown оружия, чтобы attack_speed применялся и к новым оружиям
+    _weapon_base_cooldowns[new_weapon] = new_weapon.attack_cooldown
     # Перемещаем BaseWeapon в начало списка детей Player,
     # чтобы визуал (Aura, Spear) был ПОД AnimatedSprite2D персонажа
     move_child(new_weapon, 0)
@@ -488,6 +556,8 @@ func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_ta
     if evolved_tag != "":
         new_weapon.weapon_tag = evolved_tag
     add_child(new_weapon)
+    # Кэшируем базовый cooldown evolved-оружия, чтобы attack_speed применялся и к нему
+    _weapon_base_cooldowns[new_weapon] = new_weapon.attack_cooldown
     # Evolved weapons start fresh — no inheritance of old weapon upgrades
     # Only global passives (radius_weapons, damage_multiplier) apply via _setup_physics_auto
     if new_weapon.has_method("on_modifier_applied"):
@@ -527,12 +597,17 @@ func _process_zone_influences(delta: float) -> void:
     stability = clamp(stability, 0.0, base_stability * 2.0)
 
 func _process_territory_interaction(delta: float) -> void:
+    # Взаимодействие с лагерем (старая система)
     if is_instance_valid(current_camp) and current_camp.get("alignment") == 1:
         var inv = 50.0 * delta
         if spend_mass(inv):
             if current_camp.has_method("upgrade"):
                 current_camp.upgrade(inv)
-                
+
+    # Взаимодействие с шахтой убрано: улучшение шахт происходит только
+    # через сигнал upgrade_ready + HUD-выбор (будущий шаг).
+    # Автоматическая трата золота на апгрейд при нахождении рядом — удалена.
+
     for zone in active_zones:
         if is_instance_valid(zone) and zone.has_method("inject_mass"):
             if zone.get("current_state") == 2:
@@ -564,8 +639,7 @@ func _process_feast_debuffs() -> void:
 # --- ДВИЖЕНИЕ И АНИМАЦИЯ ---
 
 func _move_player(delta: float, input: Vector2, debuff: float) -> void:
-    var mass_penalty = base_mass / mass
-    var current_speed = max_speed * (1.0 + camp_buffs.speed) * applied_zone_speed_modifier * debuff * mass_penalty
+    var current_speed = max_speed * (1.0 + camp_buffs.speed) * applied_zone_speed_modifier * debuff
     var accel_final = acceleration; var fric_final = friction
     if GameManager.get_meta("inertia_active", false): accel_final = 180.0; fric_final = 60.0
     if input != Vector2.ZERO: velocity = velocity.move_toward(input * current_speed, accel_final * delta)
@@ -579,11 +653,20 @@ func _apply_gravity_logic(delta: float) -> void:
     for well in wells:
         if not is_instance_valid(well): continue
         var vec = well.global_position - global_position
-        var dist = vec.length()
-        var pull_rad = well.get("pull_radius") if "pull_radius" in well else 500.0
-        if dist < pull_rad:
-            var dir = vec.normalized(); var f_pct = clamp(1.1 - (dist / pull_rad), 0.2, 1.0)
-            velocity += dir * (400.0 * f_pct * delta)
+        var d = vec.length()
+        var active_radius = well.pull_radius
+        if well.current_state == 1: active_radius = well.influence_radius
+        if d < active_radius:
+            var dir = vec.normalized()
+            var f = clamp(1.1 - (d / active_radius), 0.2, 1.0)
+            if well.current_state == 2:
+                velocity -= dir * (well.push_strength * f * delta)
+            else:
+                var power = well.pull_strength
+                if well.current_state == 1:
+                    power *= 4.5
+                    if d > well.pull_radius: power *= 0.8
+                velocity += dir * (power * f * delta)
 
 func _update_animations(input_vector: Vector2) -> void:
     if not is_instance_valid(animated_sprite):
@@ -647,11 +730,42 @@ func collect_xp(amount: int) -> void:
 
 func spend_mass(amount: float) -> bool:
     if mass > (base_mass + 1.0):
-        mass -= amount; _update_visual_scale(); return true
+        mass -= amount; return true
     return false
 
 func collect_mass(amount: float) -> void:
-    mass = clamp(mass + amount, base_mass, MAX_MASS); _update_visual_scale()
+    mass = clamp(mass + amount, base_mass, MAX_MASS)
+
+func collect_mine_resources(amount: float) -> void:
+    ## Получение ресурсов от шахты при авто-сборе.
+    ## Конвертирует ресурсы в XP и золото.
+    if amount <= 0.0:
+        return
+    var xp_gain := int(amount * 0.5)
+    var gold_gain := int(amount)
+    if xp_gain > 0:
+        collect_xp(xp_gain)
+    if gold_gain > 0:
+        collect_gold(gold_gain)
+    if GameManager.has_method("log_event"):
+        GameManager.log_event("resources_collected", int(amount))
+
+func collect_gold(amount: int) -> void:
+    ## Получение run-золота. Не влияет на размер/скорость игрока.
+    if amount <= 0:
+        return
+    gold += amount
+    if GameManager.has_method("log_event"):
+        GameManager.log_event("gold_collected", amount)
+
+func spend_gold(amount: int) -> bool:
+    ## Трата run-золота. Возвращает true при успехе.
+    if amount <= 0:
+        return true
+    if gold < amount:
+        return false
+    gold -= amount
+    return true
 
 func _update_visual_scale() -> void:
     scale = scale.lerp(Vector2.ONE * (1.0 + ((mass / base_mass) - 1.0) * 0.7), 0.15)

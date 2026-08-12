@@ -24,12 +24,19 @@ const RESULT_DEFEAT_COLOR := Color(0.85, 0.5, 0.5, 1)
 @onready var xp_row: Label = %XpRow
 @onready var time_row: Label = %TimeRow
 @onready var reward_row: Label = %RewardRow
+@onready var carried_gold_row: Label = %CarriedGoldRow
+@onready var mine_gold_row: Label = %MineGoldRow
+@onready var kill_gold_row: Label = %KillGoldRow
+@onready var gold_gain_row: Label = %GoldGainRow
+@onready var victory_bonus_row: Label = %VictoryBonusRow
+@onready var total_reward_row: Label = %TotalRewardRow
 @onready var restart_button: Button = %RestartButton 
 @onready var menu_button: Button = %MenuButton
 
 @onready var specialty_panel: Control = %SpecialtyPanel
 @onready var industry_button: Button = %IndustryButton
 @onready var military_button: Button = %MilitaryButton
+@onready var decline_button: Button = %DeclineButton
 
 @onready var anomaly_label: Label = %AnomalyLabel
 @onready var anomaly_overlay: ColorRect = get_node_or_null("AnomalyOverlay")
@@ -46,9 +53,31 @@ const RESULT_DEFEAT_COLOR := Color(0.85, 0.5, 0.5, 1)
 @onready var passive_container: HBoxContainer = %PassiveSlots
 
 # unused - kept for forward compat
-var _pending_camp: Node2D = null
+var _pending_target: Node2D = null
 var _active_anomaly_key: String = ""
 var _current_anomaly_visual = null
+
+# --- MINE UPGRADE (переиспользование specialty_panel) ---
+const MINE_ECO_BUTTON_TEXT: String = "ШАХТА"
+const MINE_MIL_BUTTON_TEXT: String = "ФОРТ"
+const CAMP_ECO_BUTTON_TEXT: String = "ИНДУСТРИЯ"
+const CAMP_MIL_BUTTON_TEXT: String = "ВОЕННЫЙ"
+const MINE_ECO_MAX_TEXT: String = "Max"
+const MINE_MIL_MAX_TEXT: String = "Max"
+
+# --- DEBUG: счётчик золота (временный, runtime-созданный) ---
+var _gold_debug_label: Label = null
+
+func _setup_gold_debug_label() -> void:
+    ## Временный debug-дисплей золота игрока. Создаётся в рантайме, не в .tscn.
+    _gold_debug_label = Label.new()
+    _gold_debug_label.name = "GoldDebugLabel"
+    _gold_debug_label.position = Vector2(200, 12)
+    _gold_debug_label.add_theme_font_size_override("font_size", 20)
+    _gold_debug_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+    _gold_debug_label.text = "GOLD: 0"
+    add_child(_gold_debug_label)
+
 
 # Maps anomaly display name -> visual config
 const ANOMALY_VISUALS = {
@@ -65,6 +94,7 @@ const ANOMALY_VISUALS = {
 
 func _ready() -> void:
     add_to_group("hud")
+    _setup_gold_debug_label()
     if is_instance_valid(results_panel): results_panel.hide()
     if is_instance_valid(specialty_panel): specialty_panel.hide()
     if is_instance_valid(pause_panel): pause_panel.hide()
@@ -79,6 +109,9 @@ func _ready() -> void:
     if is_instance_valid(military_button):
         if not military_button.pressed.is_connected(_on_specialty_selected):
             military_button.pressed.connect(_on_specialty_selected.bind(2))
+    if is_instance_valid(decline_button):
+        if not decline_button.pressed.is_connected(_on_decline_pressed):
+            decline_button.pressed.connect(_on_decline_pressed)
     if is_instance_valid(restart_button):
         if not restart_button.pressed.is_connected(_on_restart_pressed):
             restart_button.pressed.connect(_on_restart_pressed)
@@ -108,8 +141,12 @@ func _ready() -> void:
         _setup_player_connections(player)
         player.inventory_updated.connect(update_inventory_ui)
     
-    get_tree().node_added.connect(func(n): if n is Camp: _connect_camp(n))
+    get_tree().node_added.connect(func(n):
+        if n is Camp: _connect_camp(n)
+        if n is Mine: _connect_mine(n)
+    )
     for camp in get_tree().get_nodes_in_group("camps"): _connect_camp(camp)
+    for mine in get_tree().get_nodes_in_group("mines"): _connect_mine(mine)
     
     if is_instance_valid(anomaly_overlay):
         anomaly_overlay.show()
@@ -270,6 +307,11 @@ func _cleanup_upgrade_menu_if_active() -> void:
 func _process(_delta: float) -> void:
     if "time_elapsed" in GameManager:
         timer_label.text = _format_time(GameManager.time_elapsed)
+
+    # DEBUG: обновление счётчика золота игрока
+    if is_instance_valid(_gold_debug_label):
+        var player = get_tree().get_first_node_in_group("player")
+        _gold_debug_label.text = "GOLD: %d" % (player.gold if is_instance_valid(player) else 0)
     
     if not is_instance_valid(anomaly_overlay):
         return
@@ -295,19 +337,86 @@ func _process(_delta: float) -> void:
                 var player_screen_pixel = canvas_transform * player.global_position
                 mat.set_shader_parameter("center_px", player_screen_pixel)
 
-# --- ЛОГИКА ЛАГЕРЕЙ ---
+# --- ЛОГИКА ЛАГЕРЕЙ И ШАХТ (общая панель specialty) ---
 func _on_specialty_selected(type_index: int) -> void:
-    if is_instance_valid(_pending_camp): _pending_camp.apply_specialty(type_index)
+    if is_instance_valid(_pending_target):
+        if _pending_target is Camp:
+            _pending_target.apply_specialty(type_index)
+        elif _pending_target is Mine:
+            # Защита: не выбираем апгрейд, если строительство уже идёт (state == BUILDING).
+            if _pending_target.get("state") == _pending_target.MineState.BUILDING:
+                _close_specialty_panel()
+                return
+            match type_index:
+                1: _pending_target.start_construction("economic")
+                2: _pending_target.start_construction("military")
+    _close_specialty_panel()
+
+func _on_decline_pressed() -> void:
+    # Кнопка «Забрать»: только для шахт собирает ресурсы и сбрасывает state в PRODUCING.
+    if _pending_target is Mine:
+        var player := get_tree().get_first_node_in_group("player")
+        _pending_target.collect_resources(player)
+    _close_specialty_panel()
+
+func _close_specialty_panel() -> void:
     if is_instance_valid(specialty_panel): specialty_panel.hide()
-    _pending_camp = null; get_tree().paused = false
+    _pending_target = null; get_tree().paused = false
 
 func _on_camp_specialty_requested(camp: Node2D) -> void:
-    _pending_camp = camp; get_tree().paused = true
+    if camp is Camp:
+        # Восстанавливаем тексты/состояние кнопок для лагеря (общие с шахтой).
+        if is_instance_valid(industry_button): industry_button.text = CAMP_ECO_BUTTON_TEXT
+        if is_instance_valid(military_button): military_button.text = CAMP_MIL_BUTTON_TEXT
+        if is_instance_valid(industry_button): industry_button.disabled = false
+        if is_instance_valid(military_button): military_button.disabled = false
+        if is_instance_valid(decline_button): decline_button.visible = false  # decline не для лагерей
+    _pending_target = camp; get_tree().paused = true
     if is_instance_valid(specialty_panel): specialty_panel.show(); specialty_panel.move_to_front()
 
 func _connect_camp(camp: Node2D) -> void:
     if camp.has_signal("specialty_requested"):
         camp.specialty_requested.connect(_on_camp_specialty_requested)
+
+# --- ЛОГИКА ШАХТ (улучшение через ту же панель) ---
+func _on_mine_upgrade_ready(mine: Mine) -> void:
+    # Защитный гейт: только player-шахта может открывать меню улучшения.
+    # (mine.gd уже проверяет alignment при эмите, это второй слой безопасности.)
+    if mine.get("alignment") != 1:
+        return
+    # Защитный гейт: панель открывается только для шахт в состоянии READY.
+    # BUILDING (стройка идёт) и PRODUCING (хранилище не заполнено) не открывают панель.
+    if mine.get("state") != mine.MineState.READY:
+        return
+    # Панель уже открыта — игнорируем (не ставим в очередь).
+    if is_instance_valid(specialty_panel) and specialty_panel.visible:
+        return
+    # Игрок должен физически находиться у этой шахты.
+    var player := get_tree().get_first_node_in_group("player")
+    if not is_instance_valid(player) or player.get("current_mine") != mine:
+        return
+    # Тексты/состояние кнопок для шахты (Max + disabled при достижении предела ветки).
+    if is_instance_valid(industry_button):
+        if mine.get("economic_level") >= mine.MAX_ECONOMIC_LEVEL:
+            industry_button.text = MINE_ECO_MAX_TEXT
+            industry_button.disabled = true
+        else:
+            industry_button.text = MINE_ECO_BUTTON_TEXT
+            industry_button.disabled = false
+    if is_instance_valid(military_button):
+        if mine.get("military_level") >= mine.MAX_MILITARY_LEVEL:
+            military_button.text = MINE_MIL_MAX_TEXT
+            military_button.disabled = true
+        else:
+            military_button.text = MINE_MIL_BUTTON_TEXT
+            military_button.disabled = false
+    if is_instance_valid(decline_button): decline_button.visible = true  # decline только для шахт
+    _pending_target = mine; get_tree().paused = true
+    if is_instance_valid(specialty_panel): specialty_panel.show(); specialty_panel.move_to_front()
+
+func _connect_mine(mine: Mine) -> void:
+    if mine.has_signal("upgrade_ready"):
+        mine.upgrade_ready.connect(_on_mine_upgrade_ready)
 
 # --- ЛОГИКА ИГРОКА ---
 func _on_player_health_changed(c, m): health_bar.max_value = m; health_bar.value = c
@@ -328,16 +437,16 @@ func _setup_player_connections(player: Player) -> void:
     player.level_up.connect(_on_player_level_up)
     level_label.text = "LVL: " + str(player.current_level)
 
-func _on_run_ended(victory: bool, reward: int) -> void:
-    show_results(victory, reward)
+func _on_run_ended(victory: bool, reward: int, breakdown: Dictionary) -> void:
+    show_results(victory, reward, breakdown)
 
-func show_results(victory: bool = false, reward: int = 0) -> void:
+func show_results(victory: bool = false, reward: int = 0, breakdown: Dictionary = {}) -> void:
     get_tree().paused = true
     if not is_instance_valid(results_panel):
         return
     results_panel.show(); results_panel.move_to_front()
 
-    var player = get_tree().get_first_node_in_group("player")
+    var player = get_tree().get_first_node_in_group("player") as Player
     var final_lvl = player.current_level if player else 0
 
     if is_instance_valid(title_label):
@@ -361,8 +470,40 @@ func show_results(victory: bool = false, reward: int = 0) -> void:
         xp_row.text = "Всего опыта: %d" % GameManager.total_xp_collected
     if is_instance_valid(time_row):
         time_row.text = "Время: %s" % _format_time(GameManager.time_elapsed)
+    # --- Разбивка металла за забег (данные посчитаны в GameManager.calculate_run_reward) ---
+    var carried_gold: int = int(breakdown.get("carried_gold", 0))
+    var mine_remaining_gold: int = int(breakdown.get("mine_remaining_gold", 0))
+    var enemy_kill_gold: int = int(breakdown.get("enemy_kill_gold", 0))
+    var gold_gain_bonus: int = int(breakdown.get("gold_gain_bonus", 0))
+    var victory_bonus_amount: int = int(breakdown.get("victory_bonus", 0))
+    var total_reward: int = int(breakdown.get("total", reward))
+
+    if is_instance_valid(carried_gold_row):
+        carried_gold_row.text = "Собрано во время забега: %d" % carried_gold
+        carried_gold_row.visible = true
+    if is_instance_valid(mine_gold_row):
+        mine_gold_row.text = "Остаток из шахт: %d" % mine_remaining_gold
+        mine_gold_row.visible = victory
+    if is_instance_valid(kill_gold_row):
+        kill_gold_row.text = "Убийства врагов: %d" % enemy_kill_gold
+        kill_gold_row.visible = true
+    if is_instance_valid(gold_gain_row):
+        var gold_gain_mult: float = 1.0
+        if player:
+            gold_gain_mult = player.gold_gain
+        var percent: int = int(round((gold_gain_mult - 1.0) * 100.0))
+        gold_gain_row.text = "Пассивка \"Золото\" (+%d%%): +%d" % [percent, gold_gain_bonus]
+        gold_gain_row.visible = gold_gain_bonus > 0
+    if is_instance_valid(victory_bonus_row):
+        victory_bonus_row.text = "Победа: %d" % victory_bonus_amount
+        victory_bonus_row.visible = victory
+    if is_instance_valid(total_reward_row):
+        total_reward_row.text = "Всего получено: %d" % total_reward
+        total_reward_row.visible = true
+
     if is_instance_valid(reward_row):
-        reward_row.text = "Награда: %d" % reward
+        reward_row.text = "Награда: %d" % total_reward
+        reward_row.visible = false
 
     if is_instance_valid(restart_button): restart_button.show()
     if is_instance_valid(menu_button): menu_button.show()

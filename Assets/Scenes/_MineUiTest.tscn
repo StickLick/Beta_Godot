@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://b3x4j3j4xvt0c"]
+
+[ext_resource type="PackedScene" uid="uid://1upcnkqkjnwa" path="res://Assets/Scenes/Mine.tscn" id="1_ry27c"]
+
+[node name="MineUiTest" type="Node2D" unique_id=2048217107]
+
+[node name="PlayerMine" parent="." unique_id=456833703 instance=ExtResource("1_ry27c")]
+alignment = 1
+
+[node name="RivalMine" parent="." unique_id=1410352642 instance=ExtResource("1_ry27c")]
+alignment = 2
+
+[node name="NeutralMine" parent="." unique_id=164830561 instance=ExtResource("1_ry27c")]

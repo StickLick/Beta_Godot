@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://1o4d64xqrage"]
+
+[ext_resource type="PackedScene" uid="uid://rchpawn01" path="res://Assets/Scenes/ArcherPawn.tscn" id="1_archer"]
+[ext_resource type="Script" path="res://scripts/fort_archer.gd" id="2_fort"]
+
+[node name="FortArcher" instance=ExtResource("1_archer")]
+script = ExtResource("2_fort")
+control_mode = 1

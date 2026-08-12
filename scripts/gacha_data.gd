@@ -99,18 +99,128 @@ const FAIL_SYMBOL: String = "✕"
 
 ## Контент, разблокируемый фрагментами.
 ## Ключ = content_id (строка). Категория = куда попадает разблокировка.
-## v1: только heroes. В будущем: weapon / passive / rts_upgrade.
+## Требования фрагментов: герои = 100, оружия = 80, пассивки = 50.
 const CONTENT: Dictionary = {
+	# --- ГЕРОИ (100 фрагментов) ---
 	"hero_archer": {
 		"category": "hero",
 		"rarity": RARITY_RARE,
-		"req_fragments": 10,
+		"req_fragments": 100,
 		"display_name": "Лучник",
+		"description": "Дальний бой. Стартовое оружие: лук. Бонус к дальности.",
 	},
 	"hero_monk": {
 		"category": "hero",
 		"rarity": RARITY_EPIC,
-		"req_fragments": 20,
+		"req_fragments": 100,
 		"display_name": "Монах",
+		"description": "Мастер ауры. Стартовое оружие: аура. Бонус к радиусу ауры.",
+	},
+	# --- ОРУЖИЯ (80 фрагментов) ---
+	"weapon_aura": {
+		"category": "weapon",
+		"rarity": RARITY_RARE,
+		"req_fragments": 80,
+		"display_name": "Аура",
+		"description": "Урон по области вокруг героя.",
+	},
+	"weapon_bow": {
+		"category": "weapon",
+		"rarity": RARITY_RARE,
+		"req_fragments": 80,
+		"display_name": "Лук",
+		"description": "Дальний бой: стрелы по врагам.",
+	},
+	"weapon_staff": {
+		"category": "weapon",
+		"rarity": RARITY_EPIC,
+		"req_fragments": 80,
+		"display_name": "Посох",
+		"description": "Магический посох с мощными заклинаниями.",
+	},
+	"weapon_banner": {
+		"category": "weapon",
+		"rarity": RARITY_EPIC,
+		"req_fragments": 80,
+		"display_name": "Знамя",
+		"description": "Боевое знамя, вдохновляющее союзников.",
+	},
+	# --- ПАССИВКИ (50 фрагментов) ---
+	"passive_damage": {
+		"category": "passive",
+		"rarity": RARITY_COMMON,
+		"req_fragments": 50,
+		"display_name": "Урон",
+		"description": "Увеличивает урон всех оружий.",
+	},
+	"passive_max_hp": {
+		"category": "passive",
+		"rarity": RARITY_COMMON,
+		"req_fragments": 50,
+		"display_name": "Максимальное здоровье",
+		"description": "Увеличивает максимальное здоровье героя.",
+	},
+	"passive_hp_regen": {
+		"category": "passive",
+		"rarity": RARITY_RARE,
+		"req_fragments": 50,
+		"display_name": "Регенерация здоровья",
+		"description": "Восстанавливает здоровье со временем.",
+	},
+	"passive_attack_speed": {
+		"category": "passive",
+		"rarity": RARITY_RARE,
+		"req_fragments": 50,
+		"display_name": "Скорость атаки",
+		"description": "Увеличивает скорость атаки всех оружий.",
+	},
+	"passive_move_speed": {
+		"category": "passive",
+		"rarity": RARITY_COMMON,
+		"req_fragments": 50,
+		"display_name": "Скорость передвижения",
+		"description": "Увеличивает скорость передвижения героя.",
+	},
+	"passive_attack_range": {
+		"category": "passive",
+		"rarity": RARITY_RARE,
+		"req_fragments": 50,
+		"display_name": "Радиус атаки",
+		"description": "Увеличивает радиус действия всех оружий.",
+	},
+	"passive_amount": {
+		"category": "passive",
+		"rarity": RARITY_EPIC,
+		"req_fragments": 50,
+		"display_name": "Количество",
+		"description": "Увеличивает количество выпускаемых снарядов.",
+	},
+	"passive_crit_chance": {
+		"category": "passive",
+		"rarity": RARITY_EPIC,
+		"req_fragments": 50,
+		"display_name": "Критический шанс",
+		"description": "Увеличивает шанс критического удара.",
+	},
+	"passive_luck": {
+		"category": "passive",
+		"rarity": RARITY_EPIC,
+		"req_fragments": 50,
+		"display_name": "Удача",
+		"description": "Увеличивает шанс выпадения редких улучшений.",
+	},
+	"passive_experience": {
+		"category": "passive",
+		"rarity": RARITY_RARE,
+		"req_fragments": 50,
+		"display_name": "Опыт",
+		"description": "Увеличивает получаемый опыт.",
+	},
+	"passive_gold": {
+		"category": "passive",
+		"rarity": RARITY_RARE,
+		"req_fragments": 50,
+		"display_name": "Золото",
+		"description": "Увеличивает получаемое золото.",
 	},
 }

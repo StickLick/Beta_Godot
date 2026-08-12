@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cnfznrkeqqq0k"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "Luck_C"
+description = "+5% удачи"
+modifiers = Array[Dictionary]([{
+"amount": 0.05,
+"stat": "luck"
+}])
+passive_id = "Luck"
+weapon_tag = "Luck"

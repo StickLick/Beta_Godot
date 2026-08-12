@@ -37,10 +37,20 @@ func _update_indicators_logic() -> void:
     var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
     all_targets.append_array(player_camps)
     
+    # 4. ШАХТЫ ИГРОКА
+    # Группа player_mines ведётся самим Mine (_update_groups) — сюда попадают только свои шахты.
+    var player_mines = get_tree().get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
+    all_targets.append_array(player_mines)
+    
     var off_screen_targets = []
     for t in all_targets:
         if not is_instance_valid(t) or t.is_queued_for_deletion(): continue
         if t in off_screen_targets: continue
+        
+        # Шахты: не показываем стрелку, если игрок уже в зоне взаимодействия (collection_radius).
+        if t is Mine and is_instance_valid(player):
+            if player.global_position.distance_to(t.global_position) <= t.collection_radius:
+                continue
         
         # Для безопасной зоны индикатор нужен всегда, если мы снаружи (даже если центр на экране)
         if t.is_in_group("safe_zone"):

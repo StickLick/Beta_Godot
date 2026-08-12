@@ -69,7 +69,8 @@ func _update_ui() -> void:
 
 func _update_defense_state() -> void:
     var rival_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 2)
-    if rival_camps.size() > 0:
+    var rival_mines = get_tree().get_nodes_in_group("rival_mines").filter(func(m): return is_instance_valid(m))
+    if rival_camps.size() + rival_mines.size() > 0:
         damage_reduction = 0.9; modulate = boss_color
     else:
         damage_reduction = 0.0
@@ -94,8 +95,10 @@ func _move_logic(delta: float) -> void:
 
 func _execute_pulse() -> void:
     var rival_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 2)
-    if rival_camps.is_empty(): return
-    var target = rival_camps.pick_random()
+    var rival_mines = get_tree().get_nodes_in_group("rival_mines").filter(func(m): return is_instance_valid(m))
+    var all_territories = rival_camps + rival_mines
+    if all_territories.is_empty(): return
+    var target = all_territories.pick_random()
     _visualize_beam(target.global_position)
     if target.has_method("reinforce"): target.reinforce()
 

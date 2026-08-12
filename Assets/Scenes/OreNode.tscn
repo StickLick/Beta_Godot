@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://b7ssbbn1r1xrk"]
+
+[ext_resource type="Script" uid="uid://bk2u2c86kkqkp" path="res://scripts/ore_node.gd" id="1_ore"]
+[ext_resource type="Texture2D" uid="uid://bepdccrxggi6m" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 6_Highlight.png" id="2_5a1bp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 120.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aetpe"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qvuvw"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x0bly"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5vbrm"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kj80h"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3sh3"]
+atlas = ExtResource("2_5a1bp")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jq4ab"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aetpe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qvuvw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x0bly")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5vbrm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kj80h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p3sh3")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="OreNode" type="Area2D" unique_id=985799434]
+collision_mask = 2
+script = ExtResource("1_ore")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1149698594]
+shape = SubResource("CircleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1611522206]
+scale = Vector2(1.28125, 1.2578125)
+sprite_frames = SubResource("SpriteFrames_jq4ab")
+animation = &"default"

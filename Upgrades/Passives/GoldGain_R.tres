@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cfyrdo0tiv6p2"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "GoldGain_R"
+description = "+20% к получаемому золоту"
+modifiers = Array[Dictionary]([{
+"amount": 0.2,
+"stat": "gold_gain"
+}])
+rarity = 1
+passive_id = "GoldGain"
+weapon_tag = "GoldGain"

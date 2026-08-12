@@ -5,11 +5,13 @@ class_name ZoneSystem
 @export var camp_scene: PackedScene 
 @export var max_active_zones: int = 4
 @export var spawn_interval: float = 12.0
+@export var active: bool = false
 
 var current_zones: Array[Area2D] = []
 var spawn_timer: float = 0.0
 
 func _process(delta: float) -> void:
+    if not active: return
     current_zones = current_zones.filter(func(z): return is_instance_valid(z))
     spawn_timer += delta
     if spawn_timer >= spawn_interval:

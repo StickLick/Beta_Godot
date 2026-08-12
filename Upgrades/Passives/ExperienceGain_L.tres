@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cpxgf2wrvk11b"]
+
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "XP_L"
+description = "+50% к получаемому опыту"
+modifiers = Array[Dictionary]([{
+"amount": 0.5,
+"stat": "xp_gain"
+}])
+rarity = 3
+passive_id = "XP"
+weapon_tag = "XP"

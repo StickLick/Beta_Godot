@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dy5sw2n2sseom"]
+
+[ext_resource type="Texture2D" uid="uid://cgixyf1i8q4yk" path="res://Texture/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Tower.png" id="1_fpl3d"]
+
+[node name="MineFort" type="Node2D" unique_id=1762171299]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=35626512]
+texture = ExtResource("1_fpl3d")
+
+[node name="DefenderSocket" type="Marker2D" parent="." unique_id=341210842]
+position = Vector2(-1, -34)

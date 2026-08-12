@@ -13,9 +13,15 @@ const DEFAULTS: Dictionary = {
 	"unlocked_weapons": [],
 	"unlocked_passives": [],
 	"unlocked_heroes": [],
+	# Эволюции, полученные игроком в забегах (по имени Upgrade).
+	"unlocked_evolutions": [],
 	# Казино-система фрагментов:
 	"fragments": {},
 	"luck_streak": 0,
+	# Постоянные улучшения героя: {upgrade_id: level}
+	"hero_upgrade_levels": {},
+	# Уровень шахты (Mine + Outpost — единая система): 1-5
+	"mine_unlocked_level": 1,
 	# Будущее (не реализовано, только структура):
 	# "chest_keys": 0,
 	# "rts_camp_levels": {},

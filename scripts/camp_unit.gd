@@ -118,6 +118,14 @@ func _find_target() -> void:
         for c in get_tree().get_nodes_in_group("camps"):
             if c.alignment == 2:
                 potential.append(c)
+        # Добавляем шахты соперника как цели
+        for m in get_tree().get_nodes_in_group("rival_mines"):
+            if is_instance_valid(m):
+                potential.append(m)
+        # Добавляем аванпосты соперника как цели
+        for o in get_tree().get_nodes_in_group("rival_outposts"):
+            if is_instance_valid(o):
+                potential.append(o)
     else:
         potential.append(get_tree().get_first_node_in_group("player"))
         for u in get_tree().get_nodes_in_group("units"):
@@ -126,6 +134,14 @@ func _find_target() -> void:
         for c in get_tree().get_nodes_in_group("camps"):
             if c.alignment == 1:
                 potential.append(c)
+        # Добавляем шахты игрока как цели
+        for m in get_tree().get_nodes_in_group("player_mines"):
+            if is_instance_valid(m):
+                potential.append(m)
+        # Добавляем аванпосты игрока как цели
+        for o in get_tree().get_nodes_in_group("player_outposts"):
+            if is_instance_valid(o):
+                potential.append(o)
     var breakers = potential.filter(func(t): return is_instance_valid(t) and t is Enemy and t.current_archetype == Enemy.Archetype.BREAKER)
     var final_list = breakers if not breakers.is_empty() else potential
     var min_d: float = INF
@@ -146,6 +162,8 @@ func _is_valid_enemy_target(t: Node2D) -> bool:
             return t.alignment == 2
         if t is Camp:
             return t.alignment == 2
+        if t is Mine:
+            return t.alignment == 2
         return false
     else:
         if t is Player:
@@ -153,6 +171,8 @@ func _is_valid_enemy_target(t: Node2D) -> bool:
         if t is Unit:
             return t.alignment == 1
         if t is Camp:
+            return t.alignment == 1
+        if t is Mine:
             return t.alignment == 1
         return false
 

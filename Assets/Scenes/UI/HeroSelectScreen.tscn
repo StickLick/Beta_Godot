@@ -57,10 +57,12 @@ theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
 theme_override_constants/separation = 10
 
 [node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Header"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -76,11 +78,13 @@ theme_override_constants/separation = 2
 
 [node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_0/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 13
 
@@ -106,10 +110,12 @@ theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
 theme_override_constants/separation = 10
 
 [node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Header"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -125,11 +131,13 @@ theme_override_constants/separation = 2
 
 [node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_1/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 13
 
@@ -155,10 +163,12 @@ theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
 theme_override_constants/separation = 10
 
 [node name="VisualTexture" type="TextureRect" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Header"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -174,11 +184,13 @@ theme_override_constants/separation = 2
 
 [node name="PassiveNameLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="PassiveDescLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer/HeroCard_2/VBox/Passive"]
 layout_mode = 2
+horizontal_alignment = 1
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 13
 

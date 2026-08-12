@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://1upcnkqkjnwa"]
+
+[ext_resource type="Script" uid="uid://w5a112c524el" path="res://scripts/mine.gd" id="1_mine"]
+[ext_resource type="Texture2D" uid="uid://bepdccrxggi6m" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 6_Highlight.png" id="2_qvuvw"]
+[ext_resource type="PackedScene" uid="uid://bj3ugqsidlucm" path="res://Assets/UI/Mine/MineUpgradeVisuals.tscn" id="3_visuals"]
+[ext_resource type="PackedScene" uid="uid://dhrk6ue3d67dk" path="res://Assets/Scenes/Visuals/MineWorldObjects.tscn" id="4_world_objects"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 120.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x0bly"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5vbrm"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kj80h"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3sh3"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gv3xx"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mtqug"]
+atlas = ExtResource("2_qvuvw")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gd7ey"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x0bly")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5vbrm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kj80h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p3sh3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gv3xx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mtqug")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Mine" type="Area2D" unique_id=456833703]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_mine")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=155328292]
+shape = SubResource("CircleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1861202624]
+sprite_frames = SubResource("SpriteFrames_gd7ey")
+frame_progress = 0.62191045
+
+[node name="FortSprite" type="Sprite2D" parent="." unique_id=1818697033]
+visible = false
+position = Vector2(80, -40)
+
+[node name="UpgradeVisuals" parent="." unique_id=1011604452 instance=ExtResource("3_visuals")]
+position = Vector2(-12, 48)
+
+[node name="MineWorldObjects" parent="." unique_id=1239756528 instance=ExtResource("4_world_objects")]

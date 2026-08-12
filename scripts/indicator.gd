@@ -17,7 +17,7 @@ func setup(new_target: Node2D) -> void:
     if target == new_target: return
     _stop_pulse(); target = new_target; _update_visual_state()
 
-func update_indicator(screen_rect: Rect2, margin: float = 50.0) -> void:
+func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
     if not is_instance_valid(target): hide(); return
 
     _update_visual_state()
@@ -33,6 +33,13 @@ func update_indicator(screen_rect: Rect2, margin: float = 50.0) -> void:
     var screen_direction = (target_screen_pos - screen_center).normalized()
     
     global_position = _get_intersection_point(screen_center, screen_direction, screen_rect, margin)
+    # global_position — левый верхний угол Control, а не центр.
+    # При целях справа/снизу сдвигаем на размер Control, чтобы внешняя кромка была
+    # ровно на margin от края экрана (симметрия с левой/верхней стороной).
+    if screen_direction.x > 0.0:
+        global_position.x -= size.x
+    if screen_direction.y > 0.0:
+        global_position.y -= size.y
     if is_instance_valid(icon): icon.rotation = world_direction.angle()
     
     var dist = cam_pos.distance_to(target_pos)
@@ -42,6 +49,8 @@ func update_indicator(screen_rect: Rect2, margin: float = 50.0) -> void:
     if target.is_in_group("safe_zone"):
         _start_pulse() # Зона всегда мигает синим
     elif target is Camp and target.alignment == 1 and target.get("is_under_attack"):
+        _start_pulse()
+    elif target is Mine and target.get("is_under_attack"):
         _start_pulse()
     else:
         _stop_pulse()
@@ -57,6 +66,10 @@ func _update_visual_state() -> void:
     if target is RivalBoss:
         if not _is_pulsing: modulate = Color.YELLOW
         if boss_icon: icon.texture = boss_icon
+    elif target is Mine:
+        # Шахты игрока — дружественный стиль как у своих лагерей.
+        # Вражеские/нейтральные шахты сюда не попадают (фильтр по группе player_mines в IndicatorManager).
+        if not _is_pulsing: modulate = Color.CORNFLOWER_BLUE
     elif target is Camp:
         match target.specialty:
             1: if industry_icon: icon.texture = industry_icon

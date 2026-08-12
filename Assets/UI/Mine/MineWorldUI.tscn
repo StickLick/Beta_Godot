@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=3 uid="uid://bmineworldui001"]
+
+[ext_resource type="Script" path="res://scripts/mine_world_ui.gd" id="1_mine_ui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0, 0, 0, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 0.8)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.2, 0.9, 0.3, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="MineWorldUI" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 90.0
+offset_bottom = 62.0
+script = ExtResource("1_mine_ui")
+
+[node name="MineLevelLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 90.0
+offset_bottom = 22.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "Шахта Lv.1"
+
+[node name="MineStorageLabel" type="Label" parent="."]
+layout_mode = 0
+offset_top = 22.0
+offset_right = 90.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "0/100"
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_top = 44.0
+offset_right = 90.0
+offset_bottom = 56.0
+show_percentage = false
+value = 100.0
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")

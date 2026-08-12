@@ -3,10 +3,10 @@ extends Node
 signal anomaly_started(type: String, duration: float)
 signal anomaly_warning(time_left: float)
 signal anomaly_ended()
-signal run_ended(victory: bool, reward: int)
+signal run_ended(victory: bool, reward: int, breakdown: Dictionary)
 
 # --- ТЕСТОВАЯ НАСТРОЙКА ---
-const DEBUG_TEST_ANOMALY: String = "" 
+const DEBUG_TEST_ANOMALY: String = "GRAVITY" 
 
 var total_xp_collected: int = 0
 var rival_camps_destroyed: int = 0
@@ -14,6 +14,9 @@ var units_spawned: int = 0
 var zones_captured: int = 0
 var time_elapsed: float = 0.0
 var enemies_killed: int = 0
+var resources_collected: int = 0
+var mines_captured: int = 0
+var gold_collected: int = 0
 
 # --- МЕТА-ПРОГРЕССИЯ (персистентная, переживает смену сцен) ---
 var _meta_currency: int = 0
@@ -26,13 +29,18 @@ var is_game_over: bool = false
 var map_rect: Rect2 = Rect2(-2000, -2000, 4000, 4000)
 
 var _check_timer: float = 0.0
-const CHECK_INTERVAL: float = 40.0 
+const CHECK_INTERVAL: float = 10.0 
 var current_chance: float = 0.20   
 const CHANCE_STEP: float = 0.15    
 
 var current_anomaly: String = "" 
 const ANOMALY_DURATION: float = 40.0 
 const WARNING_TIME: float = 5.0
+
+# --- НАГРАДА ЗА ЗАБЕГ (настраивается в Inspector на GameManager) ---
+@export_group("Run Reward")
+@export var kill_gold_value: float = 1.0
+@export var victory_bonus: int = 200
 
 const ANOMALY_NAMES = {
     "HUNT": "ПРИКАЗ: ОХОТА",
@@ -114,6 +122,8 @@ func _end_anomaly() -> void:
     if current_anomaly == "HYPERDRIVE": Engine.time_scale = 1.0
     for c in tree.get_nodes_in_group("camps"): 
         if is_instance_valid(c): c.set_meta("is_seize_target", false)
+    for m in tree.get_nodes_in_group("mines"): 
+        if is_instance_valid(m): m.set_meta("is_seize_target", false)
     _cleanup_remaining_gems()
     _reset_metas()
     for sz in tree.get_nodes_in_group("safe_zone"): sz.queue_free()
@@ -131,9 +141,11 @@ func _mark_camps_for_seize() -> void:
     var tree = get_tree()
     if not tree: return
     var player_camps = tree.get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.get("alignment") == 1)
-    player_camps.shuffle()
-    for i in range(min(2, player_camps.size())):
-        player_camps[i].set_meta("is_seize_target", true)
+    var player_mines = tree.get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
+    var all_targets = player_camps + player_mines
+    all_targets.shuffle()
+    for i in range(min(2, all_targets.size())):
+        all_targets[i].set_meta("is_seize_target", true)
 
 func _spawn_safe_zone() -> void:
     var tree = get_tree()
@@ -172,6 +184,9 @@ func log_event(type: String, value: Variant = 1) -> void:
         "unit_spawned": units_spawned += int(value)
         "zone_captured": zones_captured += int(value)
         "enemy_killed": enemies_killed += int(value)
+        "resources_collected": resources_collected += int(value)
+        "mine_captured": mines_captured += int(value)
+        "gold_collected": gold_collected += int(value)
 
 # --- МЕТА-ВАЛЮТА (рантайм-курс; персистенция — через SaveManager) ---
 
@@ -193,13 +208,43 @@ func add_meta_currency(amount: int) -> void:
 
 # --- ОКОНЧАНИЕ ЗАБЕГА И НАГРАДА ---
 
-func calculate_run_reward() -> int:
-    # Базовая формула: время + бонус за уничтоженные лагеря + бонус за убийства.
-    # Числа намеренно не сбалансированы — балансировка позже.
-    var time_reward: int = int(time_elapsed) * 2
-    var camp_reward: int = rival_camps_destroyed * 50
-    var kill_reward: int = enemies_killed * 1
-    return max(1, time_reward + camp_reward + kill_reward)
+func calculate_run_reward(victory: bool) -> Dictionary:
+    # Реальная награда за забег в металле (run gold) с разбивкой для экрана результатов.
+    # 1. Металл, уже собранный игроком за забег (Player.gold) — всегда сохраняется.
+    # 2. Металл за убийства врагов — враги не дропают золото в игре,
+    #    конвертация происходит только здесь. Gold Gain влияет ТОЛЬКО на этот источник.
+    # 3. Победа: не собранные ресурсы READY-шахт игрока + настраиваемый бонус победы.
+    #    Поражение: не собранные ресурсы шахт и бонус победы НЕ включаются.
+    var player := get_tree().get_first_node_in_group("player") as Player
+
+    var carried_gold: int = player.gold if player else 0
+    var gold_gain_mult: float = player.gold_gain if player else 1.0
+
+    # База за убийства до пассивки и бонус от пассивки (только к убийствам).
+    var enemy_kill_gold: int = int(enemies_killed * kill_gold_value)
+    var gold_gain_bonus: int = int(enemy_kill_gold * (gold_gain_mult - 1.0))
+
+    var mine_remaining_gold: int = 0
+    var victory_bonus_amount: int = 0
+    if victory:
+        for mine in get_tree().get_nodes_in_group("player_mines"):
+            if not is_instance_valid(mine):
+                continue
+            # Только READY (хранилище заполнено) и только шахты игрока (группа уже фильтрует).
+            if mine.get("state") == mine.MineState.READY:
+                mine_remaining_gold += int(mine.get("resources_accumulated"))
+        victory_bonus_amount = victory_bonus
+
+    var total: int = carried_gold + enemy_kill_gold + gold_gain_bonus + mine_remaining_gold + victory_bonus_amount
+
+    return {
+        "carried_gold": carried_gold,
+        "mine_remaining_gold": mine_remaining_gold,
+        "enemy_kill_gold": enemy_kill_gold,
+        "gold_gain_bonus": gold_gain_bonus,
+        "victory_bonus": victory_bonus_amount,
+        "total": max(1, total),
+    }
 
 func end_run(victory: bool) -> void:
     if is_game_over and _run_reward_calculated:
@@ -207,15 +252,17 @@ func end_run(victory: bool) -> void:
     is_game_over = true
     Engine.time_scale = 1.0
     _run_reward_calculated = true
-    var reward: int = calculate_run_reward()
+    var breakdown: Dictionary = calculate_run_reward(victory)
+    var reward: int = int(breakdown.get("total", 0))
+    # Начисляем награду за забег в мета-валюту (сохраняется через SaveManager).
     add_meta_currency(reward)
-    run_ended.emit(victory, reward)
+    run_ended.emit(victory, reward, breakdown)
 
 func stop_game() -> void: is_game_over = true
 
 func reset_game() -> void:
     total_xp_collected = 0; rival_camps_destroyed = 0; units_spawned = 0; zones_captured = 0
-    enemies_killed = 0
+    enemies_killed = 0; resources_collected = 0; mines_captured = 0; gold_collected = 0
     time_elapsed = 0.0; is_game_over = false; current_anomaly = ""; Engine.time_scale = 1.0
     _run_reward_calculated = false
     # selected_hero_id НЕ сбрасывается — герой сохраняется при рестарте забега

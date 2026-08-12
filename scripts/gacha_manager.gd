@@ -234,11 +234,14 @@ func _finish_session(state: Dictionary) -> void:
 
 	# Игрок получает ТОЛЬКО ОДИН финальный множитель (максимальный из достигнутых).
 	# Множители не стакаются по цветам.
+	# Все фрагменты сессии складываются в ОДИН общий пул...
+	var total_frag_pool: int = 0
 	for spin: Dictionary in state["spins"]:
-		var cid: String = String(spin["content_id"])
 		var base: int = int(spin["fragments"])
-		var final_frags: int = int(round(base * best_mult))
-		rewards[cid] = int(rewards.get(cid, 0)) + final_frags
+		total_frag_pool += int(round(base * best_mult))
+
+	# ...и затем случайно распределяются между ещё не разблокированным контентом.
+	rewards = _distribute_fragments_randomly(total_frag_pool)
 
 	state["rewards"] = rewards
 	state["bonuses"] = bonuses
@@ -260,22 +263,18 @@ func _finish_session(state: Dictionary) -> void:
 
 
 ## Один ролл символа. Возвращает { content_id, rarity, fragments }.
-## Редкость символа определяет редкость НАГРАДЫ.
-## Пул контента берётся ТОЛЬКО той же редкости (без fallback на другие редкости).
-## Количество фрагментов ВСЕГДА берётся из цвета символа (COLOR_FRAGMENTS).
-## Если пул редкости пуст — контента нет (content_id = ""), выдаются только фрагменты.
+## Редкость определяет ТОЛЬКО количество фрагментов (COLOR_FRAGMENTS): 1/2/3/5.
+## Определение того, КАКОЙ контент получит фрагменты, здесь НЕ происходит —
+## весь пул фрагментов сессии распределяется случайно в _finish_session()
+## через _distribute_fragments_randomly().
 func _roll_symbol() -> Dictionary:
 	var rarity := _roll_rarity()
-	var pool := _get_pool_for_rarity(rarity)
-	var content_id: String = ""
-	if not pool.is_empty():
-		content_id = pool[int(randf() * pool.size())]
 
 	# Базовые фрагменты строго по цвету символа: White=1, Blue=2, Purple=3, Gold=5.
 	var frags: int = int(GACHA_DATA.COLOR_FRAGMENTS.get(rarity, 1))
 
 	return {
-		"content_id": content_id,
+		"content_id": "",
 		"rarity": rarity,
 		"fragments": frags,
 	}
@@ -303,14 +302,76 @@ func _roll_rarity() -> int:
 	return GACHA_DATA.RARITY_COMMON
 
 
-## Пул предметов заданной редкости (v1: только heroes).
-func _get_pool_for_rarity(rarity: int) -> Array:
+## Единый пул всего ещё не разблокированного контента (герои/оружия/пассивки).
+## Редкость не участвует: все закрытые предметы имеют равные шансы выпадения.
+## Если весь контент открыт — возвращается пустой массив (content_id == "").
+func _get_locked_content_pool() -> Array:
+	var meta := _meta()
 	var pool: Array = []
 	for cid in GACHA_DATA.CONTENT:
 		var entry: Dictionary = GACHA_DATA.CONTENT[cid]
-		if int(entry.get("rarity", GACHA_DATA.RARITY_COMMON)) == rarity:
-			pool.append(cid)
+		# Уже разблокированный контент исключается из пула выпадения.
+		if meta != null and _is_content_unlocked(meta, cid, String(entry.get("category", ""))):
+			continue
+		pool.append(cid)
 	return pool
+
+
+## Случайное распределение общего пула фрагментов между закрытым контентом.
+## Намеренно НЕ оптимизировано: каждый шаг выбирается случайный закрытый предмет,
+## которому начисляется случайное количество (1..оставшаяся потребность).
+## Предмет, достигший порога разблокировки, исключается из дальнейших выборов.
+## Возвращает { content_id: amount } (пустой, если распределять некому).
+func _distribute_fragments_randomly(total_fragments: int) -> Dictionary:
+	var rewards: Dictionary = {}
+	if total_fragments <= 0:
+		return rewards
+	var meta := _meta()
+	if meta == null:
+		return rewards
+
+	var locked: Array = _get_locked_content_pool()
+	var pool: int = total_fragments
+
+	while pool > 0 and not locked.is_empty():
+		var idx: int = randi_range(0, locked.size() - 1)
+		var cid: String = String(locked[idx])
+		var entry: Dictionary = GACHA_DATA.CONTENT[cid]
+		var req: int = int(entry.get("req_fragments", 0))
+		if req <= 0:
+			# Контент без порога не разблокируется фрагментами — пропускаем.
+			locked.remove_at(idx)
+			continue
+		# Сколько уже начислено предмету (включая текущую сессию).
+		var have: int = meta.get_fragment_count(cid) + int(rewards.get(cid, 0))
+		var remaining: int = req - have
+		if remaining <= 0:
+			# Потребность закрыта — предмет больше не участвует в распределении.
+			locked.remove_at(idx)
+			continue
+		# Случайное количество: от 1 до потребности, но не больше оставшегося пула.
+		var max_give: int = min(remaining, pool)
+		var amount: int = randi_range(1, max_give)
+		rewards[cid] = int(rewards.get(cid, 0)) + amount
+		pool -= amount
+		if have + amount >= req:
+			# Предмет достиг порога — убираем из будущих случайных выборов.
+			locked.remove_at(idx)
+
+	return rewards
+
+
+## Разблокирован ли контент уже (по категории).
+## Для неизвестной/пустой категории возвращает false — контент считается доступным.
+func _is_content_unlocked(meta: Node, cid: String, category: String) -> bool:
+	match category:
+		"hero":
+			return meta.is_hero_unlocked(cid)
+		"weapon":
+			return meta.is_weapon_unlocked(cid)
+		"passive":
+			return meta.is_passive_unlocked(cid)
+	return false
 
 
 ## Выдача отложенной компенсации при провале. Вызывается только из settle_spin()

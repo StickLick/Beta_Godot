@@ -2,6 +2,7 @@ extends Node2D
 
 @export var enemy_scene: PackedScene = null
 @export var spawn_radius: float = 750.0
+@export var breaker_min_spawn_distance: float = 400.0
 @export var difficulty_controller: DifficultyController = null
 
 var _spawn_timer: Timer
@@ -40,24 +41,38 @@ func _spawn_logic(threat: float) -> void:
 
     var spawn_center = player.global_position
     
+    var breaker_center: Vector2 = Vector2.INF
     if archetype == Enemy.Archetype.BREAKER:
         var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
-        if not player_camps.is_empty():
-            spawn_center = player_camps.pick_random().global_position
+        var player_mines = get_tree().get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
+        var player_territories = player_camps + player_mines
+        if not player_territories.is_empty():
+            spawn_center = player_territories.pick_random().global_position
+            breaker_center = spawn_center
     
     if archetype == Enemy.Archetype.SWARMER and randf() < 0.12:
         for i in range(3): # Уменьшено количество в группе
-            _spawn_enemy(threat, archetype, spawn_center, Vector2(randf_range(-60, 60), randf_range(-60, 60)))
+            _spawn_enemy(threat, archetype, spawn_center, Vector2(randf_range(-60, 60), randf_range(-60, 60)), breaker_center)
     else:
-        _spawn_enemy(threat, archetype, spawn_center)
+        _spawn_enemy(threat, archetype, spawn_center, Vector2.ZERO, breaker_center)
 
-func _spawn_enemy(threat: float, type: Enemy.Archetype, center_pos: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
+func _spawn_enemy(threat: float, type: Enemy.Archetype, center_pos: Vector2, offset: Vector2 = Vector2.ZERO, territory_center: Vector2 = Vector2.INF) -> void:
     if not enemy_scene: return
     var angle = randf() * TAU
     var spawn_pos = center_pos + Vector2.from_angle(angle) * spawn_radius + offset
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
     spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
+
+    # BREAKER: не спавним слишком близко к выбранной территории (шахта/лагерь)
+    if type == Enemy.Archetype.BREAKER and territory_center != Vector2.INF:
+        if spawn_pos.distance_to(territory_center) < breaker_min_spawn_distance:
+            var dir = (spawn_pos - territory_center).normalized()
+            if dir == Vector2.ZERO:
+                dir = Vector2.from_angle(angle)
+            spawn_pos = territory_center + dir * breaker_min_spawn_distance
+            spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
+            spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
 
     var enemy = enemy_scene.instantiate() as Enemy
     enemy.position = spawn_pos

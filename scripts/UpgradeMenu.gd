@@ -27,6 +27,31 @@ const EVOLUTION_FAMILIES := {
     "Banner": ["BannerArcher", "BannerTank", "BannerMarshal"],
 }
 
+const GACHA_DATA := preload("res://scripts/gacha_data.gd")
+
+## Маппинг тегов/имён апгрейдов на content_id гачи (gacha_data.CONTENT).
+## Ключ = weapon_tag (для базовых оружий) или passive_id/name (для пассивок).
+## Теги, отсутствующие в словаре (эволюционные оружия, модификаторы),
+## НЕ фильтруются — они доступны только при уже имеющемся оружии/эволюции.
+const UPGRADE_TAG_TO_CONTENT_ID := {
+    # Базовые оружия (is_weapon=true). «Spear» — стартовое, всегда открыто.
+    "Aura": "weapon_aura",
+    "Bow": "weapon_bow",
+    "Staff": "weapon_staff",
+    "Banner": "weapon_banner",
+    # Пассивки (passive_id / базовое имя). «Damage» — стартовая, всегда открыта.
+    "AttackRange": "passive_attack_range",
+    "ProjectileAmount": "passive_amount",
+    "MaxHP": "passive_max_hp",
+    "CritChance": "passive_crit_chance",
+    "MoveSpeed": "passive_move_speed",
+    "Luck": "passive_luck",
+    "HPRegen": "passive_hp_regen",
+    "AttackSpeed": "passive_attack_speed",
+    "XP": "passive_experience",
+    "GoldGain": "passive_gold",
+}
+
 func open_upgrade_menu() -> void:    
     # Закрыть открытую панель паузы, чтобы она не оставалась поверх меню апгрейдов.
     var hud = get_tree().get_first_node_in_group("hud")
@@ -80,6 +105,8 @@ func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
     for u in all_available_upgrades:
         if _already_taken(u, player): continue
         if not _prerequisites_met(u, player): continue
+        # Мета-фильтр: новые оружия/пассивки доступны только после разблокировки.
+        if not _is_meta_unlocked(u): continue
         
         if u.change_mechanic_on_apply:
             if _can_take_evolution(u, player): pool.append(u)
@@ -93,6 +120,55 @@ func _get_eligible_upgrades(player: Player) -> Array[Upgrade]:
             if _can_take_passive(u, player, passives_full): pool.append(u)
     
     return pool
+
+
+## Проверка мета-разблокировки апгрейда.
+## Фильтруются ТОЛЬКО получение новых оружий и новых пассивок:
+##   - базовые оружия (BaseAura/BaseBow/BaseStaff/BaseBanner) — через is_weapon_unlocked();
+##   - пассивки (улучшенные по passive_id, базовые по имени) — через is_passive_unlocked().
+## НЕ фильтруются: стартовые Копьё/Spear и Урон/Damage, эволюции,
+## модификаторы оружий (Aura_DMG и т.п.), эволюционные оружия,
+## а также любые апгрейды, чей тег/имя отсутствует в словаре маппинга.
+func _is_meta_unlocked(u: Upgrade) -> bool:
+    var meta := get_node_or_null("/root/MetaProgress")
+
+    # Эволюции — не трогаем.
+    if u.change_mechanic_on_apply:
+        return true
+
+    # Новое базовое оружие (is_weapon=true).
+    if u.is_weapon:
+        # Стартовое копьё всегда доступно.
+        if u.weapon_tag == "Spear":
+            return true
+        var content_id: String = UPGRADE_TAG_TO_CONTENT_ID.get(u.weapon_tag, "")
+        # Неизвестный тег (эволюционное оружие и т.п.) — не фильтруем.
+        if content_id == "":
+            return true
+        return meta == null or meta.is_weapon_unlocked(content_id)
+
+    # Пассивки с passive_id (улучшенные варианты, Book/Stone-серии и т.д.).
+    if u.passive_id != "":
+        # Стартовая пассивка «Урон» всегда доступна.
+        if u.passive_id == "Damage":
+            return true
+        var content_id: String = UPGRADE_TAG_TO_CONTENT_ID.get(u.passive_id, "")
+        if content_id == "":
+            return true
+        return meta == null or meta.is_passive_unlocked(content_id)
+
+    # Базовые пассивки без тега (BaseDamage/BaseSpeed/BaseBook/BaseStone...).
+    if u.weapon_tag == "" or u.weapon_tag == "General":
+        if u.name == "Damage":
+            return true
+        var content_id: String = UPGRADE_TAG_TO_CONTENT_ID.get(u.name, "")
+        if content_id == "":
+            return true
+        return meta == null or meta.is_passive_unlocked(content_id)
+
+    # Модификаторы оружия (weapon_tag != "" и не пассивка) — не фильтруем:
+    # они выпадают только когда соответствующее оружие уже есть у игрока.
+    return true
 
 
 func _already_taken(u: Upgrade, player: Player) -> bool:
@@ -182,8 +258,6 @@ func _create_fallback_upgrade(player: Player) -> Upgrade:
     f.rarity = Upgrade.Rarity.COMMON
     f.weapon_tag = "Fallback"
     f.amount = 50.0
-    if is_instance_valid(player) and is_instance_valid(player.health_component):
-        player.health_component.heal(50.0)
     return f
 
 
@@ -231,6 +305,8 @@ func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
 
 func _on_upgrade_selected(upgrade: Upgrade) -> void:
     var player = get_tree().get_first_node_in_group("player") as Player
+    if upgrade.weapon_tag == "Fallback" and is_instance_valid(player) and is_instance_valid(player.health_component):
+        player.health_component.heal(upgrade.amount)
     player.apply_custom_upgrade(upgrade)
     _active_menu.queue_free(); _active_menu = null
     if _pending_upgrades > 0:

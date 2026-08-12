@@ -64,6 +64,12 @@ func _on_global_tick() -> void:
         if not is_instance_valid(camp): continue
         if camp.alignment == 1: p_count += 1
         elif camp.alignment == 2: r_count += 1
+
+    # Подсчёт шахт (новая система)
+    for mine in get_tree().get_nodes_in_group("player_mines"):
+        if is_instance_valid(mine): p_count += 1
+    for mine in get_tree().get_nodes_in_group("rival_mines"):
+        if is_instance_valid(mine): r_count += 1
     
     if r_count > p_count and is_instance_valid(pressure_manager):
         pressure_manager.current_pressure_level += 0.2
@@ -88,40 +94,94 @@ func _on_strategic_tick() -> void:
         Doctrine.MILITARIZATION: _execute_militarization()
 
 func _execute_expansion() -> void:
-    if not is_instance_valid(zone_system): return
-    var player = get_tree().get_first_node_in_group("player")
-    if not player: return
-    
-    var zones = get_tree().get_nodes_in_group("zones")
-    var rival_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return c.alignment == 2)
-    
-    # ДИНАМИЧЕСКАЯ НАГЛОСТЬ:
-    # Базовая дистанция спавна — 1500 пикселей (далеко).
-    # За каждый живой красный лагерь дистанция снижается на 150 пикселей (минимум до 600).
-    var min_spawn_dist = clamp(1500.0 - (rival_camps.size() * 150.0), 600.0, 1500.0)
-    
-    var best_zone = null
-    var min_dist = INF
-    
-    for zone in zones:
-        if not is_instance_valid(zone) or zone.is_queued_for_deletion(): continue
-        if zone.get("current_state") != 2: continue 
-        
-        var d = zone.global_position.distance_to(player.global_position)
-        if d > min_spawn_dist and d < min_dist: 
-            min_dist = d
-            best_zone = zone
-            
-    if best_zone:
-        best_zone.remove_from_group("zones")
-        _log("STRATEGIC", "EXPANSION - Spawning Rival Camp at safe distance: %dpx" % int(min_dist))
-        var spawned_camp = zone_system._on_zone_evolved(best_zone.global_position, "RivalExpansion", 2.0, best_zone)
-        if is_instance_valid(spawned_camp) and spawned_camp.has_method("set_alignment"):
-            # Никогда не конвертируем лагерь игрока обратно в соперника.
-            if spawned_camp.alignment != spawned_camp.Alignment.PLAYER:
-                spawned_camp.set_alignment(spawned_camp.Alignment.RIVAL)
+    # Единственный путь экспансии: захват нейтральных OreNode
+    _try_capture_ore_node()
+
+
+func _try_capture_ore_node() -> bool:
+    ## Захват нейтрального рудного узла соперником.
+    ## MVP-лимит: препятствует полному доминированию карты в ранней игре,
+    ## но сохраняет экспансию и угрозу Соперника.
+    var ore_nodes := get_tree().get_nodes_in_group("ore_nodes")
+    if ore_nodes.is_empty():
+        return false
+
+    # Динамический лимит владения шахтами для Соперника.
+    # При достижении лимита — пропускаем захват, продолжаем обычную работу (тики идут дальше).
+    var mine_cap := _get_rival_mine_cap()
+    if mine_cap >= 0:
+        var rival_mine_count := 0
+        for m in get_tree().get_nodes_in_group("rival_mines"):
+            if is_instance_valid(m) and m.alignment == 2:
+                rival_mine_count += 1
+        if rival_mine_count >= mine_cap:
+            _log("STRATEGIC", "EXPANSION - Rival at mine cap (%d/%d), waiting" % [rival_mine_count, mine_cap])
+            return false
+
+    var player := get_tree().get_first_node_in_group("player")
+    var best_node: Node = null
+    var best_dist := INF
+
+    for ore in ore_nodes:
+        if not is_instance_valid(ore):
+            continue
+        var d: float = 0.0
+        if is_instance_valid(player):
+            d = ore.global_position.distance_to(player.global_position)
+        # Предпочитаем узлы подальше от игрока
+        if d > best_dist or (best_node == null and d > 600.0):
+            best_dist = d
+            best_node = ore
+
+    if best_node:
+        _log("STRATEGIC", "EXPANSION - Rival capturing OreNode at distance: %dpx" % int(best_dist))
+        if best_node.has_method("_on_captured"):
+            best_node._on_captured(OreNode.Alignment.RIVAL)
+        return true
+
+    return false
+
+
+func _get_rival_mine_cap() -> int:
+    ## Динамический лимит числа шахт Соперника по времени забега.
+    ## 0-5 мин: максимум 2; 5-10 мин: максимум 4; 10+ мин: без лимита (-1).
+    var t := GameManager.time_elapsed
+    if t < 300.0:
+        return 2
+    if t < 600.0:
+        return 4
+    return -1
 
 func _execute_economy() -> void:
+    # Улучшение вражеских шахт (новая система — приоритет).
+    # Соперник следует той же экономике, что и игрок:
+    #   - выбирать можно только шахту в READY (хранилище заполнено);
+    #   - BUILDING-шахты пропускаются (стройка уже идёт);
+    #   - start_construction() мгновенно потребляет ресурсы и переводит шахту в BUILDING,
+    #     апгрейд применяется только по завершении строительства;
+    #   - улучшаются только шахты под контролем соперника (rival_mines + alignment == 2).
+    var r_mines := get_tree().get_nodes_in_group("rival_mines").filter(func(m):
+        return is_instance_valid(m) \
+            and m.alignment == 2 \
+            and m.has_method("start_construction") \
+            and m.state == m.MineState.READY \
+            and m.total_upgrades_used() < m.MAX_TOTAL_UPGRADES)
+    if r_mines.size() > 0:
+        var target = r_mines.pick_random()
+        var eco_available: bool = target.economic_level < target.MAX_ECONOMIC_LEVEL
+        var mil_available: bool = target.military_level < target.MAX_MILITARY_LEVEL
+        var branch: String = "economic"
+        if eco_available and mil_available:
+            branch = "military" if randf() > 0.5 else "economic"
+        elif mil_available:
+            branch = "military"
+        # total_upgrades_used < MAX гарантирует хотя бы одну доступную ветку,
+        # но страхуемся от пустого выбора.
+        if eco_available or mil_available:
+            target.start_construction(branch)
+        return
+
+    # Старая логика: улучшение лагерей
     var r_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 2)
     if r_camps.size() > 0:
         var target = r_camps.pick_random()

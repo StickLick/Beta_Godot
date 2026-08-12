@@ -2,13 +2,18 @@ extends Node2D
 
 @export var map_rect: Rect2 = Rect2(-3000, -3000, 6000, 6000)
 @export var boss_scene: PackedScene
+@export var ore_count: int = 8
+@export var ore_min_distance: float = 800.0
 
 var boss_spawned: bool = false
+var _ore_generator: OreGenerator
 
 func _ready() -> void:
     # Сохраняем границы для всех систем
+    GameManager.map_rect = map_rect
     GameManager.set_meta("map_rect", map_rect)
     _setup_boundaries()
+    _generate_ore_nodes()
 
 func _process(_delta: float) -> void:
     # Спавн босса (600с = 10 мин)
@@ -33,6 +38,12 @@ func _set_wall(node: CollisionShape2D, pos: Vector2, size: Vector2) -> void:
     var shape = RectangleShape2D.new()
     shape.size = size
     node.shape = shape
+
+func _generate_ore_nodes() -> void:
+    _ore_generator = OreGenerator.new()
+    _ore_generator.ore_count = ore_count
+    _ore_generator.min_distance = ore_min_distance
+    add_child(_ore_generator)
 
 func _spawn_rival_boss() -> void:
     if not boss_scene: return

@@ -125,6 +125,17 @@ custom_minimum_size = Vector2(260, 52)
 layout_mode = 2
 text = "Слот пассивок (2 -> 3) — 100"
 
+[node name="ShopScroll" type="ScrollContainer" parent="ShopPanel/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 420)
+layout_mode = 2
+
+[node name="ShopDynamicBox" type="VBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer/ShopScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
 [node name="CloseShopButton" type="Button" parent="ShopPanel/CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2

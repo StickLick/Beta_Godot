@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dhrk6ue3d67dk"]
+
+[ext_resource type="Script" uid="uid://dot8u5hokwfat" path="res://scripts/mine_world_objects.gd" id="1_world_objects"]
+[ext_resource type="PackedScene" uid="uid://bminerwkr0001" path="res://Assets/Scenes/Visuals/MinerWorker.tscn" id="2_wngfu"]
+[ext_resource type="PackedScene" uid="uid://dy5sw2n2sseom" path="res://Assets/Scenes/Visuals/MineFort.tscn" id="3_ixbul"]
+[ext_resource type="PackedScene" uid="uid://1o4d64xqrage" path="res://Assets/Scenes/Visuals/FortArcher.tscn" id="4_defender"]
+
+[node name="MineWorldObjects" type="Node2D" unique_id=560062996 node_paths=PackedStringArray("worker_slots", "fort_position")]
+script = ExtResource("1_world_objects")
+worker_scene = ExtResource("2_wngfu")
+fort_scene = ExtResource("3_ixbul")
+defender_scene = ExtResource("4_defender")
+worker_slots = [NodePath("WorkerSlots/WorkerSlot1"), NodePath("WorkerSlots/WorkerSlot2"), NodePath("WorkerSlots/WorkerSlot3")]
+fort_position = NodePath("FortPosition")
+
+[node name="WorkerContainer" type="Node2D" parent="." unique_id=2024587282]
+
+[node name="WorkerSlots" type="Node2D" parent="." unique_id=1667324696]
+position = Vector2(-55, 10)
+
+[node name="WorkerSlot1" type="Marker2D" parent="WorkerSlots" unique_id=11111111]
+position = Vector2(15, -40)
+
+[node name="WorkerSlot2" type="Marker2D" parent="WorkerSlots" unique_id=22222222]
+position = Vector2(15, -6)
+
+[node name="WorkerSlot3" type="Marker2D" parent="WorkerSlots" unique_id=33333333]
+position = Vector2(18, 16)
+
+[node name="FortContainer" type="Node2D" parent="." unique_id=131415020]
+
+[node name="FortPosition" type="Marker2D" parent="." unique_id=44444444]
+position = Vector2(134, 0)

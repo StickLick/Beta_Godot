@@ -26,10 +26,6 @@ level_textures = Array[Texture2D]([ExtResource("2_xrp82"), ExtResource("3_sdjqj"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=884473819]
 shape = SubResource("CircleShape2D_gd7ey")
 
-[node name="Polygon2D" type="Polygon2D" parent="." unique_id=834252385]
-color = Color(1, 1, 1, 0.03529412)
-polygon = PackedVector2Array(-1, -149, -105, -107, -149, -2, -110, 101, -1, 149, 111, 101, 149, -1, 102, -108)
-
 [node name="Sprite" type="Sprite2D" parent="." unique_id=540310009]
 position = Vector2(0, -88)
 

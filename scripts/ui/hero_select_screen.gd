@@ -81,12 +81,26 @@ func _update_card(index: int, hero_id: String, unlocked: bool, current: String, 
     var lock_label: Label = card.get_node_or_null("VBox/LockHeader/LockLabel")
     var visual_texture: TextureRect = card.get_node_or_null("VBox/Header/VisualTexture")
 
-    # Визуал героя (SpriteFrames первого кадра Idle).
+    # Визуал героя (SpriteFrames первого кадра Idle). Немного увеличен для читаемости.
     if visual_texture and hero.get("visual") != "":
         var frames: SpriteFrames = load(hero.get("visual")) as SpriteFrames
         if frames and frames.get_frame_count("Idle") > 0:
             visual_texture.texture = frames.get_frame_texture("Idle", 0)
             visual_texture.visible = true
+    if visual_texture:
+        visual_texture.custom_minimum_size = Vector2(88, 88)
+        visual_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        visual_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+    # Центрирование содержимого карточки: заголовок (спрайт+имя) — как
+    # компактная группа по центру, текстовые блоки — на всю ширину карточки
+    # с центрированным текстом (автоперенос естественный, не по словам).
+    _center_hbox(card.get_node_or_null("VBox/Header"))
+    _fill_vbox_items(card.get_node_or_null("VBox/Passive"))
+    _fill_vbox_items(card.get_node_or_null("VBox/LockHeader"))
+    _center_label(passive_name_label)
+    _center_label(passive_desc_label)
+    _center_label(lock_label)
 
     if name_label:
         name_label.text = str(hero.get("display_name", hero_id))
@@ -106,6 +120,31 @@ func _update_card(index: int, hero_id: String, unlocked: bool, current: String, 
             lock_label.visible = true
 
     _apply_visual_state(card, unlocked, hero_id == current, index == _hovered_index)
+
+
+## Центрирует заголовок (Header: спрайт + имя) по горизонтали.
+func _center_hbox(header: Control) -> void:
+    if header == null:
+        return
+    header.alignment = BoxContainer.ALIGNMENT_CENTER
+
+
+## Растягивает каждый дочерний элемент VBox на всю ширину карточки.
+## Так автоперенос использует доступную ширину, а текст центрируется
+## через horizontal_alignment — без узких колонок и переноса по словам.
+func _fill_vbox_items(vbox: Control) -> void:
+    if vbox == null:
+        return
+    for child in vbox.get_children():
+        if child is Control:
+            child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+
+## Центрирует текст лейбла по горизонтали.
+func _center_label(label: Label) -> void:
+    if label == null:
+        return
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 
 ## Применяет визуальное состояние карточки: заблокирована / выбрана / наведена / обычная.

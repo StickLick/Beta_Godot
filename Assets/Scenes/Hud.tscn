@@ -240,6 +240,36 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Награда: 0"
 
+[node name="CarriedGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Собрано во время забега: 0"
+
+[node name="MineGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Остаток из шахт: 0"
+
+[node name="KillGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Убийства врагов: 0"
+
+[node name="GoldGainRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Пассивка \"Золото\" (+0%): +0"
+
+[node name="VictoryBonusRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Победа: 0"
+
+[node name="TotalRewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Всего получено: 0"
+
 [node name="ButtonContainer" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -387,6 +417,12 @@ unique_name_in_owner = true
 process_mode = 3
 layout_mode = 2
 text = "Индустриальный лагерь"
+
+[node name="DeclineButton" type="Button" parent="SpecialtyPanel/VBoxContainer" unique_id=185586932]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 2
+text = "Забрать"
 
 [node name="IndicatorManager" type="Control" parent="." unique_id=1326807562]
 layout_mode = 3
