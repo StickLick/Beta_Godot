@@ -6,7 +6,7 @@
 texture = ExtResource("1_y2mwo")
 1:1/size_in_atlas = Vector2i(6, 5)
 1:1/animation_separation = Vector2i(2, 0)
-1:1/animation_speed = 1.5
+1:1/animation_speed = 4.0
 1:1/animation_frame_0/duration = 1.0
 1:1/animation_frame_1/duration = 1.0
 1:1/animation_frame_2/duration = 1.0

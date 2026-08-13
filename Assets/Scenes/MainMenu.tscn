@@ -1,12 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://mainmenu0001"]
+[gd_scene format=3 uid="uid://mainmenu0001"]
 
-[ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://n4aidu3wg87c" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
+[ext_resource type="PackedScene" uid="uid://cfgniddd8chn4" path="res://Assets/Scenes/MenuBackground.tscn" id="2_cwbci"]
 [ext_resource type="PackedScene" uid="uid://gachascr0001" path="res://Assets/Scenes/UI/GachaScreen.tscn" id="2_gacha"]
 [ext_resource type="PackedScene" uid="uid://heroscr0001" path="res://Assets/Scenes/UI/HeroSelectScreen.tscn" id="3_hero"]
 [ext_resource type="PackedScene" uid="uid://collscr0001" path="res://Assets/Scenes/UI/CollectionScreen.tscn" id="4_col"]
-[ext_resource type="Texture2D" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="5_coin"]
+[ext_resource type="Texture2D" uid="uid://v3gjs1ocmwan" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="5_coin"]
 
-[node name="MainMenu" type="Control"]
+[node name="MainMenu" type="Control" unique_id=845447620]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,16 +16,21 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="MenuBackground" parent="." unique_id=775553849 instance=ExtResource("2_cwbci")]
+position = Vector2(1297, -835)
+
+[node name="Background" type="ColorRect" parent="." unique_id=1714310596]
+z_index = 4
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.08, 0.08, 0.12, 1)
+color = Color(0.078431375, 0.078431375, 0.12156863, 0.13725491)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=555612912]
+z_index = 5
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,48 +38,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1875954431]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1768601805]
 layout_mode = 2
+theme_override_font_sizes/font_size = 64
 text = "LEGION"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 64
 
-[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1508663868]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Start Game"
 
-[node name="ShopButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="ShopButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1865204618]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Магазин"
 
-[node name="LuckButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="LuckButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=36705623]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Try Luck"
 
-[node name="CollectionButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="CollectionButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=485631331]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Коллекция"
 
-[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2027326053]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Quit"
 
-[node name="ShopPanel" type="Panel" parent="."]
+[node name="ShopPanel" type="Panel" parent="." unique_id=1589274612]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -81,7 +89,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Background" type="ColorRect" parent="ShopPanel"]
+[node name="Background" type="ColorRect" parent="ShopPanel" unique_id=19079669]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,7 +99,8 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.05, 0.09, 0.95)
 
-[node name="CenterContainer" type="CenterContainer" parent="ShopPanel"]
+[node name="CenterContainer" type="CenterContainer" parent="ShopPanel" unique_id=1715747459]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -98,55 +108,63 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ShopPanel/CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ShopPanel/CenterContainer" unique_id=1536031262]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer" unique_id=1119357530]
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "МАГАЗИН"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 40
 
-[node name="CurrencyDisplay" type="HBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer"]
+[node name="CurrencyDisplay" type="HBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer" unique_id=953398962]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 6
+alignment = 1
 
-[node name="CoinIcon" type="TextureRect" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay"]
+[node name="CoinIcon" type="TextureRect" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=1258118675]
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
 size_flags_vertical = 4
 texture = ExtResource("5_coin")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="CurrencyLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay"]
+[node name="CurrencyLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=1737056482]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 24
 
-[node name="ShopScroll" type="ScrollContainer" parent="ShopPanel/CenterContainer/VBoxContainer"]
+[node name="ShopScroll" type="ScrollContainer" parent="ShopPanel/CenterContainer/VBoxContainer" unique_id=1235560435]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(340, 750)
 layout_mode = 2
 
-[node name="ShopDynamicBox" type="VBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer/ShopScroll"]
+[node name="ShopDynamicBox" type="VBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer/ShopScroll" unique_id=1338064473]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="CloseShopButton" type="Button" parent="ShopPanel/CenterContainer/VBoxContainer"]
+[node name="CloseShopButton" type="Button" parent="ShopPanel/CenterContainer/VBoxContainer" unique_id=1554435722]
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
 text = "Закрыть"
 
-[node name="GachaScreen" parent="." instance=ExtResource("2_gacha")]
-[node name="HeroSelectScreen" parent="." instance=ExtResource("3_hero")]
-[node name="CollectionScreen" parent="." instance=ExtResource("4_col")]
+[node name="GachaScreen" parent="." unique_id=902192902 instance=ExtResource("2_gacha")]
+visible = false
+layout_mode = 1
+
+[node name="HeroSelectScreen" parent="." unique_id=1346212691 instance=ExtResource("3_hero")]
+visible = false
+layout_mode = 1
+
+[node name="CollectionScreen" parent="." unique_id=568595509 instance=ExtResource("4_col")]
+visible = false
+layout_mode = 1
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/StartButton" to="." method="_on_start_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ShopButton" to="." method="_on_shop_pressed"]
