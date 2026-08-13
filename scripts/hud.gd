@@ -395,6 +395,13 @@ func _on_mine_upgrade_ready(mine: Mine) -> void:
     var player := get_tree().get_first_node_in_group("player")
     if not is_instance_valid(player) or player.get("current_mine") != mine:
         return
+    # Мета-фильтр: апгрейды шахты доступны только в пределах разблокированного
+    # уровня шахты (MetaProgress.get_mine_level). Уровень 1 = только база без апгрейдов;
+    # уровень N разрешает N-1 суммарных апгрейдов. Запертые апгрейды не попадают в пул выбора.
+    var meta := get_node_or_null("/root/MetaProgress")
+    var meta_max_upgrades: int = int(meta.get_mine_level()) - 1 if meta and meta.has_method("get_mine_level") else 999
+    if mine.total_upgrades_used() >= meta_max_upgrades:
+        return
     # Тексты/состояние кнопок для шахты (Max + disabled при достижении предела ветки).
     if is_instance_valid(industry_button):
         if mine.get("economic_level") >= mine.MAX_ECONOMIC_LEVEL:

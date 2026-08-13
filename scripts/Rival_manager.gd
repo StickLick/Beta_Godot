@@ -160,12 +160,28 @@ func _execute_economy() -> void:
     #   - start_construction() мгновенно потребляет ресурсы и переводит шахту в BUILDING,
     #     апгрейд применяется только по завершении строительства;
     #   - улучшаются только шахты под контролем соперника (rival_mines + alignment == 2).
-    var r_mines := get_tree().get_nodes_in_group("rival_mines").filter(func(m):
-        return is_instance_valid(m) \
-            and m.alignment == 2 \
-            and m.has_method("start_construction") \
-            and m.state == m.MineState.READY \
-            and m.total_upgrades_used() < m.MAX_TOTAL_UPGRADES)
+    # Мета-фильтр: апгрейды шахт доступны только в пределах разблокированного
+    # уровня шахты (MetaProgress.get_mine_level). Уровень 1 = только база без апгрейдов;
+    # уровень N разрешает N-1 суммарных апгрейдов. Запертые апгрейды не попадают в пул выбора.
+    var meta := get_node_or_null("/root/MetaProgress")
+    var meta_max_upgrades: int = 999
+    if meta and meta.has_method("get_mine_level"):
+        meta_max_upgrades = int(meta.get_mine_level()) - 1
+    var r_mines: Array = []
+    for m in get_tree().get_nodes_in_group("rival_mines"):
+        if not is_instance_valid(m):
+            continue
+        if m.alignment != 2:
+            continue
+        if not m.has_method("start_construction"):
+            continue
+        if m.state != m.MineState.READY:
+            continue
+        if m.total_upgrades_used() >= m.MAX_TOTAL_UPGRADES:
+            continue
+        if m.total_upgrades_used() >= meta_max_upgrades:
+            continue
+        r_mines.append(m)
     if r_mines.size() > 0:
         var target = r_mines.pick_random()
         var eco_available: bool = target.economic_level < target.MAX_ECONOMIC_LEVEL

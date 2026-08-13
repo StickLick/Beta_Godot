@@ -1,56 +1,40 @@
 [gd_scene format=3 uid="uid://ds8x2kplq70n5"]
 
-[ext_resource type="Script" path="res://scripts/weapons/siege_bolt.gd" id="1_sbolt"]
-[ext_resource type="Texture2D" path="res://Assets/Textures/SiegeBolt.svg" id="2_svg"]
+[ext_resource type="Script" uid="uid://dgtm0buuckf6n" path="res://scripts/weapons/siege_bolt.gd" id="1_sbolt"]
+[ext_resource type="Texture2D" uid="uid://dik15305ks8gf" path="res://Assets/Textures/SiegeBolt.svg" id="2_svg"]
+[ext_resource type="Texture2D" uid="uid://bijvs0hfxjhov" path="res://Assets/Textures/Dust1_flip.png" id="3_6lbla"]
 
 [sub_resource type="RectangleShape2D" id="SiegeBoltShape"]
 size = Vector2(50, 14)
 
-[sub_resource type="Gradient" id="WindGrad"]
-colors = PackedColorArray(1.0, 1.0, 1.0, 0.7, 0.9, 0.95, 1.0, 0.4, 0.0, 0.0, 0.0, 0.0)
-offsets = PackedFloat32Array(0.0, 0.5, 1.0)
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_fsuuu"]
+particle_flag_disable_z = true
+emission_shape_offset = Vector3(-5, 0, 0)
+emission_shape_scale = Vector3(5, 1, 1)
+gravity = Vector3(0, 98, 0)
+scale_min = 0.29999998
+scale_max = 0.5
 
-[sub_resource type="GradientTexture1D" id="WindTex"]
-gradient = SubResource("WindGrad")
-
-[sub_resource type="ParticleProcessMaterial" id="WindPPM"]
-emission_shape = 1
-spread = 2.0
-gravity = Vector3(0, 0, 0)
-initial_velocity_min = 80.0
-initial_velocity_max = 150.0
-direction = Vector3(-1, 0, 0)
-scale_min = 3.0
-scale_max = 8.0
-color_ramp = SubResource("WindTex")
-lifetime_randomness = 0.3
-
-[node name="SiegeBolt" type="Area2D" unique_id=4829475030]
+[node name="SiegeBolt" type="Area2D" unique_id=534507734]
+scale = Vector2(0.6, 0.6)
 script = ExtResource("1_sbolt")
 speed = 500.0
-damage = 130.0
-pierce_limit = 3
-scale = Vector2(0.6, 0.6)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=4829475031]
-shape = SubResource("SiegeBoltShape")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=534507735]
 position = Vector2(25, 0)
+shape = SubResource("SiegeBoltShape")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=4829475032]
-texture = ExtResource("2_svg")
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=534507736]
 position = Vector2(30, 0)
+texture = ExtResource("2_svg")
 
-[node name="Tip" type="Marker2D" parent="." unique_id=4829475035]
+[node name="Tip" type="Marker2D" parent="." unique_id=534507739]
 position = Vector2(60, 0)
 
-[node name="WindTrail" type="GPUParticles2D" parent="." unique_id=4829475034]
-amount = 120
-lifetime = 0.5
-one_shot = false
-explosiveness = 0.0
-local_coords = false
-z_index = 50
-modulate = Color(1, 1, 1, 0.9)
-process_material = SubResource("WindPPM")
-emitting = true
-position = Vector2(-10, 0)
+[node name="GPUParticles2D" type="GPUParticles2D" parent="." unique_id=2086430249]
+position = Vector2(-78.33333, -1.6666666)
+amount = 3
+texture = ExtResource("3_6lbla")
+lifetime = 0.3
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_fsuuu")

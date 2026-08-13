@@ -10,7 +10,6 @@ thickness = 20
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_results_sep"]
 color = Color(1, 1, 1, 0.15)
-thickness = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
 content_margin_left = 16.0
@@ -149,7 +148,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.5882353)
 
-[node name="CenterContainer" type="CenterContainer" parent="ResultsPanel"]
+[node name="CenterContainer" type="CenterContainer" parent="ResultsPanel" unique_id=1017189589]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -157,146 +156,144 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ResultsPanel/CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ResultsPanel/CenterContainer" unique_id=1410242787]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer" unique_id=2138518542]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 36
 text = "РЕЗУЛЬТАТ"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 36
-theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 
-[node name="HeroRow" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+[node name="HeroRow" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer" unique_id=457790871]
 unique_name_in_owner = true
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 8
+alignment = 1
 
-[node name="HeroIcon" type="TextureRect" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow"]
+[node name="HeroIcon" type="TextureRect" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow" unique_id=673113516]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="HeroLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow"]
+[node name="HeroLabel" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/HeroRow" unique_id=265568614]
 unique_name_in_owner = true
 layout_mode = 2
-vertical_alignment = 1
 theme_override_font_sizes/font_size = 18
+vertical_alignment = 1
 
-[node name="Separator" type="HSeparator" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+[node name="Separator" type="HSeparator" parent="ResultsPanel/CenterContainer/VBoxContainer" unique_id=1700821831]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_results_sep")
 
-[node name="StatsVBox" type="VBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+[node name="StatsVBox" type="VBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer" unique_id=388042179]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_right = 24
 
-[node name="LevelRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="LevelRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1526964118]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Уровень: 0"
 
-[node name="ZonesRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="ZonesRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=2129886508]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Захвачено зон: 0"
 
-[node name="CampsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="CampsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1536783178]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Уничтожено баз: 0"
 
-[node name="UnitsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="UnitsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1685872113]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Создано юнитов: 0"
 
-[node name="KillsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="KillsRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=896548273]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Убито врагов: 0"
 
-[node name="XpRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="XpRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=701966950]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Всего опыта: 0"
 
-[node name="TimeRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="TimeRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1888910560]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Время: 00:00"
 
-[node name="RewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="RewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1205468304]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Награда: 0"
 
-[node name="CarriedGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="CarriedGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1333415175]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Собрано во время забега: 0"
 
-[node name="MineGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="MineGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=628292237]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Остаток из шахт: 0"
 
-[node name="KillGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="KillGoldRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=515911290]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Убийства врагов: 0"
 
-[node name="GoldGainRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="GoldGainRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1680048888]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Пассивка \"Золото\" (+0%): +0"
 
-[node name="VictoryBonusRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="VictoryBonusRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1185972570]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Победа: 0"
 
-[node name="TotalRewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox"]
+[node name="TotalRewardRow" type="Label" parent="ResultsPanel/CenterContainer/VBoxContainer/StatsVBox" unique_id=1697584056]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Всего получено: 0"
 
-[node name="ButtonContainer" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer"]
+[node name="ButtonContainer" type="HBoxContainer" parent="ResultsPanel/CenterContainer/VBoxContainer" unique_id=1577184389]
 unique_name_in_owner = true
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 12
+alignment = 1
 
 [node name="MenuButton" type="Button" parent="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer" unique_id=358643571]
 unique_name_in_owner = true
 process_mode = 3
 custom_minimum_size = Vector2(160, 48)
 layout_mode = 2
-text = "В меню"
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_normal")
+text = "В меню"
 
 [node name="RestartButton" type="Button" parent="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer" unique_id=358643569]
 unique_name_in_owner = true
 process_mode = 3
 custom_minimum_size = Vector2(160, 48)
 layout_mode = 2
-text = "Рестарт"
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_normal")
+text = "Рестарт"
 
 [node name="PauseButton" type="Button" parent="." unique_id=1511142750]
 unique_name_in_owner = true
@@ -307,8 +304,8 @@ offset_right = 533.0
 offset_bottom = 69.0
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 0.85)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.6)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
 text = "❚❚"
 
@@ -345,9 +342,9 @@ theme_override_constants/separation = 16
 
 [node name="TitleLabel" type="Label" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1561142750]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "ПАУЗА"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 36
 
 [node name="ContinueButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1571142750]
 unique_name_in_owner = true
@@ -461,5 +458,5 @@ theme_override_colors/font_color = Color(1, 0.17000002, 0.17000002, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
-[connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/RestartButton" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/MenuButton" to="." method="_on_menu_pressed"]
+[connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/RestartButton" to="." method="_on_restart_pressed"]

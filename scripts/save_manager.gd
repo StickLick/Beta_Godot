@@ -9,9 +9,9 @@ const SAVE_PATH: String = "user://save.json"
 const DEFAULTS: Dictionary = {
 	"meta_currency": 0,
 	"unlocked_weapon_slots": 1,
-	"unlocked_passive_slots": 1,
+	"unlocked_passive_slots": 2,
 	"unlocked_weapons": [],
-	"unlocked_passives": [],
+	"unlocked_passives": ["passive_move_speed"],
 	"unlocked_heroes": [],
 	# Эволюции, полученные игроком в забегах (по имени Upgrade).
 	"unlocked_evolutions": [],

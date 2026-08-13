@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://gachascr0001"]
+[gd_scene load_steps=4 format=3 uid="uid://gachascr0001"]
 
 [ext_resource type="Script" path="res://scripts/ui/gacha_screen.gd" id="1_gacha"]
+[ext_resource type="Texture2D" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="2_coin"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
 bg_color = Color(0.05, 0.05, 0.08, 0.999)
@@ -61,11 +62,25 @@ custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 text = "?"
 
-[node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="CurrencyDisplay" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="CoinIcon" type="TextureRect" parent="CenterContainer/VBoxContainer/CurrencyDisplay"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+size_flags_vertical = 4
+texture = ExtResource("2_coin")
+
+[node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer/CurrencyDisplay"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Валюта: 0"
+text = "0"
 horizontal_alignment = 1
+vertical_alignment = 1
 theme_override_font_sizes/font_size = 22
 
 [node name="ReelsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]

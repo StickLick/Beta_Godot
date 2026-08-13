@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://cd1n31l6os28u"]
-
-[ext_resource type="PackedScene" uid="uid://1upcnkqkjnwa" path="res://Assets/Scenes/Mine.tscn" id="1_wgr2i"]
-
-[node name="MineResetTest" type="Node2D" unique_id=1561657255]
-
-[node name="RivalMine" parent="." unique_id=456833703 instance=ExtResource("1_wgr2i")]
-alignment = 2

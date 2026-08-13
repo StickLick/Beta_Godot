@@ -3,8 +3,11 @@
 [ext_resource type="Script" uid="uid://bk2u2c86kkqkp" path="res://scripts/ore_node.gd" id="1_ore"]
 [ext_resource type="Texture2D" uid="uid://bepdccrxggi6m" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 6_Highlight.png" id="2_5a1bp"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_capture"]
 radius = 120.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_physical"]
+radius = 40.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aetpe"]
 atlas = ExtResource("2_5a1bp")
@@ -61,9 +64,15 @@ collision_mask = 2
 script = ExtResource("1_ore")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1149698594]
-shape = SubResource("CircleShape2D_1")
+shape = SubResource("CircleShape2D_capture")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1611522206]
 scale = Vector2(1.28125, 1.2578125)
 sprite_frames = SubResource("SpriteFrames_jq4ab")
 animation = &"default"
+
+[node name="PhysicalBody" type="StaticBody2D" parent="." unique_id=2147483647]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PhysicalBody" unique_id=2147483646]
+position = Vector2(0, -9)
+shape = SubResource("CircleShape2D_physical")

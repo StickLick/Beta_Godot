@@ -77,7 +77,7 @@ func refresh() -> void:
 	var meta := get_node_or_null("/root/MetaProgress")
 	if not gm or not gacha or not meta:
 		return
-	currency_label.text = "Валюта: %d" % gm.get_meta_currency()
+	currency_label.text = "%d" % gm.get_meta_currency()
 	spin_button.text = "Крутить (%d)" % gacha.get_first_cost()
 	spin_button.disabled = _animating or not meta.can_afford(gacha.get_first_cost())
 

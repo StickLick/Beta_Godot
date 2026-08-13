@@ -1,0 +1,30 @@
+[1mdiff --git a/Assets/Scenes/OreNode.tscn b/Assets/Scenes/OreNode.tscn[m
+[1mindex d24b815..a3bb162 100644[m
+[1m--- a/Assets/Scenes/OreNode.tscn[m
+[1m+++ b/Assets/Scenes/OreNode.tscn[m
+[36m@@ -4,7 +4,7 @@[m
+ [ext_resource type="Texture2D" uid="uid://bepdccrxggi6m" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 6_Highlight.png" id="2_5a1bp"][m
+ [m
+ [sub_resource type="CircleShape2D" id="CircleShape2D_1"][m
+[31m-radius = 120.0[m
+[32m+[m[32mradius = 40.0[m
+ [m
+ [sub_resource type="AtlasTexture" id="AtlasTexture_aetpe"][m
+ atlas = ExtResource("2_5a1bp")[m
+[36m@@ -56,14 +56,14 @@[m [manimations = [{[m
+ "speed": 5.0[m
+ }][m
+ [m
+[31m-[node name="OreNode" type="Area2D" unique_id=985799434][m
+[32m+[m[32m[node name="OreNode" type="StaticBody2D" unique_id=39031276][m
+ collision_mask = 2[m
+ script = ExtResource("1_ore")[m
+ [m
+ [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1149698594][m
+[32m+[m[32mposition = Vector2(0, -9)[m
+ shape = SubResource("CircleShape2D_1")[m
+ [m
+ [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1611522206][m
+ scale = Vector2(1.28125, 1.2578125)[m
+ sprite_frames = SubResource("SpriteFrames_jq4ab")[m
+[31m-animation = &"default"[m

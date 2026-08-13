@@ -87,9 +87,9 @@ func _refresh_shop() -> void:
     var meta: Node = _meta()
     if meta == null:
         return
-    var currency_label: Label = shop_panel.get_node_or_null("CenterContainer/VBoxContainer/CurrencyLabel")
+    var currency_label: Label = shop_panel.get_node_or_null("CenterContainer/VBoxContainer/CurrencyDisplay/CurrencyLabel")
     if currency_label:
-        currency_label.text = "Валюта: %d" % GameManager.get_meta_currency()
+        currency_label.text = "%d" % GameManager.get_meta_currency()
 
     var dyn_box: VBoxContainer = shop_panel.get_node_or_null("CenterContainer/VBoxContainer/ShopScroll/ShopDynamicBox") as VBoxContainer
     if dyn_box == null:

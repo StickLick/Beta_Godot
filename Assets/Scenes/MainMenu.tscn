@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://mainmenu0001"]
+[gd_scene load_steps=6 format=3 uid="uid://mainmenu0001"]
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
 [ext_resource type="PackedScene" uid="uid://gachascr0001" path="res://Assets/Scenes/UI/GachaScreen.tscn" id="2_gacha"]
 [ext_resource type="PackedScene" uid="uid://heroscr0001" path="res://Assets/Scenes/UI/HeroSelectScreen.tscn" id="3_hero"]
 [ext_resource type="PackedScene" uid="uid://collscr0001" path="res://Assets/Scenes/UI/CollectionScreen.tscn" id="4_col"]
+[ext_resource type="Texture2D" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="5_coin"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -99,7 +100,7 @@ grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ShopPanel/CenterContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 12
 
 [node name="TitleLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer"]
 layout_mode = 2
@@ -107,27 +108,29 @@ text = "МАГАЗИН"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 40
 
-[node name="CurrencyLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer"]
+[node name="CurrencyDisplay" type="HBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer"]
 layout_mode = 2
-text = "Валюта: 0"
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="CoinIcon" type="TextureRect" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+size_flags_vertical = 4
+texture = ExtResource("5_coin")
+
+[node name="CurrencyLabel" type="Label" parent="ShopPanel/CenterContainer/VBoxContainer/CurrencyDisplay"]
+layout_mode = 2
+text = "0"
 horizontal_alignment = 1
+vertical_alignment = 1
 theme_override_font_sizes/font_size = 24
-
-[node name="WeaponSlotButton" type="Button" parent="ShopPanel/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(260, 52)
-layout_mode = 2
-text = "Слот оружия (2 -> 3) — 100"
-
-[node name="PassiveSlotButton" type="Button" parent="ShopPanel/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(260, 52)
-layout_mode = 2
-text = "Слот пассивок (2 -> 3) — 100"
 
 [node name="ShopScroll" type="ScrollContainer" parent="ShopPanel/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(340, 420)
+custom_minimum_size = Vector2(340, 750)
 layout_mode = 2
 
 [node name="ShopDynamicBox" type="VBoxContainer" parent="ShopPanel/CenterContainer/VBoxContainer/ShopScroll"]
@@ -149,6 +152,4 @@ text = "Закрыть"
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ShopButton" to="." method="_on_shop_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/LuckButton" to="." method="_on_luck_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/CollectionButton" to="." method="_on_collection_pressed"]
-[connection signal="pressed" from="ShopPanel/CenterContainer/VBoxContainer/WeaponSlotButton" to="." method="_on_weapon_slot_pressed"]
-[connection signal="pressed" from="ShopPanel/CenterContainer/VBoxContainer/PassiveSlotButton" to="." method="_on_passive_slot_pressed"]
 [connection signal="pressed" from="ShopPanel/CenterContainer/VBoxContainer/CloseShopButton" to="." method="_on_shop_pressed"]
