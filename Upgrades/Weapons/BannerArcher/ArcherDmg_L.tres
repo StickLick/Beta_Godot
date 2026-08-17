@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dp8nbvjcgqfwu"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_uwkt0"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: DMG_L"
+display_name = "Лучник: Урон"
+icon = ExtResource("1_uwkt0")
 description = "+50 arrow damage"
+modifiers = Array[Dictionary]([{
+"amount": 50,
+"stat": "base_damage"
+}])
 rarity = 3
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": 50, "stat": "base_damage"}]

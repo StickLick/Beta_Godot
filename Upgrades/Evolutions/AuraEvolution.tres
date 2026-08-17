@@ -2,14 +2,16 @@
 
 [ext_resource type="PackedScene" uid="uid://cqaskkp8hh682" path="res://Assets/Scenes/Weapons/EvolvedAuraWave.tscn" id="1_g0onb"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_upg")
 name = "Аура Бездны"
+display_name = "Аура Бездны"
+icon = ExtResource("ic_upg")
 description = "Эволюция Ауры: пульсирующая волна"
 rarity = 3
 required_passive_tag = "AttackRange"
-required_passive_level = 1
 weapon_tag = "Aura"
 target_weapon_name = "Aura"
 evolved_weapon_tag = "Aura_Evolved"

@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bausarfwc7t3m"]
 
+[ext_resource type="Texture2D" uid="uid://cfw5fcjkyr26e" path="res://Texture/Separated Files/FHD (537).png" id="1_nfbmh"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Lightning: +tick speed"
+display_name = "Молния: Тик"
+icon = ExtResource("1_nfbmh")
 description = "+tick speed"
 amount = -0.12
 modifiers = Array[Dictionary]([{

@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://d1gle2vboqxon"]
 
+[ext_resource type="Texture2D" uid="uid://dlkacuuge2sar" path="res://Texture/Separated Files/FHD (200).png" id="1_848tp"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "CritChance_L"
+display_name = "Критический шанс"
+icon = ExtResource("1_848tp")
 description = "+10% крит. шанса"
 modifiers = Array[Dictionary]([{
 "amount": 0.1,

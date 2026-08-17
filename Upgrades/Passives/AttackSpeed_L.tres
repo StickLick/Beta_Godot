@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bpwq62bfnrv5w"]
 
+[ext_resource type="Texture2D" uid="uid://baypk8b1rdqy6" path="res://Texture/Separated Files/FHD (164).png" id="1_nwsla"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "AttackSpeed_L"
+display_name = "Скорость атаки"
+icon = ExtResource("1_nwsla")
 description = "+50% к скорости атаки"
 modifiers = Array[Dictionary]([{
 "amount": 0.5,

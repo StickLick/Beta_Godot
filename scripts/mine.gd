@@ -509,9 +509,10 @@ func _update_visuals() -> void:
 
     # MineWorldObjects — визуальные world-объекты (рабочие у руды, форт).
     # Позиции задаются Marker2D в редакторе; сцены назначаются в Inspector.
+    # alignment передаётся, чтобы вражеские (Rival) шахты получали красного рабочего.
     var world_objects := get_node_or_null("MineWorldObjects")
     if is_instance_valid(world_objects) and world_objects.has_method("update_levels"):
-        world_objects.update_levels(economic_level, military_level)
+        world_objects.update_levels(economic_level, military_level, int(alignment))
 
 
 # ── СИГНАЛЫ ──

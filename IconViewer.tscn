@@ -1,0 +1,109 @@
+[gd_scene format=3 uid="uid://b1yqus4m4112s"]
+
+[ext_resource type="Texture2D" uid="uid://cw41jvjkpl7xv" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Archer.png" id="archer"]
+[ext_resource type="Texture2D" uid="uid://dt2qm4mn16um6" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_01.png" id="i1"]
+[ext_resource type="Texture2D" uid="uid://cm0cj4qp2yavv" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_02.png" id="i2"]
+[ext_resource type="Texture2D" uid="uid://v3gjs1ocmwan" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="i3"]
+[ext_resource type="Texture2D" uid="uid://7llh2q50tyw1" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_04.png" id="i4"]
+[ext_resource type="Texture2D" uid="uid://dpqrpuiwniy76" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_05.png" id="i5"]
+[ext_resource type="Texture2D" uid="uid://dlvjrq437wlnr" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_06.png" id="i6"]
+[ext_resource type="Texture2D" uid="uid://b6a67pvhxiafg" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_07.png" id="i7"]
+[ext_resource type="Texture2D" uid="uid://blf7275hddv0b" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_08.png" id="i8"]
+[ext_resource type="Texture2D" uid="uid://casgmipscsl3w" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_09.png" id="i9"]
+[ext_resource type="Texture2D" uid="uid://cmorx2bpv3n5d" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_10.png" id="i10"]
+[ext_resource type="Texture2D" uid="uid://cckkytbx4c6f2" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_11.png" id="i11"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="i12"]
+[ext_resource type="Texture2D" uid="uid://ed4wcvb2sfbo" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Lancer.png" id="lancer"]
+[ext_resource type="Texture2D" uid="uid://c1w3uoet0vsd8" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Monk.png" id="monk"]
+
+[node name="IconViewer" type="Control" unique_id=1687919379]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Grid" type="GridContainer" parent="." unique_id=1828126211]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 12
+
+[node name="Icon01" type="TextureRect" parent="Grid" unique_id=1592254255]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i1")
+
+[node name="Icon02" type="TextureRect" parent="Grid" unique_id=845253912]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i2")
+
+[node name="Icon03" type="TextureRect" parent="Grid" unique_id=752982290]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i3")
+
+[node name="Icon04" type="TextureRect" parent="Grid" unique_id=678572038]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i4")
+
+[node name="Icon05" type="TextureRect" parent="Grid" unique_id=881624915]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i5")
+
+[node name="Icon06" type="TextureRect" parent="Grid" unique_id=1944674956]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i6")
+
+[node name="Icon07" type="TextureRect" parent="Grid" unique_id=510712061]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i7")
+
+[node name="Icon08" type="TextureRect" parent="Grid" unique_id=1338083752]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i8")
+
+[node name="Icon09" type="TextureRect" parent="Grid" unique_id=2144324931]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i9")
+
+[node name="Icon10" type="TextureRect" parent="Grid" unique_id=1708938559]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i10")
+
+[node name="Icon11" type="TextureRect" parent="Grid" unique_id=801402885]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i11")
+
+[node name="Icon12" type="TextureRect" parent="Grid" unique_id=1954116752]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("i12")
+
+[node name="Lancer" type="TextureRect" parent="Grid" unique_id=1532225196]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("lancer")
+
+[node name="Archer" type="TextureRect" parent="Grid" unique_id=1251229872]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("archer")
+
+[node name="Monk" type="TextureRect" parent="Grid" unique_id=1339851059]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+texture = ExtResource("monk")

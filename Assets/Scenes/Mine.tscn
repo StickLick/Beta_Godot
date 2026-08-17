@@ -58,6 +58,9 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_qvuvw"]
+radius = 25.0
+
 [node name="Mine" type="Area2D" unique_id=456833703]
 collision_layer = 2
 collision_mask = 2
@@ -78,3 +81,9 @@ position = Vector2(80, -40)
 position = Vector2(-12, 48)
 
 [node name="MineWorldObjects" parent="." unique_id=1239756528 instance=ExtResource("4_world_objects")]
+
+[node name="PhysicalBody" type="StaticBody2D" parent="." unique_id=115164590]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PhysicalBody" unique_id=351366218]
+position = Vector2(0, -5)
+shape = SubResource("CircleShape2D_qvuvw")

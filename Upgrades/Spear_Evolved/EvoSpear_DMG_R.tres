@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cevspdmgr1"]
 
+[ext_resource type="Texture2D" uid="uid://cbil3oo7qotf8" path="res://Texture/Separated Files/FHD (523).png" id="1_h8cmv"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_DMG_R"
+display_name = "Копьё: Урон"
+icon = ExtResource("1_h8cmv")
 description = "Spear: +15 урона (Эво-Копье)"
 modifiers = Array[Dictionary]([{
 "amount": 15,

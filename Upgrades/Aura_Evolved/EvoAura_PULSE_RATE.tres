@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cevaupuls01"]
 
+[ext_resource type="Texture2D" uid="uid://3mxc7medr2k" path="res://Texture/Separated Files/FHD (254).png" id="1_4sc8k"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_PULSE_RATE"
+display_name = "Аура: Пульс"
+icon = ExtResource("1_4sc8k")
 description = "Aura: +20% частота пульсации (Эво-Аура)"
 amount = -0.08
 modifiers = Array[Dictionary]([{

@@ -7,9 +7,11 @@ const RESULT_VICTORY_COLOR := Color(1, 0.85, 0.4, 1)
 const RESULT_DEFEAT_COLOR := Color(0.85, 0.5, 0.5, 1)
 
 @onready var health_bar: ProgressBar = %HealthBar
+@onready var hp_fill_bar: TextureProgressBar = %TextureProgressBar
 @onready var timer_label: Label = %TimerLabel
 @onready var xp_bar: ProgressBar = %XPBar
 @onready var level_label: Label = %LevelLabel
+@onready var gold_label: Label = %GoldLabel
 
 @onready var results_panel: Control = %ResultsPanel
 @onready var title_label: Label = %TitleLabel
@@ -52,10 +54,21 @@ const RESULT_DEFEAT_COLOR := Color(0.85, 0.5, 0.5, 1)
 @onready var weapon_container: HBoxContainer = %WeaponSlots
 @onready var passive_container: HBoxContainer = %PassiveSlots
 
-# unused - kept for forward compat
+## Иконка замка для закрытых слотов инвентаря + настройки отображения (Inspector).
+const DEFAULT_LOCK_ICON := preload("res://Texture/Lock 256 px.png")
+@export var lock_icon: Texture2D = DEFAULT_LOCK_ICON
+@export var lock_icon_size: Vector2 = Vector2(24, 24)
+@export var lock_icon_offset: Vector2 = Vector2.ZERO
+
+# Unused - kept for forward compat
 var _pending_target: Node2D = null
 var _active_anomaly_key: String = ""
 var _current_anomaly_visual = null
+
+# --- ОХОТА НА КУРЬЕРА ---
+var courier_event: Node = null
+var courier_banner: Label = null
+var courier_intro_time: float = 0.0   # сколько секунд осталось показывать вводную надпись
 
 # --- MINE UPGRADE (переиспользование specialty_panel) ---
 const MINE_ECO_BUTTON_TEXT: String = "ШАХТА"
@@ -65,36 +78,14 @@ const CAMP_MIL_BUTTON_TEXT: String = "ВОЕННЫЙ"
 const MINE_ECO_MAX_TEXT: String = "Max"
 const MINE_MIL_MAX_TEXT: String = "Max"
 
-# --- DEBUG: счётчик золота (временный, runtime-созданный) ---
-var _gold_debug_label: Label = null
-
-func _setup_gold_debug_label() -> void:
-    ## Временный debug-дисплей золота игрока. Создаётся в рантайме, не в .tscn.
-    _gold_debug_label = Label.new()
-    _gold_debug_label.name = "GoldDebugLabel"
-    _gold_debug_label.position = Vector2(200, 12)
-    _gold_debug_label.add_theme_font_size_override("font_size", 20)
-    _gold_debug_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
-    _gold_debug_label.text = "GOLD: 0"
-    add_child(_gold_debug_label)
-
-
 # Maps anomaly display name -> visual config
 const ANOMALY_VISUALS = {
-    "\u041f\u0420\u0418\u041a\u0410\u0417: \u041e\u0425\u041e\u0422\u0410":           {"radius": 0.0, "color": Color(0.5, 0.0, 0.0, 0.6), "softness": 10.0, "follow": null},
-    "\u041f\u0420\u0418\u041a\u0410\u0417: \u0417\u0410\u0425\u0412\u0410\u0422":       {"radius": 0.0, "color": Color(0.5, 0.3, 0.0, 0.5), "softness": 10.0, "follow": null},
     "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u041a\u041e\u041b\u041b\u0410\u041f\u0421 \u0420\u0415\u0410\u041b\u042c\u041d\u041e\u0421\u0422\u0418": {"radius": 100.0, "color": Color(0.0, 0.3, 0.8, 0.4), "softness": 10.0, "follow": "safe_zone"},
-    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0418\u041d\u0415\u0420\u0426\u0418\u042f":   {"radius": 0.0, "color": Color(0.3, 0.0, 0.3, 0.5), "softness": 10.0, "follow": null},
-    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0413\u0420\u0410\u0412\u0418\u0422\u0410\u0426\u0418\u042f": {"radius": 0.0, "color": Color(0.0, 0.2, 0.2, 0.5), "softness": 10.0, "follow": null},
-    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0414\u0415\u0424\u0418\u0426\u0418\u0422":   {"radius": 0.0, "color": Color(0.2, 0.2, 0.0, 0.4), "softness": 10.0, "follow": null},
-    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0418\u0417\u041e\u0411\u0418\u041b\u0418\u0415":  {"radius": 0.0, "color": Color(0.0, 0.2, 0.0, 0.4), "softness": 10.0, "follow": null},
     "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0422\u0415\u041d\u0415\u0412\u041e\u0419 \u041f\u0418\u0420": {"radius": 200.0, "color": Color(0.0, 0.0, 0.0, 1.0), "softness": 50.0, "follow": "player"},
-    "\u0410\u041d\u041e\u041c\u0410\u041b\u0418\u042f: \u0413\u0418\u041f\u0415\u0420\u0414\u0420\u0410\u0419\u0412": {"radius": 0.0, "color": Color(1.0, 0.5, 0.0, 0.3), "softness": 10.0, "follow": null},
 }
 
 func _ready() -> void:
     add_to_group("hud")
-    _setup_gold_debug_label()
     if is_instance_valid(results_panel): results_panel.hide()
     if is_instance_valid(specialty_panel): specialty_panel.hide()
     if is_instance_valid(pause_panel): pause_panel.hide()
@@ -136,6 +127,13 @@ func _ready() -> void:
     GameManager.anomaly_warning.connect(_on_anomaly_warning)
     GameManager.anomaly_ended.connect(_on_anomaly_ended)
 
+    # CourierHuntEvent может инициализироваться ПОЗЖЕ HUD (порядок нод в Main.tscn).
+    # Надёжно подключаемся в _process при появлении события в группе.
+    _create_courier_banner()
+    var ev := get_tree().get_first_node_in_group("courier_hunt_event")
+    if ev:
+        _connect_courier_event(ev)
+
     var player: Player = get_tree().get_first_node_in_group("player") as Player
     if player != null: 
         _setup_player_connections(player)
@@ -157,8 +155,8 @@ func _ready() -> void:
 func update_inventory_ui() -> void:
     var player = get_tree().get_first_node_in_group("player") as Player
     if not player: return
-    _fill_slots(weapon_container, player.active_weapons, player.unlocked_weapon_slots, player.max_weapon_slots, Vector2(20, 20))
-    _fill_slots(passive_container, player.active_passives, player.unlocked_passive_slots, player.max_passive_slots, Vector2(20, 20))
+    _fill_slots(weapon_container, player.active_weapons, player.unlocked_weapon_slots, player.max_weapon_slots, Vector2(30, 30))
+    _fill_slots(passive_container, player.active_passives, player.unlocked_passive_slots, player.max_passive_slots, Vector2(30, 30))
 
 func _fill_slots(container: HBoxContainer, items: Array, max_slots: int, total_slots: int, slot_size: Vector2) -> void:
     if not is_instance_valid(container): return
@@ -180,6 +178,15 @@ func _fill_slots(container: HBoxContainer, items: Array, max_slots: int, total_s
             slot.color = Color(1, 1, 1, 0.15)
         else:
             slot.color = Color(0, 0, 0, 0.6)
+            if lock_icon != null:
+                var lock_rect := TextureRect.new()
+                lock_rect.texture = lock_icon
+                lock_rect.custom_minimum_size = lock_icon_size
+                lock_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+                lock_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+                lock_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+                lock_rect.position = (slot_size - lock_icon_size) * 0.5 + lock_icon_offset
+                slot.add_child(lock_rect)
         container.add_child(slot)
 
 # --- АНОМАЛИИ ---
@@ -304,14 +311,65 @@ func _cleanup_upgrade_menu_if_active() -> void:
         upg.set("_active_menu", null)
 
 
+func _create_courier_banner() -> void:
+    courier_banner = Label.new()
+    courier_banner.name = "CourierBanner"
+    courier_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    courier_banner.add_theme_font_size_override("font_size", 18)
+    courier_banner.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1.0))
+    # Растяжка по всей ширине верха экрана с центрированным текстом
+    # (horizontal_alignment = CENTER уже задан выше), чтобы Label не уезжал за экран.
+    courier_banner.anchor_left = 0.0
+    courier_banner.anchor_right = 1.0
+    courier_banner.anchor_top = 0.0
+    courier_banner.anchor_bottom = 0.0
+    courier_banner.offset_left = 0.0
+    courier_banner.offset_right = 0.0
+    courier_banner.offset_top = 90.0
+    courier_banner.offset_bottom = 122.0
+    courier_banner.hide()
+    add_child(courier_banner)
+
+func _connect_courier_event(ev: Node) -> void:
+    if ev == courier_event:
+        return
+    courier_event = ev
+    ev.hunt_started.connect(_on_courier_hunt_started)
+    ev.hunt_ended.connect(_on_courier_hunt_ended)
+
+func _on_courier_hunt_started(duration: float) -> void:
+    if is_instance_valid(courier_banner):
+        courier_banner.show()
+        courier_banner.text = "⚔ ОХОТА НА КУРЬЕРА"   # вводная надпись
+        courier_intro_time = 2.0                     # показываем 2 секунды
+
+func _on_courier_hunt_ended() -> void:
+    courier_intro_time = 0.0
+    if is_instance_valid(courier_banner):
+        courier_banner.hide()
+
+
 func _process(_delta: float) -> void:
     if "time_elapsed" in GameManager:
         timer_label.text = _format_time(GameManager.time_elapsed)
 
-    # DEBUG: обновление счётчика золота игрока
-    if is_instance_valid(_gold_debug_label):
-        var player = get_tree().get_first_node_in_group("player")
-        _gold_debug_label.text = "GOLD: %d" % (player.gold if is_instance_valid(player) else 0)
+    # Ожидание появления CourierHuntEvent (инициализируется позже HUD)
+    if courier_event == null:
+        var ev := get_tree().get_first_node_in_group("courier_hunt_event")
+        if ev:
+            _connect_courier_event(ev)
+
+    # Таймер баннера охоты на курьера: сначала вводная надпись, затем цифры
+    if is_instance_valid(courier_event) and is_instance_valid(courier_banner) and courier_banner.visible:
+        if courier_intro_time > 0.0:
+            courier_intro_time -= _delta
+            # Пока идёт вводная надпись — ничего не меняем
+        else:
+            courier_banner.text = str(int(ceil(courier_event.time_left)))
+
+    # Обновление счётчика золота игрока (только число, иконка в сцене)
+    var gold_player = get_tree().get_first_node_in_group("player")
+    gold_label.text = str(gold_player.gold if is_instance_valid(gold_player) else 0)
     
     if not is_instance_valid(anomaly_overlay):
         return
@@ -329,12 +387,12 @@ func _process(_delta: float) -> void:
     
     # Handle player follower (FEAST/Shadow Feast)
     if _current_anomaly_visual != null and _current_anomaly_visual.get("follow") == "player":
-        var player = get_tree().get_first_node_in_group("player")
-        if is_instance_valid(player):
+        var follower_player = get_tree().get_first_node_in_group("player")
+        if is_instance_valid(follower_player):
             var cam = get_viewport().get_camera_2d()
             if is_instance_valid(cam):
                 var canvas_transform = cam.get_canvas_transform()
-                var player_screen_pixel = canvas_transform * player.global_position
+                var player_screen_pixel = canvas_transform * follower_player.global_position
                 mat.set_shader_parameter("center_px", player_screen_pixel)
 
 # --- ЛОГИКА ЛАГЕРЕЙ И ШАХТ (общая панель specialty) ---
@@ -400,6 +458,12 @@ func _on_mine_upgrade_ready(mine: Mine) -> void:
     # уровень N разрешает N-1 суммарных апгрейдов. Запертые апгрейды не попадают в пул выбора.
     var meta := get_node_or_null("/root/MetaProgress")
     var meta_max_upgrades: int = int(meta.get_mine_level()) - 1 if meta and meta.has_method("get_mine_level") else 999
+    # Шахты ещё не открыты для прокачки (mine level 1) — меню не появится.
+    # Автосбор заполненного хранилища при входе в зону.
+    if meta_max_upgrades <= 0:
+        if mine.resources_accumulated > 0.0:
+            mine.collect_resources(player)
+        return
     if mine.total_upgrades_used() >= meta_max_upgrades:
         return
     # Тексты/состояние кнопок для шахты (Max + disabled при достижении предела ветки).
@@ -426,7 +490,14 @@ func _connect_mine(mine: Mine) -> void:
         mine.upgrade_ready.connect(_on_mine_upgrade_ready)
 
 # --- ЛОГИКА ИГРОКА ---
-func _on_player_health_changed(c, m): health_bar.max_value = m; health_bar.value = c
+func set_health(current: float, max_health: float) -> void:
+    hp_fill_bar.max_value = max_health
+    hp_fill_bar.value = current
+
+
+func _on_player_health_changed(c, m):
+    health_bar.max_value = m; health_bar.value = c
+    set_health(c, m)
 func _on_player_xp_changed(c, n): xp_bar.max_value = n; xp_bar.value = c
 
 func _on_player_level_up(new_level: int) -> void:

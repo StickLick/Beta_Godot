@@ -6,6 +6,8 @@ extends Node2D
 
 ## Сцена рабочего (назначается дизайнером в Inspector).
 @export var worker_scene: PackedScene
+## Сцена вражеского (Rival) рабочего — красный вариант для отличия вражеских шахт.
+@export var enemy_worker_scene: PackedScene
 ## Сцена форта (назначается дизайнером в Inspector).
 @export var fort_scene: PackedScene
 ## Сцена защитника форта (FortArcher и т.п.; спавнится на DefenderSocket форта).
@@ -24,19 +26,25 @@ var _spawned_defender: Node2D = null
 
 
 ## Единая точка входа из Mine._update_visuals().
-func update_levels(economic_level: int, military_level: int) -> void:
-    update_economic_level(economic_level)
-    update_military_level(military_level)
+## alignment: 0 = нейтральная, 1 = игрок (синий рабочий), 2 = Rival (красный рабочий).
+func update_levels(economic_level: int, military_level: int, alignment: int = 1) -> void:
+    update_economic_level(economic_level, alignment)
+    update_military_level(military_level, alignment)
 
 
 ## Правило: уровень 1 → 1 рабочий, 2 → 2 рабочих, 3 → 3 рабочих.
-func update_economic_level(level: int) -> void:
+## Вражеская шахта (Rival = 2) получает красного рабочего (enemy_worker_scene);
+## свои (1) и нейтральные (0) — синего (worker_scene).
+func update_economic_level(level: int, alignment: int = 1) -> void:
     _clear_workers()
-    if not worker_scene or worker_slots.is_empty():
+    if worker_slots.is_empty():
+        return
+    var scene_to_use: PackedScene = enemy_worker_scene if alignment == 2 else worker_scene
+    if scene_to_use == null:
         return
     var count := clampi(level, 1, worker_slots.size())
     for i in count:
-        var w := worker_scene.instantiate()
+        var w := scene_to_use.instantiate()
         worker_container.add_child(w)
         w.global_position = worker_slots[i].global_position
         _spawned_workers.append(w)
@@ -45,14 +53,20 @@ func update_economic_level(level: int) -> void:
 ## Правило: уровень 0 → форт и защитник убраны, уровень > 0 → форт на FortPosition
 ## и защитник (турель) на DefenderSocket форта.
 ## military_level передаётся защитнику → FortArcher масштабирует свои статы.
-func update_military_level(level: int) -> void:
+## alignment: 2 (Rival) → красная башня + красный лучник; 1/0 → синие (свои).
+func update_military_level(level: int, alignment: int = 1) -> void:
     _clear_fort()
     if level > 0 and fort_scene and is_instance_valid(fort_position):
         var fort := fort_scene.instantiate()
         fort_container.add_child(fort)
         fort.global_position = fort_position.global_position
+        # Вражеский форт — красная текстура башни.
+        if alignment == 2:
+            var sprite := fort.get_node_or_null("Sprite2D") as Sprite2D
+            if sprite:
+                sprite.texture = load("res://Texture/Tiny Swords (Free Pack)/Buildings/Red Buildings/Tower.png")
         _current_fort = fort
-        _spawn_defender(fort, level)
+        _spawn_defender(fort, level, alignment)
 
 
 func _clear_workers() -> void:
@@ -62,10 +76,12 @@ func _clear_workers() -> void:
     _spawned_workers.clear()
 
 
-func _spawn_defender(fort: Node2D, level: int) -> void:
+func _spawn_defender(fort: Node2D, level: int, alignment: int = 1) -> void:
     ## Спавнит защитника (FortArcher) на позицию DefenderSocket форта.
     ## Сокет — Marker2D в MineFort.tscn, позиция редактируется дизайнером.
     ## Передаёт military_level защитнику сразу при спавне.
+    ## Вражеский защитник (alignment == 2) переключается на красную фракцию
+    ## через flip_alignment() (физика/группы/красные спрайты).
     if not defender_scene:
         return
     var socket := fort.get_node_or_null("DefenderSocket") as Marker2D
@@ -76,6 +92,9 @@ func _spawn_defender(fort: Node2D, level: int) -> void:
     defender.global_position = socket.global_position
     if defender.has_method("set_fort_level"):
         defender.set_fort_level(level)
+    # Вражеский защитник: переключить фракцию/визуал (красный лучник).
+    if alignment == 2 and defender.has_method("flip_alignment"):
+        defender.flip_alignment(2)
     _spawned_defender = defender
 
 

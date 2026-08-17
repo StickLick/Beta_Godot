@@ -4,6 +4,7 @@ class_name Upgrade
 enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 
 @export var name: String
+@export var display_name: String = ""
 @export var icon: Texture2D
 @export var description: String
 @export var stat_to_modify: String 

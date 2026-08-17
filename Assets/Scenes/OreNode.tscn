@@ -6,42 +6,33 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_capture"]
 radius = 120.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_physical"]
-radius = 40.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_aetpe"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_x0bly"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(0, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qvuvw"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_5vbrm"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(128, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_x0bly"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_kj80h"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(256, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_5vbrm"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3sh3"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(384, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_kj80h"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_gv3xx"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(512, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p3sh3"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_mtqug"]
 atlas = ExtResource("2_5a1bp")
 region = Rect2(640, 0, 128, 128)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_jq4ab"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_5a1bp"]
 animations = [{
 "frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_aetpe")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qvuvw")
-}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_x0bly")
 }, {
@@ -53,11 +44,20 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_p3sh3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gv3xx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mtqug")
 }],
 "loop": 1,
 "name": &"default",
 "speed": 5.0
 }]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_physical"]
+radius = 25.0
 
 [node name="OreNode" type="Area2D" unique_id=985799434]
 collision_mask = 2
@@ -67,12 +67,10 @@ script = ExtResource("1_ore")
 shape = SubResource("CircleShape2D_capture")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1611522206]
-scale = Vector2(1.28125, 1.2578125)
-sprite_frames = SubResource("SpriteFrames_jq4ab")
-animation = &"default"
+sprite_frames = SubResource("SpriteFrames_5a1bp")
 
 [node name="PhysicalBody" type="StaticBody2D" parent="." unique_id=2147483647]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PhysicalBody" unique_id=2147483646]
-position = Vector2(0, -9)
+position = Vector2(0, -5)
 shape = SubResource("CircleShape2D_physical")

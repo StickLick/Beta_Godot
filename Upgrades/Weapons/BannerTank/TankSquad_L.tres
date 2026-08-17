@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bswrf88j3mylx"]
 
+[ext_resource type="Texture2D" uid="uid://2cdwrdqbb5u2" path="res://Texture/Separated Files/FHD (167).png" id="1_lx17i"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Tank: Squad_L"
+display_name = "Танк: Отряд"
+icon = ExtResource("1_lx17i")
 description = "+2 tanks in squad"
+modifiers = Array[Dictionary]([{
+"amount": 2,
+"stat": "max_banner_units"
+}])
 rarity = 3
 weapon_tag = "BannerTank"
-modifiers = [{"amount": 2, "stat": "max_banner_units"}]

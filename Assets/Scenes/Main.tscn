@@ -39,6 +39,8 @@
 [ext_resource type="Texture2D" uid="uid://dpawahlw2dww0" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree4.png" id="34_7j5dx"]
 [ext_resource type="Texture2D" uid="uid://djodohncjrx4" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Bushes/Bushe4.png" id="38_t40wn"]
 [ext_resource type="Texture2D" uid="uid://bayj73y1mifay" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Rubber Duck/Rubber duck.png" id="39_mhdow"]
+[ext_resource type="Script" uid="uid://cl84bb46rbfg" path="res://scripts/courier_hunt_event.gd" id="40_721gu"]
+[ext_resource type="PackedScene" uid="uid://dpkdg7vrkhros" path="res://Assets/Scenes/Courier.tscn" id="41_fqjcf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_npkmg"]
 size = Vector2(20, 6000)
@@ -794,6 +796,7 @@ sources/0 = SubResource("TileSetAtlasSource_4kbup")
 texture = ExtResource("38_t40wn")
 2:2/size_in_atlas = Vector2i(4, 4)
 2:2/animation_separation = Vector2i(4, 0)
+2:2/animation_speed = 4.0
 2:2/animation_frame_0/duration = 1.0
 2:2/animation_frame_1/duration = 1.0
 2:2/animation_frame_2/duration = 1.0
@@ -811,7 +814,7 @@ sources/0 = SubResource("TileSetAtlasSource_721gu")
 texture = ExtResource("22_c16tw")
 2:1/size_in_atlas = Vector2i(8, 10)
 2:1/animation_separation = Vector2i(4, 0)
-2:1/animation_speed = 1.5
+2:1/animation_speed = 4.0
 2:1/animation_frame_0/duration = 1.0
 2:1/animation_frame_1/duration = 1.0
 2:1/animation_frame_2/duration = 1.0
@@ -831,6 +834,7 @@ sources/0 = SubResource("TileSetAtlasSource_fqjcf")
 texture = ExtResource("34_7j5dx")
 3:2/size_in_atlas = Vector2i(6, 9)
 3:2/animation_separation = Vector2i(6, 0)
+3:2/animation_speed = 4.0
 3:2/animation_frame_0/duration = 1.0
 3:2/animation_frame_1/duration = 1.0
 3:2/animation_frame_2/duration = 1.0
@@ -850,6 +854,7 @@ sources/0 = SubResource("TileSetAtlasSource_3pnir")
 texture = ExtResource("24_gtkb7")
 2:2/size_in_atlas = Vector2i(8, 14)
 2:2/animation_separation = Vector2i(4, 0)
+2:2/animation_speed = 4.0
 2:2/animation_frame_0/duration = 1.0
 2:2/animation_frame_1/duration = 1.0
 2:2/animation_frame_2/duration = 1.0
@@ -869,6 +874,7 @@ sources/0 = SubResource("TileSetAtlasSource_80ed3")
 texture = ExtResource("25_kgmhe")
 2:0/size_in_atlas = Vector2i(8, 16)
 2:0/animation_separation = Vector2i(4, 0)
+2:0/animation_speed = 4.0
 2:0/animation_frame_0/duration = 1.0
 2:0/animation_frame_1/duration = 1.0
 2:0/animation_frame_2/duration = 1.0
@@ -977,7 +983,7 @@ sources/0 = SubResource("TileSetAtlasSource_iiurs")
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ouggr"]
 texture = ExtResource("39_mhdow")
 0:0/size_in_atlas = Vector2i(2, 2)
-0:0/animation_speed = 2.0
+0:0/animation_speed = 3.0
 0:0/animation_frame_0/duration = 1.0
 0:0/animation_frame_1/duration = 1.0
 0:0/animation_frame_2/duration = 1.0
@@ -1038,7 +1044,6 @@ tile_map_data = PackedByteArray("AACfACz/AAAUAA0AAACfAC3/AAAUAA4AAACfAC7/AAAUAA8
 tile_set = SubResource("TileSet_vwne0")
 
 [node name="Player" parent="." unique_id=1339954514 instance=ExtResource("1_kwblh")]
-z_index = 1
 
 [node name="Bushes" type="Node2D" parent="." unique_id=1265546057]
 
@@ -1170,5 +1175,9 @@ tile_set = SubResource("TileSet_mlh5h")
 [node name="Duck" type="TileMapLayer" parent="." unique_id=2141247406]
 tile_map_data = PackedByteArray("AAA9/6kAAAAAAAAAAADAAFIAAAAAAAAAAACaADv/AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_c8bjq")
+
+[node name="CourierHuntEvent" type="Node" parent="." unique_id=1596950598]
+script = ExtResource("40_721gu")
+courier_scene = ExtResource("41_fqjcf")
 
 [connection signal="level_up" from="Player" to="UpgradeMenu" method="_on_player_level_up"]

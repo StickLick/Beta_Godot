@@ -1,11 +1,16 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cwrnna6bkvff6"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_vw6pf"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: Cadence_C"
+display_name = "Лучник: Темп"
+icon = ExtResource("1_vw6pf")
 description = "0.1s faster redeploy"
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": -0.1,
+"stat": "attack_cooldown"
+}])
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": -0.1, "stat": "attack_cooldown"}]

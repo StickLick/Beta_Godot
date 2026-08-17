@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dst2yi63vgvym"]
 
+[ext_resource type="Texture2D" uid="uid://cebxnfsggycwj" path="res://Texture/Separated Files/FHD (535).png" id="1_5bxwr"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Star Shards: +damage"
+display_name = "Звёздные осколки: Урон"
+icon = ExtResource("1_5bxwr")
 description = "+damage"
 modifiers = Array[Dictionary]([{
 "amount": 50,

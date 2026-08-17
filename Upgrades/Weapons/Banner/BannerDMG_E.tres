@@ -1,13 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bx4d2cdb3d4yo"]
 
+[ext_resource type="Texture2D" uid="uid://lynh0uvdtyeq" path="res://Texture/Separated Files/FHD (503).png" id="1_67mv2"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Banner: +dmg"
+display_name = "Знамя: Урон"
+icon = ExtResource("1_67mv2")
 description = "+damage"
-stat_to_modify = ""
-amount = 0.0
+modifiers = Array[Dictionary]([{
+"amount": 20,
+"stat": "base_damage"
+}])
 rarity = 2
 weapon_tag = "Banner"
-modifiers = [{"amount": 20, "stat": "base_damage"}]

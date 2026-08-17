@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cidrvw3tulstv"]
 
+[ext_resource type="Texture2D" uid="uid://cfw5fcjkyr26e" path="res://Texture/Separated Files/FHD (537).png" id="1_2mypb"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Lightning: +tethers count"
+display_name = "Молния: Перескок"
+icon = ExtResource("1_2mypb")
 description = "+tethers count"
 modifiers = Array[Dictionary]([{
 "amount": 1,

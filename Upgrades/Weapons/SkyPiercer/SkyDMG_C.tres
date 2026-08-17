@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://d4dctdi0k15q0"]
 
+[ext_resource type="Texture2D" uid="uid://cdr6wtn02t5be" path="res://Texture/Separated Files/FHD (541).png" id="1_hi2mv"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Sky Piercer: DMG_C"
+display_name = "Небесный пронзатель: Урон"
+icon = ExtResource("1_hi2mv")
 description = "+5 урона"
 modifiers = Array[Dictionary]([{
 "amount": 5,

@@ -4,6 +4,46 @@ extends Node
 @onready var _ui_container: Control = %UpgradePanel
 @export var all_available_upgrades: Array[Upgrade]
 
+## Визуальные параметры карточек апгрейдов (настраиваются через Inspector).
+@export var card_size: Vector2 = Vector2(400, 160)
+@export var card_spacing: int = 20
+@export_group("Card Style")
+@export var card_normal_style: StyleBox = null
+@export var card_hover_style: StyleBox = null
+@export var card_pressed_style: StyleBox = null
+@export var card_focus_style: StyleBox = null
+
+@export_group("Card Flat Style")
+## Радиус скругления углов карточки. 0 = использовать стили из Inspector (PNG-текстуры).
+@export var card_corner_radius: int = 8
+@export var card_flat_bg_color: Color = Color(0.08, 0.1, 0.16, 0.82)
+@export var card_flat_hover_bg_color: Color = Color(0.14, 0.18, 0.28, 0.9)
+@export var card_flat_pressed_bg_color: Color = Color(0.05, 0.06, 0.1, 0.9)
+@export var card_flat_border_width: int = 2
+## Прозрачность рамки. Цвет рамки берётся из редкости улучшения (RARITY_COLORS).
+@export var card_flat_border_alpha: float = 0.9
+
+@export_group("Card Content")
+@export var icon_size: Vector2 = Vector2(64, 64)
+@export var card_padding: int = 16
+@export var card_inner_spacing: int = 12
+@export var card_content_spacing: int = 6
+@export var card_name_font: Font = null
+@export var card_name_font_size: int = 20
+@export var card_name_color: Color = Color.WHITE
+@export var card_desc_font: Font = null
+@export var card_desc_font_size: int = 14
+@export var card_desc_color: Color = Color(0.85, 0.85, 0.85)
+@export var card_level_font_size: int = 14
+@export var card_level_color: Color = Color(1.0, 0.85, 0.3)
+
+@export_group("Menu Title")
+@export var menu_title_text: String = "ВЫБЕРИ УЛУЧШЕНИЕ"
+@export var menu_title_font: Font = null
+@export var menu_title_font_size: int = 28
+@export var menu_title_color: Color = Color.WHITE
+@export var menu_title_spacing: int = 24
+
 var _active_menu: Control = null
 var _pending_upgrades: int = 0
 
@@ -254,6 +294,7 @@ func _can_take_passive(u: Upgrade, player: Player, passives_full: bool) -> bool:
 func _create_fallback_upgrade(player: Player) -> Upgrade:
     var f = Upgrade.new()
     f.name = "Minor Heal"
+    f.display_name = "Восстановление"
     f.description = "Восстанавливает 50 HP"
     f.rarity = Upgrade.Rarity.COMMON
     f.weapon_tag = "Fallback"
@@ -277,31 +318,177 @@ func _pick_weighted_upgrade(pool: Array[Upgrade], player: Player) -> Upgrade:
     return pool[0]
 
 
+## Создаёт плоский стиль скруглённой карточки с рамкой.
+func _make_flat_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
+    var sb := StyleBoxFlat.new()
+    sb.bg_color = bg_color
+    sb.border_color = border_color
+    sb.set_border_width_all(card_flat_border_width)
+    sb.set_corner_radius_all(card_corner_radius)
+    return sb
+
+
+func _build_card(up: Upgrade, player: Player) -> Button:
+    var btn := Button.new()
+    btn.custom_minimum_size = card_size
+    btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+    btn.focus_mode = Control.FOCUS_ALL
+    if card_corner_radius > 0:
+        # Рамка окрашивается цветом редкости (как и весь вид карточки сейчас).
+        var border_color: Color = RARITY_COLORS[up.rarity]
+        border_color.a = card_flat_border_alpha
+        btn.add_theme_stylebox_override("normal", _make_flat_style(card_flat_bg_color, border_color))
+        btn.add_theme_stylebox_override("hover", _make_flat_style(card_flat_hover_bg_color, border_color))
+        btn.add_theme_stylebox_override("pressed", _make_flat_style(card_flat_pressed_bg_color, border_color))
+    else:
+        if card_normal_style:
+            btn.add_theme_stylebox_override("normal", card_normal_style)
+        if card_hover_style:
+            btn.add_theme_stylebox_override("hover", card_hover_style)
+        if card_pressed_style:
+            btn.add_theme_stylebox_override("pressed", card_pressed_style)
+    if card_focus_style:
+        btn.add_theme_stylebox_override("focus", card_focus_style)
+    btn.self_modulate = RARITY_COLORS[up.rarity]
+
+    # Внутренний контейнер с отступами.
+    var margin := MarginContainer.new()
+    margin.name = "CardMargin"
+    margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+    margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    margin.add_theme_constant_override("margin_left", card_padding)
+    margin.add_theme_constant_override("margin_top", card_padding)
+    margin.add_theme_constant_override("margin_right", card_padding)
+    margin.add_theme_constant_override("margin_bottom", card_padding)
+    btn.add_child(margin)
+
+    # Внешний вертикальный блок: название сверху, контент (иконка + уровень + описание) снизу.
+    var vbox := VBoxContainer.new()
+    vbox.name = "CardVBox"
+    vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    vbox.add_theme_constant_override("separation", card_content_spacing)
+    margin.add_child(vbox)
+
+    # Название (display_name, fallback на name) — центрируется по всей ширине карточки.
+    var name_label := Label.new()
+    name_label.name = "NameLabel"
+    name_label.text = up.display_name if up.display_name != "" else up.name
+    name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+    name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    if card_name_font:
+        name_label.add_theme_font_override("font", card_name_font)
+    name_label.add_theme_font_size_override("font_size", card_name_font_size)
+    name_label.add_theme_color_override("font_color", card_name_color)
+    vbox.add_child(name_label)
+
+    # Горизонтальный блок контента: иконка сбоку от уровня и описания (по центру карточки).
+    var content_hbox := HBoxContainer.new()
+    content_hbox.name = "CardContentHBox"
+    content_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    content_hbox.add_theme_constant_override("separation", card_inner_spacing)
+    content_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+    content_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    content_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    vbox.add_child(content_hbox)
+
+    # Иконка — вертикально по центру блока (примерно посередине уровня и описания).
+    var icon_width := 0.0
+    if up.icon:
+        var icon_rect := TextureRect.new()
+        icon_rect.name = "Icon"
+        icon_rect.texture = up.icon
+        icon_rect.custom_minimum_size = icon_size
+        icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        icon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+        content_hbox.add_child(icon_rect)
+        icon_width = icon_size.x
+
+    # Текстовый блок: уровень / описание
+    var text_vbox := VBoxContainer.new()
+    text_vbox.name = "CardTextVBox"
+    text_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    text_vbox.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+    text_vbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+    text_vbox.add_theme_constant_override("separation", card_content_spacing)
+    # Ширина группы (иконка + текст) — 70% доступной ширины карточки,
+    # чтобы вокруг неё оставались равные отступы и группа центрировалась.
+    var content_available := maxf(0.0, card_size.x - card_padding * 2)
+    var text_width := maxf(0.0, content_available * 0.7 - icon_width - card_inner_spacing)
+    text_vbox.custom_minimum_size = Vector2(text_width, 0)
+    content_hbox.add_child(text_vbox)
+
+    # Уровень / статус (LVL X -> Y)
+    var level_tag = up.passive_id if up.passive_id != "" else up.weapon_tag
+    var cur_lvl = player.tag_levels.get(level_tag, 0)
+    var lvl_info := ""
+    if up.change_mechanic_on_apply:
+        lvl_info = "ЭВОЛЮЦИЯ"
+    elif cur_lvl >= 8:
+        lvl_info = "МАКС. УРОВЕНЬ"
+    else:
+        lvl_info = "LVL %d → %d" % [cur_lvl, cur_lvl + 1]
+
+    var level_label := Label.new()
+    level_label.name = "LevelLabel"
+    level_label.text = lvl_info
+    level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+    level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    level_label.add_theme_font_size_override("font_size", card_level_font_size)
+    level_label.add_theme_color_override("font_color", card_level_color)
+    text_vbox.add_child(level_label)
+
+    # Описание
+    var desc_label := Label.new()
+    desc_label.name = "DescLabel"
+    desc_label.text = up.description
+    desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+    desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+    desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    desc_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    if card_desc_font:
+        desc_label.add_theme_font_override("font", card_desc_font)
+    desc_label.add_theme_font_size_override("font_size", card_desc_font_size)
+    desc_label.add_theme_color_override("font_color", card_desc_color)
+    text_vbox.add_child(desc_label)
+
+    return btn
+
+
 func _spawn_menu(upgrades: Array[Upgrade], player: Player) -> void:
     _active_menu = upgrade_menu_scene.instantiate()
     _ui_container.add_child(_active_menu)
-    var container = _active_menu.get_node_or_null("UpgradeOptions")
+    var container = _active_menu.find_child("UpgradeOptions", true, false) as BoxContainer
+    if container:
+        container.add_theme_constant_override("separation", card_spacing)
+
+    # Заголовок меню (настраивается через Inspector).
+    var title := Label.new()
+    title.name = "MenuTitle"
+    title.text = menu_title_text
+    title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    if menu_title_font:
+        title.add_theme_font_override("font", menu_title_font)
+    title.add_theme_font_size_override("font_size", menu_title_font_size)
+    title.add_theme_color_override("font_color", menu_title_color)
+    container.add_child(title)
+
     for i in range(upgrades.size()):
         var up = upgrades[i]
-        var btn = Button.new()
-        var level_tag = up.passive_id if up.passive_id != "" else up.weapon_tag
-        var cur_lvl = player.tag_levels.get(level_tag, 0)
-        var lvl_info = "\n[LVL %d -> %d]" % [cur_lvl, cur_lvl + 1]
-        if cur_lvl >= 8:
-            lvl_info = "\n[MAX LEVEL]"
-        if up.change_mechanic_on_apply:
-            lvl_info = "\n[EVOLUTION]"
-        
-        btn.text = up.name + lvl_info + "\n" + up.description
-        btn.autowrap_mode = TextServer.AUTOWRAP_WORD
-        btn.custom_minimum_size = Vector2(400, 160)
-        btn.self_modulate = RARITY_COLORS[up.rarity]
+        var btn := _build_card(up, player)
         btn.scale = Vector2.ZERO
-        btn.pivot_offset = Vector2(160, 80)
+        btn.pivot_offset = card_size * 0.5
         var t = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
         t.tween_property(btn, "scale", Vector2.ONE, 0.4).set_delay(i * 0.1)
         btn.pressed.connect(_on_upgrade_selected.bind(up))
         container.add_child(btn)
+
 
 func _on_upgrade_selected(upgrade: Upgrade) -> void:
     var player = get_tree().get_first_node_in_group("player") as Player

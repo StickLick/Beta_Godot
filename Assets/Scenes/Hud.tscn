@@ -1,12 +1,29 @@
 [gd_scene format=3 uid="uid://bw8cirdg6bvpw"]
 
 [ext_resource type="Script" uid="uid://1mtv3l6x52u4" path="res://scripts/hud.gd" id="1_s617k"]
+[ext_resource type="Texture2D" uid="uid://y5ipgaenu237" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/BigBar_Base.png" id="2_8mli2"]
+[ext_resource type="Texture2D" uid="uid://cechto8abmtca" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular2.png" id="2_k7lwj"]
 [ext_resource type="Script" uid="uid://cwnspr7lr1gie" path="res://scripts/indicator_manager.gd" id="2_u84ry"]
 [ext_resource type="Shader" uid="uid://22jsxuufdpqp" path="res://Shaders/ShadowFeast.gdshader" id="3_5rrfm"]
+[ext_resource type="Texture2D" uid="uid://drcomcmgann5o" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Bars/BigBar_Fill.png" id="3_bohha"]
+[ext_resource type="Texture2D" uid="uid://chnf5d5viyek2" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Pressed2.png" id="3_h3det"]
+[ext_resource type="Texture2D" uid="uid://v3gjs1ocmwan" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="8_bohha"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_5rrfm"]
-color = Color(0, 0, 0, 0.54901963)
-thickness = 20
+color = Color(0, 0, 0, 0.78431374)
+thickness = 30
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ouxv"]
+atlas = ExtResource("2_8mli2")
+region = Rect2(40, 9, 23.930038, 51)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fsuuu"]
+atlas = ExtResource("2_8mli2")
+region = Rect2(128.24059, 9, 63.61763, 51)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gd7ey"]
+atlas = ExtResource("2_8mli2")
+region = Rect2(256.27448, 9, 23.448425, 51)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_results_sep"]
 color = Color(1, 1, 1, 0.15)
@@ -43,6 +60,69 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8mli2"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bohha"]
+texture = ExtResource("3_h3det")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_x6eb1"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hvxeq"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dqwlk"]
+texture = ExtResource("3_h3det")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gvc6n"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_w5k7h"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nrvxs"]
+texture = ExtResource("3_h3det")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_c0yo5"]
+texture = ExtResource("2_k7lwj")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u84ry"]
 shader = ExtResource("3_5rrfm")
 shader_parameter/radius_px = 0.0
@@ -52,6 +132,7 @@ shader_parameter/center_px = Vector2(0, 0)
 
 [node name="Hud" type="CanvasLayer" unique_id=1152050891]
 script = ExtResource("1_s617k")
+lock_icon_size = Vector2(10, 10)
 
 [node name="UI_Container" type="Control" parent="." unique_id=1219246508]
 layout_mode = 3
@@ -63,27 +144,65 @@ grow_vertical = 2
 
 [node name="InventoryBar" type="HBoxContainer" parent="UI_Container" unique_id=1534612225]
 layout_mode = 0
-offset_top = 17.0
-offset_right = 200.0
-offset_bottom = 37.0
-theme_override_constants/separation = 10
-
-[node name="WeaponSlots" type="HBoxContainer" parent="UI_Container/InventoryBar" unique_id=574055898]
-unique_name_in_owner = true
-layout_mode = 2
+offset_left = 4.0
+offset_top = 25.0
+offset_right = 304.0
+offset_bottom = 55.0
 theme_override_constants/separation = 6
 
-[node name="VSeparator" type="VSeparator" parent="UI_Container/InventoryBar" unique_id=249245904]
+[node name="WeaponSlots" type="HBoxContainer" parent="UI_Container/InventoryBar" unique_id=1799322084]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="UI_Container/InventoryBar" unique_id=249245904]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/separator = SubResource("StyleBoxLine_5rrfm")
 
 [node name="PassiveSlots" type="HBoxContainer" parent="UI_Container/InventoryBar" unique_id=284506013]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
-theme_override_constants/separation = 6
+size_flags_horizontal = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=830095142]
+custom_minimum_size = Vector2(300, 0)
+custom_maximum_size = Vector2(300, 20)
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 302.0
+offset_bottom = 22.0
+theme_override_constants/separation = 0
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer" unique_id=1425260127]
+layout_mode = 2
+texture = SubResource("AtlasTexture_4ouxv")
+
+[node name="TextureRect2" type="TextureRect" parent="HBoxContainer" unique_id=774908360]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = SubResource("AtlasTexture_fsuuu")
+
+[node name="TextureRect3" type="TextureRect" parent="HBoxContainer" unique_id=371826157]
+layout_mode = 2
+texture = SubResource("AtlasTexture_gd7ey")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="." unique_id=2040802994]
+unique_name_in_owner = true
+offset_left = 12.0
+offset_top = -1.0
+offset_right = 1182.0
+offset_bottom = 109.0
+scale = Vector2(0.24027587, 0.21875)
+value = 100.0
+nine_patch_stretch = true
+texture_progress = ExtResource("3_bohha")
 
 [node name="HealthBar" type="ProgressBar" parent="." unique_id=1278099814]
 unique_name_in_owner = true
+visible = false
 modulate = Color(1, 0.029999971, 0.029999971, 1)
 offset_right = 500.0
 offset_bottom = 27.0
@@ -124,15 +243,16 @@ unique_name_in_owner = true
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = 204.0
-offset_top = 7.0
-offset_right = 256.0
-offset_bottom = 30.0
+offset_left = 171.0
+offset_top = 2.0
+offset_right = 223.0
+offset_bottom = 25.0
 grow_horizontal = 2
 
 [node name="ResultsPanel" type="Panel" parent="." unique_id=1714445684]
 unique_name_in_owner = true
 process_mode = 3
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -299,9 +419,9 @@ text = "Рестарт"
 unique_name_in_owner = true
 process_mode = 3
 offset_left = 504.0
-offset_top = 40.0
+offset_top = 2.0
 offset_right = 533.0
-offset_bottom = 69.0
+offset_bottom = 32.0
 focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 0.85)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.6)
@@ -312,6 +432,7 @@ text = "❚❚"
 [node name="PausePanel" type="Control" parent="." unique_id=1521142750]
 unique_name_in_owner = true
 process_mode = 3
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -351,6 +472,9 @@ unique_name_in_owner = true
 process_mode = 3
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_8mli2")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_bohha")
+theme_override_styles/hover = SubResource("StyleBoxTexture_x6eb1")
 text = "Продолжить"
 
 [node name="RestartRunButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1581142750]
@@ -358,6 +482,9 @@ unique_name_in_owner = true
 process_mode = 3
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_hvxeq")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_dqwlk")
+theme_override_styles/hover = SubResource("StyleBoxTexture_gvc6n")
 text = "Начать заново"
 
 [node name="ExitMenuButton" type="Button" parent="PausePanel/CenterContainer/VBoxContainer" unique_id=1591142750]
@@ -365,11 +492,15 @@ unique_name_in_owner = true
 process_mode = 3
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_w5k7h")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_nrvxs")
+theme_override_styles/hover = SubResource("StyleBoxTexture_c0yo5")
 text = "Выход в меню"
 
 [node name="SpecialtyPanel" type="Control" parent="." unique_id=1501142750]
 unique_name_in_owner = true
 process_mode = 3
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -432,6 +563,7 @@ mouse_filter = 2
 script = ExtResource("2_u84ry")
 
 [node name="AnomalyOverlay" type="ColorRect" parent="." unique_id=1217798496]
+visible = false
 material = SubResource("ShaderMaterial_u84ry")
 anchors_preset = 15
 anchor_right = 1.0
@@ -456,6 +588,28 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.17000002, 0.17000002, 1)
 theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="GoldHBox" type="HBoxContainer" parent="." unique_id=967961555]
+offset_left = 306.0
+offset_top = 2.0
+offset_right = 306.0
+offset_bottom = 2.0
+theme_override_constants/separation = 4
+
+[node name="GoldIcon" type="TextureRect" parent="GoldHBox" unique_id=1480414774]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("8_bohha")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldLabel" type="Label" parent="GoldHBox" unique_id=651226122]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "0"
 horizontal_alignment = 1
 
 [connection signal="pressed" from="ResultsPanel/CenterContainer/VBoxContainer/ButtonContainer/MenuButton" to="." method="_on_menu_pressed"]

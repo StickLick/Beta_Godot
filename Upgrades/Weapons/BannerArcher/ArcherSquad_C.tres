@@ -1,11 +1,16 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dskecxcpmsidc"]
 
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_gniqd"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: Squad_C"
+display_name = "Лучник: Отряд"
+icon = ExtResource("1_gniqd")
 description = "+1 archers"
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 1,
+"stat": "max_banner_units"
+}])
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": 1, "stat": "max_banner_units"}]

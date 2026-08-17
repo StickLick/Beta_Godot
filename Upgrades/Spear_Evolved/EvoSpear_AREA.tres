@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cevsparea1"]
 
+[ext_resource type="Texture2D" uid="uid://cbil3oo7qotf8" path="res://Texture/Separated Files/FHD (523).png" id="1_0u872"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_AREA"
+display_name = "Копьё: Площадь"
+icon = ExtResource("1_0u872")
 description = "Spear: +20% площади атаки (Эво-Копье)"
 modifiers = Array[Dictionary]([{
 "amount": 25,

@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://btffjhpejmiu3"]
 
+[ext_resource type="Texture2D" uid="uid://fjaehypovfq2" path="res://Texture/Separated Files/FHD (525).png" id="1_r10bw"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Bow_Base"
+display_name = "Лук"
+icon = ExtResource("1_r10bw")
 description = "+1 Bow weapon"
-stat_to_modify = ""
-amount = 0.0
-rarity = 0
 is_weapon = true
 weapon_tag = "Bow"

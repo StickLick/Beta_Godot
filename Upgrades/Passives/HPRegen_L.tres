@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cr4f2yrrrnj08"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://bbj5fi48g3nnj" path="res://Texture/Separated Files/FHD (223).png" id="1_y6fb4"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "HPRegen_L"
+display_name = "Регенерация здоровья"
+icon = ExtResource("1_y6fb4")
 description = "+5 HP/сек регенерации"
 modifiers = Array[Dictionary]([{
 "amount": 5,

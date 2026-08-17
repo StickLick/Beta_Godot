@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dthi03q2u8fa3"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://jnmylrv70sr8" path="res://Texture/Separated Files/FHD (538).png" id="1_yo2at"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Singularity: +explosion radius"
+display_name = "Сингулярность: Радиус взрыва"
+icon = ExtResource("1_yo2at")
 description = "+explosion radius"
 modifiers = Array[Dictionary]([{
 "amount": 25,

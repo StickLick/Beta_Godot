@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://wxmokg02ka41"]
 
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_4fk5b"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: AttackSpeed_L"
+display_name = "Лучник: Скорость"
+icon = ExtResource("1_4fk5b")
 description = "+0.5 fire speed"
+modifiers = Array[Dictionary]([{
+"amount": 0.5,
+"stat": "archer_attack_speed"
+}])
 rarity = 3
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": 0.5, "stat": "archer_attack_speed"}]

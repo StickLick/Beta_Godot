@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dctwiln52jdp2"]
 
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_lf3iy"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: Pierce_R"
+display_name = "Лучник: Пробитие"
+icon = ExtResource("1_lf3iy")
 description = "+2 arrow pierce"
+modifiers = Array[Dictionary]([{
+"amount": 2,
+"stat": "base_pierce"
+}])
 rarity = 1
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": 2, "stat": "base_pierce"}]

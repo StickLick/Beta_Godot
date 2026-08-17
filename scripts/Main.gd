@@ -3,7 +3,10 @@ extends Node2D
 @export var map_rect: Rect2 = Rect2(-3000, -3000, 6000, 6000)
 @export var boss_scene: PackedScene
 @export var ore_count: int = 8
-@export var ore_min_distance: float = 800.0
+# Минимальная дистанция между рудными узлами задаётся ТОЛЬКО в OreGenerator
+# (scripts/ore_generator.gd -> @export var min_distance = 1600.0).
+# Раньше здесь было дублирующее значение ore_min_distance = 800.0, которое
+# молча затирало задуманные 1600. Убрано, чтобы был единый источник истины.
 
 var boss_spawned: bool = false
 var _ore_generator: OreGenerator
@@ -42,7 +45,7 @@ func _set_wall(node: CollisionShape2D, pos: Vector2, size: Vector2) -> void:
 func _generate_ore_nodes() -> void:
     _ore_generator = OreGenerator.new()
     _ore_generator.ore_count = ore_count
-    _ore_generator.min_distance = ore_min_distance
+    # min_distance НЕ переопределяется: используется значение из OreGenerator (1600.0).
     add_child(_ore_generator)
 
 func _spawn_rival_boss() -> void:

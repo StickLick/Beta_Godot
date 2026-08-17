@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bpeq1y8t4cd30"]
 
+[ext_resource type="Texture2D" uid="uid://bjqfw2h8tqh4m" path="res://Texture/Separated Files/FHD (70).png" id="1_qcn4a"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Luck_E"
+display_name = "Удача"
+icon = ExtResource("1_qcn4a")
 description = "+12% удачи"
 modifiers = Array[Dictionary]([{
 "amount": 0.12,

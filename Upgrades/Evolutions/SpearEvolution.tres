@@ -2,14 +2,16 @@
 
 [ext_resource type="PackedScene" uid="uid://ciwk2a3606juq" path="res://Assets/Scenes/Weapons/EvolvedSpear.tscn" id="1_udukc"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_f7qln"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_f7qln")
 name = "Копье Судьбы"
+display_name = "Копье Судьбы"
+icon = ExtResource("ic_upg")
 rarity = 3
 is_unique = true
 required_passive_tag = "MaxHP"
-required_passive_level = 1
 weapon_tag = "Spear"
 target_weapon_name = "Spear"
 evolved_weapon_tag = "Spear_Evolved"

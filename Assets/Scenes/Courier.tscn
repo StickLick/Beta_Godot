@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dpkdg7vrkhros"]
+
+[ext_resource type="Script" uid="uid://cmyos6ujp5cin" path="res://scripts/courier.gd" id="1_e7ov0"]
+[ext_resource type="Script" uid="uid://c4k8m2n7p1qrx" path="res://scripts/health_component.gd" id="2_5b55h"]
+[ext_resource type="Script" uid="uid://beg66r2q1vu01" path="res://scripts/hurtbox_component.gd" id="3_8vqe1"]
+[ext_resource type="SpriteFrames" uid="uid://de6dx7yt3nuyn" path="res://Assets/SpriteFrames/pawn_courier.tres" id="4_archer"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 28.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(44, 44)
+
+[node name="Courier" type="CharacterBody2D" unique_id=797701744]
+collision_layer = 16
+script = ExtResource("1_e7ov0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=646434460]
+shape = SubResource("CircleShape2D_body")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=136772826]
+script = ExtResource("2_5b55h")
+max_health = 500.0
+
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=961321599 node_paths=PackedStringArray("health_component")]
+collision_layer = 8
+collision_mask = 4
+script = ExtResource("3_8vqe1")
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1732901405]
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1486238809]
+scale = Vector2(0.6875, 0.6875)
+sprite_frames = ExtResource("4_archer")
+animation = &"Run"

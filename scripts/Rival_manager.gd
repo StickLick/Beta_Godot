@@ -88,14 +88,21 @@ func _on_strategic_tick() -> void:
     var active_doc = current_doctrine
     if _doctrine_transition_timer > 0 and randf() < 0.5: active_doc = previous_doctrine
     
+    # Стратегический захват нейтральных рудных узлов выполняется КАЖДЫЙ тик
+    # независимо от текущей доктрины: если есть свободные OreNode и не достигнут
+    # лимит шахт (mine_cap), соперник пытается захватить узел вдали от игрока.
+    _try_capture_ore_node()
+    
     match active_doc:
         Doctrine.EXPANSION: _execute_expansion()
         Doctrine.ECONOMY: _execute_economy()
         Doctrine.MILITARIZATION: _execute_militarization()
 
 func _execute_expansion() -> void:
-    # Единственный путь экспансии: захват нейтральных OreNode
-    _try_capture_ore_node()
+    # Экспансия (захват нейтральных рудных узлов) теперь выполняется на каждом
+    # стратегическом тике в _on_strategic_tick(). Доктрина EXPANSION зарезервирована
+    # для будущих механик давления.
+    pass
 
 
 func _try_capture_ore_node() -> bool:
@@ -119,17 +126,30 @@ func _try_capture_ore_node() -> bool:
             return false
 
     var player := get_tree().get_first_node_in_group("player")
+    # Игрок недоступен (не в группе / не заспавнен) — берём случайный валидный
+    # узел как fallback, а не отменяем захват.
+    if not is_instance_valid(player):
+        var valid_fallback: Array = ore_nodes.filter(func(o): return is_instance_valid(o))
+        if valid_fallback.is_empty():
+            _log("STRATEGIC", "EXPANSION - no valid ore nodes to capture")
+            return false
+        var fallback: Node = valid_fallback.pick_random()
+        _log("STRATEGIC", "EXPANSION - player missing, capturing random OreNode (fallback)")
+        if fallback.has_method("_on_captured"):
+            fallback._on_captured(OreNode.Alignment.RIVAL)
+        return true
+
+    # Предпочитаем узел с МАКСИМАЛЬНЫМ расстоянием до игрока при ЛЮБОМ расстоянии
+    # (без жёсткого порога 600px). best_dist начинается с -1, чтобы первый
+    # валидный узел всегда проходил условие.
     var best_node: Node = null
-    var best_dist := INF
+    var best_dist := -1.0
 
     for ore in ore_nodes:
         if not is_instance_valid(ore):
             continue
-        var d: float = 0.0
-        if is_instance_valid(player):
-            d = ore.global_position.distance_to(player.global_position)
-        # Предпочитаем узлы подальше от игрока
-        if d > best_dist or (best_node == null and d > 600.0):
+        var d: float = ore.global_position.distance_to(player.global_position)
+        if d > best_dist:
             best_dist = d
             best_node = ore
 
@@ -139,6 +159,7 @@ func _try_capture_ore_node() -> bool:
             best_node._on_captured(OreNode.Alignment.RIVAL)
         return true
 
+    _log("STRATEGIC", "EXPANSION - couldn't pick an ore node to capture (best_node == null)")
     return false
 
 

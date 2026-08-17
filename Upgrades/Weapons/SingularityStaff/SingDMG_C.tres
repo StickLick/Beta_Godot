@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://djh135fcbji0m"]
 
+[ext_resource type="Texture2D" uid="uid://jnmylrv70sr8" path="res://Texture/Separated Files/FHD (538).png" id="1_0mdeq"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Singularity: +damage"
+display_name = "Сингулярность: Урон"
+icon = ExtResource("1_0mdeq")
 description = "+damage"
 modifiers = Array[Dictionary]([{
 "amount": 12,

@@ -2,8 +2,23 @@
 
 [ext_resource type="Script" path="res://scripts/Upgrade.gd" id="1_upg"]
 
+[ext_resource type="Texture2D" uid="uid://cm0cj4qp2yavv" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_02.png" id="ic_upg"]
 [resource]
 script = ExtResource("1_upg")
+
+
+
+
+
+
+
+
+
+
+display_name = "Лучник"
+
+icon = ExtResource("ic_upg")
+
 name = "War Banner Archer"
 description = "+1 Archer Banner"
 stat_to_modify = ""

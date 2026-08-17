@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://passcol001"]
+
+[ext_resource type="Script" path="res://scripts/ui/passive_collection_view.gd" id="1_pcv"]
+
+[sub_resource type="StyleBoxFlat" id="MainPanelStyle"]
+bg_color = Color(0.08, 0.1, 0.16, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.24, 0.34, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+content_margin_left = 12.0
+content_margin_top = 14.0
+content_margin_right = 12.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxFlat" id="GridPanelStyle"]
+bg_color = Color(0.07, 0.08, 0.12, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.22, 0.32, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="TipPanelStyle"]
+bg_color = Color(0.07, 0.08, 0.12, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.22, 0.32, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[node name="PassiveCollectionView" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+script = ExtResource("1_pcv")
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(450, 593)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("MainPanelStyle")
+
+[node name="MainBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="GridPanel" type="PanelContainer" parent="MainPanel/MainBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("GridPanelStyle")
+
+[node name="GridBox" type="VBoxContainer" parent="MainPanel/MainBox/GridPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GridTitle" type="Label" parent="MainPanel/MainBox/GridPanel/GridBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.82, 1)
+theme_override_font_sizes/font_size = 12
+text = "ВСЕ ПАССИВКИ"
+horizontal_alignment = 1
+
+[node name="GridScroll" type="ScrollContainer" parent="MainPanel/MainBox/GridPanel/GridBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PassiveGrid" type="GridContainer" parent="MainPanel/MainBox/GridPanel/GridBox/GridScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="TipPanel" type="PanelContainer" parent="MainPanel/MainBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("TipPanelStyle")
+
+[node name="TipRow" type="HBoxContainer" parent="MainPanel/MainBox/TipPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TipIcon" type="Label" parent="MainPanel/MainBox/TipPanel/TipRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.68, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "ⓘ"
+
+[node name="Tip" type="Label" parent="MainPanel/MainBox/TipPanel/TipRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.68, 0.74, 1)
+theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+vertical_alignment = 1
+autowrap_mode = 2
+text = "Собирай фрагменты пассивок в колесе удачи, чтобы открывать новые виды. Разблокированные пассивки автоматически усиливают героя в забегах."

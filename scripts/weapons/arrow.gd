@@ -11,7 +11,10 @@ var _pierced: int = 0
 
 func _ready() -> void:
     collision_layer = 0
-    collision_mask = 12  # enemy hurtbox layer (bit 2 + bit 3 = 4 + 8)
+    # Своя стрела (player): бьёт вражеские hurtbox'ы (enemy/rival: layer 4 + 8).
+    # Вражеская стрела (enemy/rival): бьёт хартбоксы игрока и его юнитов (layer 2).
+    var is_hostile := faction.to_lower() == "enemy" or faction.to_lower() == "rival"
+    collision_mask = 2 if is_hostile else 12
     get_tree().create_timer(5.0).timeout.connect(queue_free)
     area_entered.connect(_on_area_entered)
 

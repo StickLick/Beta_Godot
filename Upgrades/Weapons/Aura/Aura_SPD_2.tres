@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cauraspd02"]
 
+[ext_resource type="Texture2D" uid="uid://bng06wdb5wrph" path="res://Texture/Separated Files/FHD (259).png" id="1_runsm"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Aura_SPD_2"
+display_name = "Аура: Скорость"
+icon = ExtResource("1_runsm")
 description = "-0.08 сек кулдауна ауры"
 amount = -0.08
 modifiers = Array[Dictionary]([{

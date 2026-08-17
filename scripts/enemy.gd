@@ -2,7 +2,12 @@ extends CharacterBody2D
 class_name Enemy
 
 const XP_GEM_SCENE = preload("res://Assets/Scenes/Xp_gem.tscn")
-const ENEMY_BULLET_SCENE = preload("res://Assets/Scenes/EnemyBullet.tscn")
+# DISRUPTOR стреляет той же сценой стрелы, что и турели/лучники (PNG-стрела).
+# Враг использует faction="enemy" → arrow.gd ставит collision_mask=2 (бьёт игрока/юнитов).
+const ENEMY_ARROW_SCENE = preload("res://Assets/Scenes/Weapons/Arrow.tscn")
+const DISRUPTOR_FRAMES := preload("res://Assets/SpriteFrames/red_archer_frames.tres")
+const SWARMER_FRAMES := preload("res://Assets/SpriteFrames/red_pawn_frames.tres")
+const BREAKER_FRAMES := preload("res://Assets/SpriteFrames/red_warrior_frames.tres")
 
 enum Archetype { SWARMER, BREAKER, DISRUPTOR }
 @export var current_archetype: Archetype = Archetype.SWARMER
@@ -19,6 +24,9 @@ var is_attacking: bool = false
 var attack_index: int = 0
 var attack_cooldown_timer: float = 0.0
 var target_node: Node2D = null
+# --- Обход препятствий: счётчик застревания и таймер «расталкивания» ---
+var _stuck_frames: int = 0
+var _unstick_timer: float = 0.0
 
 func _ready() -> void:
     add_to_group("enemy")
@@ -40,10 +48,21 @@ func _ready() -> void:
 func setup_archetype(type: Archetype) -> void:
     current_archetype = type
     match current_archetype:
-        Archetype.SWARMER: speed = 160.0; xp_value = 5; scale = Vector2(0.8, 0.8)
-        Archetype.BREAKER: speed = 65.0; xp_value = 50; scale = Vector2(2.2, 2.2); modulate = Color.DARK_RED
-        Archetype.DISRUPTOR: speed = 130.0; xp_value = 35; scale = Vector2(1.1, 1.1); modulate = Color.MEDIUM_PURPLE
-    if health_component: health_component.current_health = health_component.max_health
+        Archetype.SWARMER:
+            speed = 160.0; xp_value = 5; scale = Vector2(0.8, 0.8)
+            if animated_sprite:
+                animated_sprite.sprite_frames = SWARMER_FRAMES
+                animated_sprite.play("Run")
+        Archetype.BREAKER:
+            speed = 65.0; xp_value = 50; scale = Vector2(2.2, 2.2); modulate = Color.WHITE
+            if animated_sprite:
+                animated_sprite.sprite_frames = BREAKER_FRAMES
+                animated_sprite.play("Run")
+        Archetype.DISRUPTOR:
+            speed = 130.0; xp_value = 35; scale = Vector2(1.1, 1.1); modulate = Color.WHITE
+            if animated_sprite:
+                animated_sprite.sprite_frames = DISRUPTOR_FRAMES
+                animated_sprite.play("Run")
 
 func _on_animation_finished() -> void:
     if animated_sprite.animation in ["Attack1", "Attack2"]:
@@ -76,6 +95,43 @@ func _physics_process(delta: float) -> void:
         elif dist > 400: move_dir = dir; speed = 130.0
         else: move_dir = Vector2.ZERO
     
+    # --- ОБХОД ПРЕПЯТСТВИЙ (коррекция после move_and_slide прошлого кадра) ---
+    # is_on_wall() отражает столкновение из конца прошлого кадра.
+    # Если враг давит в препятствие — скользим вдоль стены (тангенциально),
+    # вместо того чтобы стоять на месте и вечно давить в неё.
+    var unstick_push := Vector2.ZERO
+    if is_on_wall() and get_slide_collision_count() > 0 and move_dir.length() > 0.05:
+        var wall_normal := get_wall_normal()
+        var tangent := wall_normal.orthogonal()
+        # Берём из двух направлений вдоль стены то, что ближе к текущему движению
+        if tangent.dot(move_dir) < 0.0:
+            tangent = -tangent
+        var slid: Vector2 = move_dir.slide(wall_normal)
+        if slid.length() < 0.15:
+            # Почти перпендикулярно стене (или в углу) — фиксированная сторона обхода
+            move_dir = tangent
+        else:
+            move_dir = slid.normalized()
+        
+        # Лёгкое «расталкивание»: если скорость прижата к нулю у стены несколько
+        # кадров подряд — короткий боковой импульс вдоль стены, чтобы выйти из
+        # мёртвой зоны (огибание углов) и продолжить преследование цели.
+        if dist > 25.0 and velocity.length() < 30.0:
+            _stuck_frames += 1
+        else:
+            _stuck_frames = 0
+        if _stuck_frames >= 15:
+            _unstick_timer = 0.6
+            _stuck_frames = 0
+        if _unstick_timer > 0.0:
+            _unstick_timer -= delta
+            unstick_push = tangent * 700.0
+            if velocity.length() > 50.0:
+                _unstick_timer = 0.0
+    else:
+        _stuck_frames = 0
+        _unstick_timer = 0.0
+    
     var final_speed = speed * GameManager.get_meta("enemy_stat_mult")
     
     # Плавная остановка у цели
@@ -86,13 +142,18 @@ func _physics_process(delta: float) -> void:
     
     _apply_gravity_logic(delta)
     
-    var attack_range = 450.0 if current_archetype == Archetype.DISRUPTOR else 65.0
+    # BREAKER крупный (scale 2.2): физический радиус ~66px + шахта/здание ~25px →
+    # он упирается на ~91px от центра цели. Range должен покрывать этот упор.
+    var attack_range = 450.0 if current_archetype == Archetype.DISRUPTOR else (130.0 if current_archetype == Archetype.BREAKER else 65.0)
     if dist < attack_range and attack_cooldown_timer <= 0 and not is_attacking:
         _execute_attack()
     
     if not is_attacking and dist > 40.0:
         if abs(dir.x) > 0.1: animated_sprite.flip_h = (dir.x < 0)
         animated_sprite.play("Run" if velocity.length() > 20 else "Idle")
+    
+    if unstick_push != Vector2.ZERO:
+        velocity += unstick_push * delta
     
     move_and_slide()
 
@@ -166,17 +227,26 @@ func _execute_attack() -> void:
     else: _play_sequential_melee()
 
 func _shoot() -> void:
-    if not ENEMY_BULLET_SCENE: return
-    var bullet = ENEMY_BULLET_SCENE.instantiate()
-    bullet.global_position = global_position
-    bullet.direction = (target_node.global_position - global_position).normalized()
-    get_tree().current_scene.add_child(bullet)
+    if not ENEMY_ARROW_SCENE: return
+    var arrow = ENEMY_ARROW_SCENE.instantiate() as Arrow
+    if not arrow:
+        return
+    arrow.global_position = global_position
+    # Стрела движется по rotation (Vector2.RIGHT.rotated(rotation)).
+    arrow.rotation = (target_node.global_position - global_position).angle()
+    arrow.faction = "enemy"
+    arrow.damage = 5.0
+    arrow.pierce_limit = 1
+    get_tree().current_scene.add_child(arrow)
     animated_sprite.play("Attack1")
 
 func _play_sequential_melee() -> void:
     _toggle_hitbox() 
     var attacks = ["Attack1", "Attack2"]
-    animated_sprite.play(attacks[attack_index])
+    var attack_name: String = attacks[attack_index]
+    if not animated_sprite.sprite_frames.has_animation(attack_name):
+        attack_name = "Attack1"
+    animated_sprite.play(attack_name)
     attack_index = (attack_index + 1) % 2
 
 func _toggle_hitbox() -> void:

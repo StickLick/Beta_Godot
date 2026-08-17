@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://d4dtoha1r5fx8" path="res://Texture/Tiny Swords (Free Pack)/Units/Yellow Units/Archer/Arrow.png" id="2_4twrb"]
 [ext_resource type="Texture2D" uid="uid://cldehl0vr7qj" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Tools/Tool_01.png" id="3_t1mr5"]
 [ext_resource type="Texture2D" uid="uid://imxpaavk5sy1" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Tools/Tool_03.png" id="4_fqa30"]
+[ext_resource type="Texture2D" uid="uid://bn1eebgrt2st8" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Resource/Gold_Resource.png" id="5_gold"]
 
 [node name="Indicator" type="Control" unique_id=1486113222]
 layout_mode = 3
@@ -14,6 +15,7 @@ default_icon = ExtResource("2_4twrb")
 industry_icon = ExtResource("3_t1mr5")
 military_icon = ExtResource("4_fqa30")
 boss_icon = ExtResource("2_4twrb")
+courier_icon = ExtResource("5_gold")
 
 [node name="Arrow" type="Sprite2D" parent="." unique_id=871309189]
 

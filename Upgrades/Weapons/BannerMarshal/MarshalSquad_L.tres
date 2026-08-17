@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://c8rpiu8k0b1wy"]
 
+[ext_resource type="Texture2D" uid="uid://b7g4avtvrvkq7" path="res://Texture/Separated Files/FHD (492).png" id="1_lxmcm"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Marshal: Squad_L"
+display_name = "Маршал: Отряд"
+icon = ExtResource("1_lxmcm")
 description = "+4 pawns in squad"
+modifiers = Array[Dictionary]([{
+"amount": 4,
+"stat": "max_banner_units"
+}])
 rarity = 3
 weapon_tag = "BannerMarshal"
-modifiers = [{"amount": 4, "stat": "max_banner_units"}]

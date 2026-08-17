@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://duvrcbcsdeval"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://bdqmw0u3q378g" path="res://Texture/Separated Files/FHD (248).png" id="1_x250x"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Amount_L"
+display_name = "Снаряды"
+icon = ExtResource("1_x250x")
 description = "+5 projectiles"
 modifiers = Array[Dictionary]([{
 "amount": 5,

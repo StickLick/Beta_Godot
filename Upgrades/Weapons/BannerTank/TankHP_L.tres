@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://b1lmthhqcjlbb"]
 
+[ext_resource type="Texture2D" uid="uid://2cdwrdqbb5u2" path="res://Texture/Separated Files/FHD (167).png" id="1_31e8p"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Tank: HP_L"
+display_name = "Танк: Здоровье"
+icon = ExtResource("1_31e8p")
 description = "+100% tank HP"
+modifiers = Array[Dictionary]([{
+"amount": 1.0,
+"stat": "tank_hp_mult"
+}])
 rarity = 3
 weapon_tag = "BannerTank"
-modifiers = [{"amount": 1.0, "stat": "tank_hp_mult"}]

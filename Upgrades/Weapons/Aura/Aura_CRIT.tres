@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cauracrit0"]
 
+[ext_resource type="Texture2D" uid="uid://bng06wdb5wrph" path="res://Texture/Separated Files/FHD (259).png" id="1_r63ee"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Aura_CRIT"
+display_name = "Аура: Критический урон"
+icon = ExtResource("1_r63ee")
 description = "+5% крит. шанса ауре"
 modifiers = Array[Dictionary]([{
 "amount": 0.05,

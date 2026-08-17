@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" uid="uid://dot8u5hokwfat" path="res://scripts/mine_world_objects.gd" id="1_world_objects"]
 [ext_resource type="PackedScene" uid="uid://bminerwkr0001" path="res://Assets/Scenes/Visuals/MinerWorker.tscn" id="2_wngfu"]
+[ext_resource type="PackedScene" uid="uid://scfo3hxj5i2m" path="res://Assets/Scenes/Visuals/EnemyMinerWorker.tscn" id="3_2rc84"]
 [ext_resource type="PackedScene" uid="uid://dy5sw2n2sseom" path="res://Assets/Scenes/Visuals/MineFort.tscn" id="3_ixbul"]
 [ext_resource type="PackedScene" uid="uid://1o4d64xqrage" path="res://Assets/Scenes/Visuals/FortArcher.tscn" id="4_defender"]
 
 [node name="MineWorldObjects" type="Node2D" unique_id=560062996 node_paths=PackedStringArray("worker_slots", "fort_position")]
 script = ExtResource("1_world_objects")
 worker_scene = ExtResource("2_wngfu")
+enemy_worker_scene = ExtResource("3_2rc84")
 fort_scene = ExtResource("3_ixbul")
 defender_scene = ExtResource("4_defender")
 worker_slots = [NodePath("WorkerSlots/WorkerSlot1"), NodePath("WorkerSlots/WorkerSlot2"), NodePath("WorkerSlots/WorkerSlot3")]

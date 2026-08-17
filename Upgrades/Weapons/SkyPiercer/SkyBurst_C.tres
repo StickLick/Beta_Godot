@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://vlyim7xvi33e"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://cdr6wtn02t5be" path="res://Texture/Separated Files/FHD (541).png" id="1_xx3vi"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Sky Piercer: Burst_C"
+display_name = "Небесный пронзатель: Залп"
+icon = ExtResource("1_xx3vi")
 description = "-0.02s burst interval"
 amount = -0.02
 modifiers = Array[Dictionary]([{

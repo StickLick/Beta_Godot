@@ -2,9 +2,20 @@
 
 [node name="UpgradeDesign" type="Control" unique_id=2094936194]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="UpgradeOptions" type="VBoxContainer" parent="." unique_id=776361265]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=918273645]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UpgradeOptions" type="VBoxContainer" parent="CenterContainer" unique_id=776361265]
+layout_mode = 2
+alignment = 1

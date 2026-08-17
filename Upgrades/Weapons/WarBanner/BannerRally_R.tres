@@ -2,8 +2,23 @@
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
+[ext_resource type="Texture2D" uid="uid://dlvjrq437wlnr" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_06.png" id="ic_upg"]
 [resource]
 script = ExtResource("1_upg")
+
+
+
+
+
+
+
+
+
+
+display_name = "Знамя: Сбор II"
+
+icon = ExtResource("ic_upg")
+
 name = "Banner: Rally"
 description = "-2s war cry interval"
 stat_to_modify = ""

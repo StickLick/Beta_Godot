@@ -12,13 +12,11 @@ const GACHA_DATA := preload("res://scripts/gacha_data.gd")
 const ACCENT_COLOR := Color(1, 0.85, 0.4, 1)
 
 ## Цвета карточек — только оттенки существующей тёмной палитры + акцент.
-const CARD_BG := Color(0.1, 0.1, 0.16, 1.0)
-const CARD_BG_HOVER := Color(0.15, 0.15, 0.22, 1.0)
-const CARD_BG_SELECTED := Color(0.18, 0.15, 0.08, 1.0)
-const CARD_BG_LOCKED := Color(0.07, 0.07, 0.1, 1.0)
+const CARD_BG := Color(0.1, 0.1, 0.16, 0.55)
+const CARD_BG_HOVER := Color(0.15, 0.15, 0.22, 0.85)
+const CARD_BG_LOCKED := Color(0.07, 0.07, 0.1, 0.85)
 const BORDER_NORMAL := Color(0.22, 0.22, 0.32, 1.0)
 const BORDER_HOVER := Color(0.38, 0.38, 0.5, 1.0)
-const BORDER_SELECTED := ACCENT_COLOR
 
 ## Порядок героев на экране.
 const HERO_ORDER: Array[String] = [
@@ -26,6 +24,20 @@ const HERO_ORDER: Array[String] = [
     "hero_archer",
     "hero_monk",
 ]
+
+# ── Визуальные стили (настраиваются в Inspector) ──
+## Портреты героев (порядок = HERO_ORDER: Копейщик, Лучник, Монах).
+@export var hero_portraits: Array[Texture2D] = []
+## Стиль обычной (не выбранной, не наведённой) карточки героя.
+@export var card_normal: StyleBox = null
+## Стиль карточки при наведении мыши.
+@export var card_hover: StyleBox = null
+## Стиль заблокированной карточки героя. Если не задан — используется card_normal.
+@export var card_locked: StyleBox = null
+## Стиль кнопки «В БОЙ» (theme_override_styles/normal).
+@export var start_button_style: StyleBox = null
+## Стиль кнопки «Назад» (theme_override_styles/normal).
+@export var back_button_style: StyleBox = null
 
 var _selected_hero_id: String = HERO_DATA.DEFAULT_HERO_ID
 var _hovered_index: int = -1
@@ -40,6 +52,15 @@ func _ready() -> void:
         card.gui_input.connect(_on_card_gui_input.bind(i, hero_id))
         card.mouse_entered.connect(_on_card_mouse_entered.bind(i, hero_id))
         card.mouse_exited.connect(_on_card_mouse_exited.bind(i, hero_id))
+
+    # Стили кнопок из Inspector (если назначены).
+    var start_button := get_node_or_null("ScrollContainer/CenterContainer/HeroArea/VBoxContainer/StartButton") as Button
+    if start_button and start_button_style != null:
+        start_button.add_theme_stylebox_override("normal", start_button_style)
+    var back_button := get_node_or_null("ScrollContainer/CenterContainer/HeroArea/VBoxContainer/BackButton") as Button
+    if back_button and back_button_style != null:
+        back_button.add_theme_stylebox_override("normal", back_button_style)
+
     _refresh()
 
 
@@ -66,7 +87,7 @@ func _refresh() -> void:
 
 
 func _get_card(index: int) -> PanelContainer:
-    return get_node_or_null("ScrollContainer/CenterContainer/VBoxContainer/HeroCard_%d" % index) as PanelContainer
+    return get_node_or_null("ScrollContainer/CenterContainer/HeroArea/VBoxContainer/HeroCard_%d" % index) as PanelContainer
 
 
 func _update_card(index: int, hero_id: String, unlocked: bool, current: String, meta: Node) -> void:
@@ -81,19 +102,17 @@ func _update_card(index: int, hero_id: String, unlocked: bool, current: String, 
     var lock_label: Label = card.get_node_or_null("VBox/LockHeader/LockLabel")
     var visual_texture: TextureRect = card.get_node_or_null("VBox/Header/VisualTexture")
 
-    # Визуал героя (SpriteFrames первого кадра Idle). Немного увеличен для читаемости.
-    if visual_texture and hero.get("visual") != "":
-        var frames: SpriteFrames = load(hero.get("visual")) as SpriteFrames
-        if frames and frames.get_frame_count("Idle") > 0:
-            visual_texture.texture = frames.get_frame_texture("Idle", 0)
-            visual_texture.visible = true
+    # Портрет героя — экспортированный Texture2D из Inspector (порядок = HERO_ORDER).
+    # Если массив пуст или элемент не назначен — текстура очищается (слот остаётся пустым).
     if visual_texture:
+        if index < hero_portraits.size() and hero_portraits[index] != null:
+            visual_texture.texture = hero_portraits[index]
+            visual_texture.visible = true
+        else:
+            visual_texture.texture = null
         visual_texture.custom_minimum_size = Vector2(88, 88)
         visual_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
         visual_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-
-    # Центрирование содержимого карточки: заголовок (спрайт+имя) — как
-    # компактная группа по центру, текстовые блоки — на всю ширину карточки
     # с центрированным текстом (автоперенос естественный, не по словам).
     _center_hbox(card.get_node_or_null("VBox/Header"))
     _fill_vbox_items(card.get_node_or_null("VBox/Passive"))
@@ -148,24 +167,69 @@ func _center_label(label: Label) -> void:
 
 
 ## Применяет визуальное состояние карточки: заблокирована / выбрана / наведена / обычная.
+## ВЫБОР отображается золотой рамкой 2px ПО КРАЮ панели карточки (как в коллекции героев) —
+## фон остаётся обычным, рамка из ACCENT_COLOR. Hover — отдельный стиль card_hover.
+## Логика заблокированности (modulate) сохраняется.
 func _apply_visual_state(card: Control, unlocked: bool, selected: bool, hovered: bool) -> void:
+    # SelectionFrame больше не используется — рамка рисуется напрямую на панели.
+    var frame: Panel = card.get_node_or_null("SelectionFrame") as Panel
+    if frame:
+        frame.visible = false
+
     if not unlocked:
         card.modulate = Color(0.72, 0.72, 0.78, 1.0)
-        card.add_theme_stylebox_override("panel", _make_card_style(card, CARD_BG_LOCKED, BORDER_NORMAL, 1))
+        card.add_theme_stylebox_override("panel", _get_card_style(card, _state_locked()))
         return
 
     card.modulate = Color.WHITE
+    # Выбранная карточка — золотая рамка 2px по краю панели (как в коллекции).
     if selected:
-        card.add_theme_stylebox_override("panel", _make_card_style(card, CARD_BG_SELECTED, BORDER_SELECTED, 2))
+        card.add_theme_stylebox_override("panel", _make_selected_style(card))
     elif hovered:
-        card.add_theme_stylebox_override("panel", _make_card_style(card, CARD_BG_HOVER, BORDER_HOVER, 1))
+        card.add_theme_stylebox_override("panel", _get_card_style(card, _state_hover()))
     else:
-        card.add_theme_stylebox_override("panel", _make_card_style(card, CARD_BG, BORDER_NORMAL, 1))
+        card.add_theme_stylebox_override("panel", _get_card_style(card, _state_normal()))
 
 
-## Собирает StyleBoxFlat карточки, сохраняя отступы контента (12/10/12/10).
+## Возвращает стиль карточки по состоянию: экспортированный (> приоритет) → стандартный StyleBoxFlat.
+## Заглушки для состояний: пустые StyleBox означают «не назначен в Inspector».
+func _get_card_style(card: Control, style: StyleBox) -> StyleBox:
+    if style != null:
+        return style
+    return _make_card_style(card, CARD_BG, BORDER_NORMAL, 1)
+
+
+func _state_normal() -> StyleBox:
+    return card_normal
+
+
+func _state_hover() -> StyleBox:
+    if card_hover != null:
+        return card_hover
+    return _make_fallback_hover()
+
+
+func _state_locked() -> StyleBox:
+    if card_locked != null:
+        return card_locked
+    if card_normal != null:
+        return card_normal
+    # Fallback: тёмный StyleBoxFlat (как было до рефакторинга).
+    return _make_card_style(null, CARD_BG_LOCKED, BORDER_NORMAL, 1)
+
+
+func _make_fallback_hover() -> StyleBox:
+    return _make_card_style(null, CARD_BG_HOVER, BORDER_HOVER, 1)
+
+
+## Стиль ВЫБРАННОЙ карточки — золотая рамка 2px по краю панели (как в коллекции героев).
+func _make_selected_style(card: Control) -> StyleBox:
+    return _make_card_style(card, CARD_BG, ACCENT_COLOR, 2)
+
+
+## Собирает стандартный StyleBoxFlat карточки (fallback), сохраняя отступы контента (12/10/12/10).
 func _make_card_style(card: Control, bg: Color, border: Color, width: int) -> StyleBoxFlat:
-    var base := card.get_theme_stylebox("panel")
+    var base := card.get_theme_stylebox("panel") if card != null else null
     var sb: StyleBoxFlat
     if base is StyleBoxFlat:
         sb = base.duplicate() as StyleBoxFlat

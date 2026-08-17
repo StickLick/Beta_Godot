@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://b5x3dijo83k42"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://casgmipscsl3w" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_09.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Siege Crossbow: SiegePierce"
+display_name = "Осадный арбалет: Пробитие III"
+icon = ExtResource("ic_upg")
 description = "+2 pierce"
 modifiers = Array[Dictionary]([{
 "amount": 2,

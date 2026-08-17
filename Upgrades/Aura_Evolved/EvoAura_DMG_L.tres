@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://fv1gsl46515"]
 
+[ext_resource type="Texture2D" uid="uid://3mxc7medr2k" path="res://Texture/Separated Files/FHD (254).png" id="1_rmst0"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_DMG_L"
+display_name = "Аура: Урон"
+icon = ExtResource("1_rmst0")
 description = "Aura: +24 урона (Эво-Аура)"
 modifiers = Array[Dictionary]([{
 "amount": 24,

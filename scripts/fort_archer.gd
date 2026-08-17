@@ -78,7 +78,9 @@ func _spawn_arrow(angle: float, banner: WarBanner) -> void:
         return
     arrow.damage = _current_arrow_damage
     arrow.pierce_limit = 1
-    arrow.faction = "player"
+    # Фракция стрелы зависит от фракции турели: свои (1) — "player", враг (2) — "rival".
+    var f_name: String = "player" if alignment == 1 else "rival"
+    arrow.faction = f_name
     arrow.global_position = global_position
     arrow.rotation = angle
     get_tree().current_scene.add_child(arrow)
@@ -146,14 +148,25 @@ func _tick_turret(delta: float) -> void:
 
 
 func _find_turret_target() -> Node2D:
-    ## Скан врагов: группа "enemy" + враждебные юниты (rival).
+    ## Скан целей по фракции турели.
+    ## Своя турель (alignment == 1): группа "enemy" + враждебные юниты (rival).
+    ## Вражеская турель (alignment == 2): игрок + союзные юниты (alignment == 1).
     ## Приоритет опасным целям (BREAKER) — паттерн из mine.gd._find_turret_target.
     var targets: Array = []
-    targets.append_array(get_tree().get_nodes_in_group("enemy"))
-    var hostile_units: Array = get_tree().get_nodes_in_group("units").filter(
-        func(u): return is_instance_valid(u) and u.alignment == 2
-    )
-    targets.append_array(hostile_units)
+    if alignment == 1:
+        targets.append_array(get_tree().get_nodes_in_group("enemy"))
+        var hostile_units: Array = get_tree().get_nodes_in_group("units").filter(
+            func(u): return is_instance_valid(u) and u.alignment == 2
+        )
+        targets.append_array(hostile_units)
+    else:
+        var player := get_tree().get_first_node_in_group("player")
+        if is_instance_valid(player):
+            targets.append(player)
+        var ally_units: Array = get_tree().get_nodes_in_group("ally_units").filter(
+            func(u): return is_instance_valid(u)
+        )
+        targets.append_array(ally_units)
 
     # Приоритет BREAKER, если таковые есть в радиусе.
     var priority: Array = targets.filter(

@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dfn8xxmb18bo2"]
 
+[ext_resource type="Texture2D" uid="uid://cdr6wtn02t5be" path="res://Texture/Separated Files/FHD (541).png" id="1_qp0gb"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Sky Piercer: Reload_L"
+display_name = "Небесный пронзатель: Перезарядка"
+icon = ExtResource("1_qp0gb")
 description = "-1.2s reload"
 amount = -1.2
 modifiers = Array[Dictionary]([{

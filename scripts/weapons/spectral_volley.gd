@@ -25,7 +25,7 @@ func _on_cooldown_timeout() -> void:
     var amount = max(1, base_arrow_count)
     
     if is_instance_valid(player):
-        player.play_attack_animation(target.global_position)
+        player.play_attack_animation(target.global_position, false)
     _fire_volley(base_angle, amount)
     cooldown_timer.start(attack_cooldown)
 

@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://u5mteru4rb4m"]
 
+[ext_resource type="Texture2D" uid="uid://cfw5fcjkyr26e" path="res://Texture/Separated Files/FHD (537).png" id="1_psnfa"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Lightning: +damage"
+display_name = "Молния: Урон"
+icon = ExtResource("1_psnfa")
 description = "+damage"
 modifiers = Array[Dictionary]([{
 "amount": 10,

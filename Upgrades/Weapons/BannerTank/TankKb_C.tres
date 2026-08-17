@@ -1,11 +1,16 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cf2fqheyvko3"]
 
+[ext_resource type="Texture2D" uid="uid://2cdwrdqbb5u2" path="res://Texture/Separated Files/FHD (167).png" id="1_r6djo"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Tank: KB_C"
+display_name = "Танк: Отброс"
+icon = ExtResource("1_r6djo")
 description = "+50 knockback force"
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 50.0,
+"stat": "tank_knockback_force"
+}])
 weapon_tag = "BannerTank"
-modifiers = [{"amount": 50.0, "stat": "tank_knockback_force"}]

@@ -1,13 +1,16 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cbq68usnbtu6d"]
 
+[ext_resource type="Texture2D" uid="uid://lynh0uvdtyeq" path="res://Texture/Separated Files/FHD (503).png" id="1_4qa8a"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Banner: +units"
+display_name = "Знамя: Подкрепление"
+icon = ExtResource("1_4qa8a")
 description = "+units count"
-stat_to_modify = ""
-amount = 0.0
-rarity = 0
+modifiers = Array[Dictionary]([{
+"amount": 1,
+"stat": "max_banner_units"
+}])
 weapon_tag = "Banner"
-modifiers = [{"amount": 1, "stat": "max_banner_units"}]

@@ -33,6 +33,11 @@ func _update_indicators_logic() -> void:
     var boss = get_tree().get_first_node_in_group("rival_boss")
     if boss: all_targets.append(boss)
     
+    # 2.5 КУРЬЕР (охота) — золотая стрелка-цель
+    var courier = get_tree().get_first_node_in_group("courier")
+    if is_instance_valid(courier) and not courier.is_queued_for_deletion():
+        all_targets.append(courier)
+    
     # 3. ЛАГЕРЯ ИГРОКА
     var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
     all_targets.append_array(player_camps)

@@ -192,9 +192,11 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_twsn0"]
+radius = 30.0
+
 [node name="Enemy" type="CharacterBody2D" unique_id=1659451655]
 collision_layer = 4
-collision_mask = 7
 script = ExtResource("1_enemy")
 
 [node name="HealthComponent" type="Node" parent="." unique_id=77754151]
@@ -224,3 +226,6 @@ position = Vector2(1.9999999, -3.9999998)
 scale = Vector2(0.6875, 0.6875)
 sprite_frames = SubResource("SpriteFrames_gd7ey")
 animation = &"Attack1"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1899097866]
+shape = SubResource("CircleShape2D_twsn0")

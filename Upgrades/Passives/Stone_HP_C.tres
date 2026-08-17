@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cstonec01"]
 
+[ext_resource type="Texture2D" uid="uid://d0rhj1u5psqyi" path="res://Texture/Separated Files/FHD (2).png" id="1_5qjpo"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "MaxHP_C"
+display_name = "Максимальное здоровье"
+icon = ExtResource("1_5qjpo")
 description = "+50-100 HP (Stone)"
 modifiers = Array[Dictionary]([{
 "amount": 50,

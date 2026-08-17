@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bvwpt76uqiglf"]
 
+[ext_resource type="Texture2D" uid="uid://jpj81k565ets" path="res://Texture/Separated Files/FHD (542).png" id="1_pb2nm"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Spectral Volley: SpectralDMG"
+display_name = "Спектральный залп: Урон"
+icon = ExtResource("1_pb2nm")
 description = "+25 damage"
 modifiers = Array[Dictionary]([{
 "amount": 25,

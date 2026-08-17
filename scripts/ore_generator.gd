@@ -16,58 +16,76 @@ var _placed_positions: Array[Vector2] = []
 
 
 func _ready() -> void:
-	_map_rect = GameManager.get_meta("map_rect", Rect2(-2000, -2000, 4000, 4000))
-	call_deferred("_generate_ores")
+    _map_rect = GameManager.get_meta("map_rect", Rect2(-2000, -2000, 4000, 4000))
+    call_deferred("_generate_ores")
 
 
 func _generate_ores() -> void:
-	_placed_positions.clear()
+    _placed_positions.clear()
 
-	for i in range(ore_count):
-		var pos := _find_valid_position()
-		if pos != Vector2.INF:
-			_placed_positions.append(pos)
-			_spawn_ore_node(pos, i)
-		else:
-			push_warning("OreGenerator: не удалось разместить узел %d после %d попыток" % [i, max_placement_attempts])
+    # Грубая проверка вместимости: доступная область карты с учётом map_margin.
+    var avail_w := _map_rect.size.x - 2.0 * map_margin
+    var avail_h := _map_rect.size.y - 2.0 * map_margin
+    if avail_w <= 0.0 or avail_h <= 0.0:
+        push_warning(
+			"OreGenerator: карта слишком мала для размещения узлов — доступная область "
+            + "равна %.0fx%.0f (map_rect=%s, map_margin=%.0f). Узлы не спавнятся. "
+            + "Увеличь map_rect или уменьши map_margin." % [avail_w, avail_h, str(_map_rect), map_margin]
+        )
+        return
 
-	print("[ORE] Размещено %d рудных узлов" % _placed_positions.size())
+    for i in range(ore_count):
+        var pos := _find_valid_position()
+        if pos != Vector2.INF:
+            _placed_positions.append(pos)
+            _spawn_ore_node(pos, i)
+        else:
+            push_warning(
+				"OreGenerator: не удалось разместить узел %d/%d за %d попыток. "
+                + "Причина: rejection sampling не нашёл свободную точку с дистанцией > %.0f "
+                + "до уже размещённых %d узлов в области %.0fx%.0f (map_rect=%s, map_margin=%.0f). "
+                + "Уменьши ore_count, уменьши min_distance, либо увеличь max_placement_attempts / map_rect."
+                % [i + 1, ore_count, max_placement_attempts, min_distance, _placed_positions.size(),
+                   avail_w, avail_h, str(_map_rect), map_margin]
+            )
+
+    print("[ORE] Размещено %d рудных узлов" % _placed_positions.size())
 
 
 func _find_valid_position() -> Vector2:
-	for attempt in range(max_placement_attempts):
-		var pos := Vector2(
-			randf_range(_map_rect.position.x + map_margin, _map_rect.end.x - map_margin),
-			randf_range(_map_rect.position.y + map_margin, _map_rect.end.y - map_margin)
-		)
+    for attempt in range(max_placement_attempts):
+        var pos := Vector2(
+            randf_range(_map_rect.position.x + map_margin, _map_rect.end.x - map_margin),
+            randf_range(_map_rect.position.y + map_margin, _map_rect.end.y - map_margin)
+        )
 
-		if _is_position_valid(pos):
-			return pos
+        if _is_position_valid(pos):
+            return pos
 
-	return Vector2.INF
+    return Vector2.INF
 
 
 func _is_position_valid(pos: Vector2) -> bool:
-	# Проверка минимальной дистанции между узлами (включительно: ровно min_distance тоже reject)
-	for existing in _placed_positions:
-		if pos.distance_to(existing) <= min_distance:
-			return false
+    # Проверка минимальной дистанции между узлами (включительно: ровно min_distance тоже reject)
+    for existing in _placed_positions:
+        if pos.distance_to(existing) <= min_distance:
+            return false
 
-	# Проверка дистанции до игрока (чтобы не спавнилось прямо на нём)
-	var player := get_tree().get_first_node_in_group("player")
-	if player and pos.distance_to(player.global_position) < 400.0:
-		return false
+    # Проверка дистанции до игрока (чтобы не спавнилось прямо на нём)
+    var player := get_tree().get_first_node_in_group("player")
+    if player and pos.distance_to(player.global_position) < 400.0:
+        return false
 
-	return true
+    return true
 
 
 func _spawn_ore_node(pos: Vector2, index: int) -> void:
-	var scene := get_tree().current_scene
-	if not scene:
-		return
+    var scene := get_tree().current_scene
+    if not scene:
+        return
 
-	var ore := ORE_NODE_SCENE.instantiate()
-	ore.name = "OreNode_%d" % index
-	ore.global_position = pos
+    var ore := ORE_NODE_SCENE.instantiate()
+    ore.name = "OreNode_%d" % index
+    ore.global_position = pos
 
-	scene.add_child(ore)
+    scene.add_child(ore)

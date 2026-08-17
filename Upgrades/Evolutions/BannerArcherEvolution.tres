@@ -1,17 +1,18 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://jsklflnfbwfh"]
 
-[ext_resource type="PackedScene" path="res://Assets/Scenes/Weapons/BannerArcherWeapon.tscn" id="1_barcher"]
+[ext_resource type="PackedScene" uid="uid://dqef1tfbxrrxw" path="res://Assets/Scenes/Weapons/BannerArcherWeapon.tscn" id="1_barcher"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_upg")
 name = "Знамя Лучников"
+display_name = "Знамя Лучников"
+icon = ExtResource("ic_upg")
 description = "Эволюция Знамени: павны становятся лучниками, атакующими с безопасной дистанции"
 rarity = 3
 is_unique = true
-max_level_for_evo = 8
 required_passive_tag = "AttackRange"
-required_passive_level = 1
 weapon_tag = "Banner"
 target_weapon_name = "Banner"
 evolved_weapon_tag = "BannerArcher"

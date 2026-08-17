@@ -16,6 +16,9 @@ var is_dead: bool = false
 var is_dashing: bool = false
 var desperation_phase: bool = false
 var current_speed: float = 140.0
+# --- Обход препятствий: счётчик застревания и таймер «расталкивания» ---
+var _stuck_frames: int = 0
+var _unstick_timer: float = 0.0
 
 @onready var line: Line2D = $Line2D
 @onready var health_component: HealthComponent = $HealthComponent
@@ -90,7 +93,42 @@ func _move_logic(delta: float) -> void:
     var move_speed = current_speed
     if is_dashing: move_speed *= dash_speed_mult
     var dir = (player.global_position - global_position).normalized()
+    
+    # --- ОБХОД ПРЕПЯТСТВИЙ (коррекция после move_and_slide прошлого кадра) ---
+    # Босс не должен застревать в границах карты и шахтах: если давит в стену —
+    # скользим вдоль неё (тангенциально), а при «прижатой к нулю» скорости
+    # несколько кадров — короткий боковой импульс для огибания углов.
+    var unstick_push := Vector2.ZERO
+    if is_on_wall() and get_slide_collision_count() > 0:
+        var wall_normal := get_wall_normal()
+        var tangent := wall_normal.orthogonal()
+        if tangent.dot(dir) < 0.0:
+            tangent = -tangent
+        var slid: Vector2 = dir.slide(wall_normal)
+        if slid.length() < 0.15:
+            dir = tangent
+        else:
+            dir = slid.normalized()
+        
+        if velocity.length() < 30.0:
+            _stuck_frames += 1
+        else:
+            _stuck_frames = 0
+        if _stuck_frames >= 15:
+            _unstick_timer = 0.6
+            _stuck_frames = 0
+        if _unstick_timer > 0.0:
+            _unstick_timer -= delta
+            unstick_push = tangent * 900.0
+            if velocity.length() > 60.0:
+                _unstick_timer = 0.0
+    else:
+        _stuck_frames = 0
+        _unstick_timer = 0.0
+    
     velocity = velocity.move_toward(dir * move_speed, 800 * delta)
+    if unstick_push != Vector2.ZERO:
+        velocity += unstick_push * delta
     move_and_slide()
 
 func _execute_pulse() -> void:

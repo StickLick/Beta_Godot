@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://lma0fkonvjel"]
 
+[ext_resource type="Texture2D" uid="uid://2cdwrdqbb5u2" path="res://Texture/Separated Files/FHD (167).png" id="1_akmhu"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Tank: DMG_E"
+display_name = "Танк: Урон"
+icon = ExtResource("1_akmhu")
 description = "+25 damage"
+modifiers = Array[Dictionary]([{
+"amount": 25.0,
+"stat": "base_damage"
+}])
 rarity = 2
 weapon_tag = "BannerTank"
-modifiers = [{"amount": 25.0, "stat": "base_damage"}]

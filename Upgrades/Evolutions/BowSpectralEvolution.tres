@@ -1,16 +1,18 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dbowspecevo01"]
 
-[ext_resource type="PackedScene" uid="uid://dspvqq9kn3t7x" path="res://Assets/Scenes/Weapons/SpectralVolley.tscn" id="1_svolley"]
+[ext_resource type="PackedScene" uid="uid://dspvqrakn3t7x" path="res://Assets/Scenes/Weapons/SpectralVolley.tscn" id="1_svolley"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_upg")
 name = "Спектральный Залп"
+display_name = "Спектральный Залп"
+icon = ExtResource("ic_upg")
 description = "Эволюция Лука: рикошетящие синие стрелы"
 rarity = 3
 is_unique = true
 required_passive_tag = "ProjectileAmount"
-required_passive_level = 1
 weapon_tag = "Bow"
 target_weapon_name = "Bow"
 evolved_weapon_tag = "SpectralVolley"

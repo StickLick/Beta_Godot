@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://fi0npklrhf3l"]
 
+[ext_resource type="Texture2D" uid="uid://bpdvn5m5eq07h" path="res://Texture/Separated Files/FHD (536).png" id="1_2cfby"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Staff_Base"
+display_name = "Посох"
+icon = ExtResource("1_2cfby")
 description = "+1 Magic Staff"
-stat_to_modify = ""
-amount = 0.0
-rarity = 0
 is_weapon = true
 weapon_tag = "Staff"

@@ -2,7 +2,7 @@ extends Node2D
 
 @export var enemy_scene: PackedScene = null
 @export var spawn_radius: float = 750.0
-@export var breaker_min_spawn_distance: float = 400.0
+@export var breaker_min_spawn_distance: float = 700.0
 @export var difficulty_controller: DifficultyController = null
 
 var _spawn_timer: Timer
@@ -41,38 +41,33 @@ func _spawn_logic(threat: float) -> void:
 
     var spawn_center = player.global_position
     
-    var breaker_center: Vector2 = Vector2.INF
+    var breaker_territories: Array[Vector2] = []
     if archetype == Enemy.Archetype.BREAKER:
         var player_camps = get_tree().get_nodes_in_group("camps").filter(func(c): return is_instance_valid(c) and c.alignment == 1)
         var player_mines = get_tree().get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
         var player_territories = player_camps + player_mines
         if not player_territories.is_empty():
+            for territory in player_territories:
+                breaker_territories.append(territory.global_position)
             spawn_center = player_territories.pick_random().global_position
-            breaker_center = spawn_center
     
     if archetype == Enemy.Archetype.SWARMER and randf() < 0.12:
         for i in range(3): # Уменьшено количество в группе
-            _spawn_enemy(threat, archetype, spawn_center, Vector2(randf_range(-60, 60), randf_range(-60, 60)), breaker_center)
+            _spawn_enemy(threat, archetype, spawn_center, Vector2(randf_range(-60, 60), randf_range(-60, 60)), breaker_territories)
     else:
-        _spawn_enemy(threat, archetype, spawn_center, Vector2.ZERO, breaker_center)
+        _spawn_enemy(threat, archetype, spawn_center, Vector2.ZERO, breaker_territories)
 
-func _spawn_enemy(threat: float, type: Enemy.Archetype, center_pos: Vector2, offset: Vector2 = Vector2.ZERO, territory_center: Vector2 = Vector2.INF) -> void:
+func _spawn_enemy(threat: float, type: Enemy.Archetype, center_pos: Vector2, offset: Vector2 = Vector2.ZERO, territories: Array[Vector2] = []) -> void:
     if not enemy_scene: return
-    var angle = randf() * TAU
-    var spawn_pos = center_pos + Vector2.from_angle(angle) * spawn_radius + offset
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
-    spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
-    spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
-
-    # BREAKER: не спавним слишком близко к выбранной территории (шахта/лагерь)
-    if type == Enemy.Archetype.BREAKER and territory_center != Vector2.INF:
-        if spawn_pos.distance_to(territory_center) < breaker_min_spawn_distance:
-            var dir = (spawn_pos - territory_center).normalized()
-            if dir == Vector2.ZERO:
-                dir = Vector2.from_angle(angle)
-            spawn_pos = territory_center + dir * breaker_min_spawn_distance
-            spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
-            spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
+    var spawn_pos: Vector2
+    if type == Enemy.Archetype.BREAKER and not territories.is_empty():
+        spawn_pos = _find_breaker_spawn_pos(center_pos, offset, territories, rect)
+    else:
+        var angle = randf() * TAU
+        spawn_pos = center_pos + Vector2.from_angle(angle) * spawn_radius + offset
+        spawn_pos.x = clamp(spawn_pos.x, rect.position.x + 150, rect.end.x - 150)
+        spawn_pos.y = clamp(spawn_pos.y, rect.position.y + 150, rect.end.y - 150)
 
     var enemy = enemy_scene.instantiate() as Enemy
     enemy.position = spawn_pos
@@ -83,6 +78,36 @@ func _spawn_enemy(threat: float, type: Enemy.Archetype, center_pos: Vector2, off
         # СНИЖЕНИЕ СЛОЖНОСТИ: враги слабее на 20%
         enemy.health_component.max_health *= (threat * 0.7)
         enemy.health_component.current_health = enemy.health_component.max_health
+
+func _find_breaker_spawn_pos(center_pos: Vector2, offset: Vector2, territories: Array[Vector2], rect: Rect2) -> Vector2:
+    var max_attempts := 16
+    var best_pos: Vector2 = Vector2.ZERO
+    var best_min_dist := -1.0
+    
+    for i in range(max_attempts):
+        var angle = randf() * TAU
+        var candidate = center_pos + Vector2.from_angle(angle) * spawn_radius + offset
+        candidate.x = clamp(candidate.x, rect.position.x + 150, rect.end.x - 150)
+        candidate.y = clamp(candidate.y, rect.position.y + 150, rect.end.y - 150)
+        
+        var min_dist = _min_distance_to_territories(candidate, territories)
+        if min_dist >= breaker_min_spawn_distance:
+            return candidate
+        
+        if best_min_dist < 0.0 or min_dist > best_min_dist:
+            best_min_dist = min_dist
+            best_pos = candidate
+    
+    # Все попытки неудачны — берём кандидата, наиболее удалённого от ближайшей территории
+    return best_pos
+
+func _min_distance_to_territories(pos: Vector2, territories: Array[Vector2]) -> float:
+    var min_dist := INF
+    for territory in territories:
+        var dist = pos.distance_to(territory)
+        if dist < min_dist:
+            min_dist = dist
+    return min_dist
 
 func _get_random_archetype() -> Enemy.Archetype:
     var time = GameManager.time_elapsed

@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://c3xetr0aijgtd"]
 
+[ext_resource type="Texture2D" uid="uid://jpj81k565ets" path="res://Texture/Separated Files/FHD (542).png" id="1_jnchy"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Spectral Volley: ChainBounce"
+display_name = "Спектральный залп: Отскок"
+icon = ExtResource("1_jnchy")
 description = "+1 bounce"
 modifiers = Array[Dictionary]([{
 "amount": 1,

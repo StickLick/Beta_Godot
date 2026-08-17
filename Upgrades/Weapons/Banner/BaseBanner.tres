@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://warbanner_base01"]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://dcu5etqypoafq"]
 
+[ext_resource type="Texture2D" uid="uid://lynh0uvdtyeq" path="res://Texture/Separated Files/FHD (503).png" id="1_7vcxi"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "War Banner Base"
+display_name = "Знамя"
+icon = ExtResource("1_7vcxi")
 description = "+1 War Banner"
-stat_to_modify = ""
-amount = 0.0
-rarity = 0
 is_weapon = true
 weapon_tag = "Banner"

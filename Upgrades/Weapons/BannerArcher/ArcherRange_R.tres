@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bf6gqyrddfyow"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://bkcb7f7kg6tdh" path="res://Texture/Separated Files/FHD (539).png" id="1_y6hko"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Archer: Range_R"
+display_name = "Лучник: Дальность"
+icon = ExtResource("1_y6hko")
 description = "+100 shooting range"
+modifiers = Array[Dictionary]([{
+"amount": 100,
+"stat": "archer_attack_range"
+}])
 rarity = 1
 weapon_tag = "BannerArcher"
-modifiers = [{"amount": 100, "stat": "archer_attack_range"}]

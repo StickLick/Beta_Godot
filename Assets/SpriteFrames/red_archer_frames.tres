@@ -105,7 +105,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"Attack1",
-"speed": 5.0
+"speed": 13.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -128,7 +128,7 @@ animations = [{
 }],
 "loop": 1,
 "name": &"Idle",
-"speed": 5.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,

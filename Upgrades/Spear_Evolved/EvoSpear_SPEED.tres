@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cevspaspd1"]
 
+[ext_resource type="Texture2D" uid="uid://cbil3oo7qotf8" path="res://Texture/Separated Files/FHD (523).png" id="1_a61bu"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoSpear_SPEED"
+display_name = "Копьё: Скорость"
+icon = ExtResource("1_a61bu")
 description = "Spear: +0.08 атк. скорости (Эво-Копье)"
 amount = -0.08
 modifiers = Array[Dictionary]([{

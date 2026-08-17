@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://b61tbk2b06ov0"]
 
+[ext_resource type="Texture2D" uid="uid://fjaehypovfq2" path="res://Texture/Separated Files/FHD (525).png" id="1_kvr5u"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Bow_R"
+display_name = "Лук: Урон II"
+icon = ExtResource("1_kvr5u")
 description = "+8 damage, +0.1 attack speed"
 modifiers = Array[Dictionary]([{
 "amount": 6,

@@ -3,8 +3,23 @@
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 [ext_resource type="PackedScene" uid="uid://warbanner01" path="res://Assets/Scenes/Weapons/BannerWeapon.tscn" id="2_evo"]
 
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 [resource]
 script = ExtResource("1_upg")
+
+
+
+
+
+
+
+
+
+
+display_name = "Эволюция Знамени"
+
+icon = ExtResource("ic_upg")
+
 name = "Banner Evolution"
 description = "Улучшает знамя до элитной версии"
 stat_to_modify = ""

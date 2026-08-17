@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://1g7qjpqrl8o0"]
 
+[ext_resource type="Texture2D" uid="uid://b7g4avtvrvkq7" path="res://Texture/Separated Files/FHD (492).png" id="1_bbtme"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Marshal: Cry_R"
+display_name = "Маршал: Клич"
+icon = ExtResource("1_bbtme")
 description = "+10% war cry damage"
+modifiers = Array[Dictionary]([{
+"amount": 0.1,
+"stat": "inspired_damage_mult"
+}])
 rarity = 1
 weapon_tag = "BannerMarshal"
-modifiers = [{"amount": 0.1, "stat": "inspired_damage_mult"}]

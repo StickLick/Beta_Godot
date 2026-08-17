@@ -1,7 +1,37 @@
-[gd_scene load_steps=4 format=3 uid="uid://gachascr0001"]
+[gd_scene format=3 uid="uid://gachascr0001"]
 
-[ext_resource type="Script" path="res://scripts/ui/gacha_screen.gd" id="1_gacha"]
-[ext_resource type="Texture2D" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="2_coin"]
+[ext_resource type="Script" uid="uid://b0q1ymmq2vge" path="res://scripts/ui/gacha_screen.gd" id="1_gacha"]
+[ext_resource type="Texture2D" uid="uid://v3gjs1ocmwan" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_03.png" id="2_coin"]
+[ext_resource type="Texture2D" uid="uid://cechto8abmtca" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular2.png" id="3_sc8ud"]
+[ext_resource type="Texture2D" uid="uid://chnf5d5viyek2" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Pressed2.png" id="4_egdgr"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_egdgr"]
+texture = ExtResource("3_sc8ud")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_31qt7"]
+texture = ExtResource("4_egdgr")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_e0glq"]
+texture = ExtResource("3_sc8ud")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bdute"]
+texture = ExtResource("4_egdgr")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
 bg_color = Color(0.05, 0.05, 0.08, 0.999)
@@ -15,7 +45,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="GachaScreen" type="Control"]
+[node name="GachaScreen" type="Control" unique_id=711574927]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,16 +54,17 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gacha")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=1052290593]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.05, 0.05, 0.09, 0.95)
+mouse_filter = 2
+color = Color(0.04, 0.05, 0.08, 0.72)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1502941827]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,99 +72,105 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=811723415]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TitleRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="TitleRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=920850584]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 8
+alignment = 1
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer/TitleRow"]
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer/TitleRow" unique_id=258801531]
 layout_mode = 2
+theme_override_font_sizes/font_size = 44
 text = "СЛОТ-УДАЧА"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 44
+vertical_alignment = 1
 
-[node name="InfoButton" type="Button" parent="CenterContainer/VBoxContainer/TitleRow"]
+[node name="InfoButton" type="Button" parent="CenterContainer/VBoxContainer/TitleRow" unique_id=518754189]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 36)
+custom_maximum_size = Vector2(20, 30)
 layout_mode = 2
+size_flags_vertical = 4
 text = "?"
 
-[node name="CurrencyDisplay" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="CurrencyDisplay" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1117887310]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 6
+alignment = 1
 
-[node name="CoinIcon" type="TextureRect" parent="CenterContainer/VBoxContainer/CurrencyDisplay"]
+[node name="CoinIcon" type="TextureRect" parent="CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=524005716]
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
 size_flags_vertical = 4
 texture = ExtResource("2_coin")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer/CurrencyDisplay"]
+[node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=299244544]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 22
 
-[node name="ReelsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="ReelsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=980057450]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ComboPreviewLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="ComboPreviewLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=325701761]
 unique_name_in_owner = true
 layout_mode = 2
-text = ""
-horizontal_alignment = 1
-autowrap_mode = 2
 theme_override_font_sizes/font_size = 16
-
-[node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = ""
 horizontal_alignment = 1
 autowrap_mode = 2
-theme_override_font_sizes/font_size = 18
 
-[node name="SpinButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1556136]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SpinButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1650814273]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_egdgr")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_31qt7")
+theme_override_styles/hover = SubResource("StyleBoxTexture_egdgr")
 text = "Крутить (50)"
 
-[node name="ContinueButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="ContinueButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1880261072]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
 text = "Продолжить"
-visible = false
 
-[node name="CollectButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="CollectButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=605947951]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
 text = "Забрать награду"
-visible = false
 
-[node name="CloseButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="CloseButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2107239468]
 custom_minimum_size = Vector2(320, 48)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_e0glq")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_bdute")
+theme_override_styles/hover = SubResource("StyleBoxTexture_egdgr")
 text = "Назад"
 
-[node name="RulesPopup" type="Panel" parent="."]
+[node name="RulesPopup" type="Panel" parent="." unique_id=1643644861]
 unique_name_in_owner = true
 visible = false
 clip_contents = true
-anchors_preset = 8
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -146,7 +183,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
 
-[node name="MarginContainer" type="MarginContainer" parent="RulesPopup"]
+[node name="MarginContainer" type="MarginContainer" parent="RulesPopup" unique_id=642160091]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -158,34 +195,34 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="VBoxContainer" type="VBoxContainer" parent="RulesPopup/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RulesPopup/MarginContainer" unique_id=448933218]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="HeaderRow" type="HBoxContainer" parent="RulesPopup/MarginContainer/VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=1867800063]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HeaderLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow"]
+[node name="HeaderLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow" unique_id=225346057]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "ПРАВИЛА"
 theme_override_font_sizes/font_size = 20
+text = "ПРАВИЛА"
 
-[node name="CloseXButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow"]
+[node name="CloseXButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow" unique_id=1474003987]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 text = "X"
 
-[node name="RulesLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer"]
+[node name="RulesLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=142545963]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-autowrap_mode = 2
 theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
 
-[node name="CloseRulesButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer"]
+[node name="CloseRulesButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=481544213]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

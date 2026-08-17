@@ -1,8 +1,93 @@
 [gd_scene format=3 uid="uid://collscr0001"]
 
 [ext_resource type="Script" uid="uid://bceuqcu51lrfr" path="res://scripts/ui/collection_screen.gd" id="1_col"]
+[ext_resource type="Texture2D" uid="uid://cechto8abmtca" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Regular2.png" id="2_gcg2e"]
+[ext_resource type="Texture2D" uid="uid://chnf5d5viyek2" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Buttons/SmallBlueSquareButton_Pressed2.png" id="3_unilv"]
 
-[node name="CollectionScreen" type="Control" unique_id=1640512807]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7iucf"]
+texture = ExtResource("2_gcg2e")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nhsev"]
+texture = ExtResource("3_unilv")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7xfbd"]
+texture = ExtResource("2_gcg2e")
+texture_margin_left = 13.0
+texture_margin_top = 13.0
+texture_margin_right = 13.0
+texture_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="TopPanelStyle"]
+bg_color = Color(0.08, 0.1, 0.16, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.28, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="TabNormal"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.12, 0.13, 0.19, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.26, 0.27, 0.38, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="TabHover"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.17, 0.18, 0.26, 0.65)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.55, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="TabPressed"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(1, 0.85, 0.4, 0.18)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxEmpty" id="FocusEmpty"]
+
+[node name="CollectionScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,60 +95,182 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_col")
+card_corner_radius = 8
+card_bg_color = Color(0.08, 0.1, 0.16, 0.85)
+card_locked_bg_color = Color(0.07, 0.07, 0.1, 0.85)
+card_border_color = Color(0.22, 0.22, 0.32, 1)
+card_locked_border_color = Color(0.16, 0.16, 0.24, 1)
+card_border_width = 1
+card_icon_size = Vector2(40, 40)
+hero_icon_size = Vector2(56, 56)
+card_grid_min_height = 90
+card_row_spacing = 8
+card_hero_spacing = 8
+card_section_spacing = 18
+card_pad_h = 8
+card_pad_v = 8
 
-[node name="Background" type="ColorRect" parent="." unique_id=1716433889]
+[node name="Backdrop" type="ColorRect" parent="."]
+material = null
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.05, 0.05, 0.09, 0.95)
+mouse_filter = 2
+color = Color(0.04, 0.05, 0.08, 0.72)
 
-[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1172539464]
+[node name="OuterMargin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = -88.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
 
-[node name="CenterContainer" type="CenterContainer" parent="ScrollContainer" unique_id=1253260423]
+[node name="ModalCenter" type="CenterContainer" parent="OuterMargin"]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/CenterContainer" unique_id=1327193176]
+[node name="Layout" type="VBoxContainer" parent="OuterMargin/ModalCenter"]
+custom_minimum_size = Vector2(450, 810)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_constants/separation = 0
+
+[node name="TopPanel" type="PanelContainer" parent="OuterMargin/ModalCenter/Layout"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("TopPanelStyle")
+
+[node name="TopBox" type="VBoxContainer" parent="OuterMargin/ModalCenter/Layout/TopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Header" type="HBoxContainer" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="ScrollContainer/CenterContainer/VBoxContainer" unique_id=1849337514]
+[node name="TitleLabel" type="Label" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/Header"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 34
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 22
 text = "КОЛЛЕКЦИЯ"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="CardsContainer" type="VBoxContainer" parent="ScrollContainer/CenterContainer/VBoxContainer" unique_id=905785431]
+[node name="HeaderMarginPad" type="MarginContainer" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="TabBar" type="HBoxContainer" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/HeaderMarginPad"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HeroesButton" type="Button" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/HeaderMarginPad/TabBar"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+toggle_mode = true
+theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
+theme_override_styles/normal = SubResource("TabNormal")
+theme_override_styles/hover = SubResource("TabHover")
+theme_override_styles/pressed = SubResource("TabPressed")
+theme_override_styles/focus = SubResource("FocusEmpty")
+theme_override_font_sizes/font_size = 14
+text = "Герои"
+
+[node name="WeaponsButton" type="Button" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/HeaderMarginPad/TabBar"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+toggle_mode = true
+theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
+theme_override_styles/normal = SubResource("TabNormal")
+theme_override_styles/hover = SubResource("TabHover")
+theme_override_styles/pressed = SubResource("TabPressed")
+theme_override_styles/focus = SubResource("FocusEmpty")
+theme_override_font_sizes/font_size = 14
+text = "Оружие"
+
+[node name="PassivesButton" type="Button" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/HeaderMarginPad/TabBar"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+toggle_mode = true
+theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
+theme_override_styles/normal = SubResource("TabNormal")
+theme_override_styles/hover = SubResource("TabHover")
+theme_override_styles/pressed = SubResource("TabPressed")
+theme_override_styles/focus = SubResource("FocusEmpty")
+theme_override_font_sizes/font_size = 14
+text = "Пассивки"
+
+[node name="EvolutionsButton" type="Button" parent="OuterMargin/ModalCenter/Layout/TopPanel/TopBox/HeaderMarginPad/TabBar"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+toggle_mode = true
+theme_override_colors/font_color = Color(0.8, 0.8, 0.85, 1)
+theme_override_styles/normal = SubResource("TabNormal")
+theme_override_styles/hover = SubResource("TabHover")
+theme_override_styles/pressed = SubResource("TabPressed")
+theme_override_styles/focus = SubResource("FocusEmpty")
+theme_override_font_sizes/font_size = 14
+text = "Эволюции"
+
+[node name="ContentMargin" type="MarginContainer" parent="OuterMargin/ModalCenter/Layout"]
+custom_minimum_size = Vector2(0, 596)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CardsScroll" type="ScrollContainer" parent="OuterMargin/ModalCenter/Layout/ContentMargin"]
+custom_minimum_size = Vector2(0, 596)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="CardsContainer" type="VBoxContainer" parent="OuterMargin/ModalCenter/Layout/ContentMargin/CardsScroll"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 10
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
 
-[node name="CloseButton" type="Button" parent="." unique_id=369417440]
-custom_minimum_size = Vector2(260, 48)
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -130.0
-offset_top = -68.0
-offset_right = 130.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="BottomBar" type="MarginContainer" parent="OuterMargin/ModalCenter/Layout"]
+layout_mode = 2
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="BottomBox" type="HBoxContainer" parent="OuterMargin/ModalCenter/Layout/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="CloseButton" type="Button" parent="OuterMargin/ModalCenter/Layout/BottomBar/BottomBox"]
+custom_minimum_size = Vector2(200, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxTexture_7iucf")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_nhsev")
+theme_override_styles/hover = SubResource("StyleBoxTexture_7xfbd")
+theme_override_styles/focus = SubResource("FocusEmpty")
 text = "Назад"
 
-[connection signal="pressed" from="CloseButton" to="." method="_on_close_pressed"]
+[connection signal="pressed" from="OuterMargin/ModalCenter/Layout/BottomBar/BottomBox/CloseButton" to="." method="_on_close_pressed"]

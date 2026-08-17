@@ -172,6 +172,10 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
             var new_entry = Upgrade.new()
             new_entry.passive_id = pid
             new_entry.name = pid
+            # Копируем данные (icon необходим для отображения в HUD-слоте пассивки).
+            new_entry.icon = upgrade.icon
+            new_entry.display_name = upgrade.display_name if upgrade.display_name != "" else upgrade.name
+            new_entry.description = upgrade.description
             active_passives.append(new_entry)
     
     # Track weapon levels separately
@@ -222,7 +226,7 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
                 continue
             print("[WEAPON INIT MOD] tag=", tag, " stat=", mod_stat, " amount=", mod_amount, " name=", upgrade.name, " (multi)")
             if mod_stat == "attack_speed":
-                _attack_speed_bonus = max(_attack_speed_bonus, 1.0) + mod_amount
+                _attack_speed_bonus += mod_amount
                 _apply_attack_speed_bonus()
             elif mod_stat in self:
                 set(mod_stat, get(mod_stat) + mod_amount)
@@ -297,7 +301,13 @@ var _hero_passive_stat: String = ""
 var _hero_passive_percent: float = 0.0
 var _hero_passive_base: float = 0.0
 var _hero_id: String = HERO_DATA.DEFAULT_HERO_ID
+# Источники бонуса скорости атаки:
+#   _attack_speed_bonus        — внутриигровые пассивки/модификаторы
+#   _hero_attack_speed_bonus   — пассивка героя (level-up)
+#   _meta_attack_speed_bonus   — магазин (мета-прогрессия)
 var _attack_speed_bonus: float = 0.0
+var _hero_attack_speed_bonus: float = 0.0
+var _meta_attack_speed_bonus: float = 0.0
 var _weapon_base_cooldowns: Dictionary = {} # BaseWeapon -> исходный attack_cooldown
 
 
@@ -382,7 +392,10 @@ func _recalc_hero_passive() -> void:
         return
     var mult: float = 1.0 + _hero_passive_percent * float(current_level - 1)
     if _hero_passive_stat == "attack_speed":
-        _attack_speed_bonus = mult
+        # Аддитивный бонус пассивки героя пишем в отдельную переменную
+        # _hero_attack_speed_bonus, чтобы не затирать внутриигровой
+        # _attack_speed_bonus и магазинный _meta_attack_speed_bonus.
+        _hero_attack_speed_bonus = _hero_passive_percent * float(current_level - 1)
         _apply_attack_speed_bonus()
     elif _hero_passive_stat == "crit_chance":
         # Шанс крита — процентная характеристика: аддитивно +0.5% за уровень.
@@ -392,10 +405,12 @@ func _recalc_hero_passive() -> void:
 
 
 ## Уменьшает cooldown всех оружий пропорционально бонусу скорости атаки.
+## Итоговый множитель = 1.0 + внутриигровой + пассивка героя + магазинный.
 func _apply_attack_speed_bonus() -> void:
+    var total_mult: float = 1.0 + _attack_speed_bonus + _hero_attack_speed_bonus + _meta_attack_speed_bonus
     for child in get_children():
         if child is BaseWeapon and _weapon_base_cooldowns.has(child):
-            child.attack_cooldown = _weapon_base_cooldowns[child] / _attack_speed_bonus
+            child.attack_cooldown = _weapon_base_cooldowns[child] / total_mult
 
 
 func _get_stat_value(stat: String) -> float:
@@ -486,12 +501,12 @@ func _apply_meta_hero_upgrades() -> void:
             "radius_weapons":
                 radius_weapons += bonus
             "attack_speed":
-                # Множитель скорости атаки: применяется поверх текущих cooldown'ов
-                # (не трогает кэш, чтобы не затирать пассивку героя).
-                var mult: float = 1.0 + bonus
-                for child in get_children():
-                    if child is BaseWeapon and child.get("attack_cooldown") != null:
-                        child.attack_cooldown = child.attack_cooldown / mult
+                # Магазинный бонус скорости атаки. Накопляем аддитивный бонус в
+                # отдельной переменной _meta_attack_speed_bonus (не трогаем cooldown
+                # напрямую), затем единый пересчёт применяет бонус ко всем оружиям
+                # из кэша — включая новые, полученные в течение забега.
+                _meta_attack_speed_bonus += bonus
+                _apply_attack_speed_bonus()
         # Обновление оружий при изменении глобальных статов (радиус/урон).
         for child in get_children():
             if child is BaseWeapon and child.has_method("on_modifier_applied"):
@@ -542,6 +557,8 @@ func _spawn_weapon_scene(upgrade: Upgrade) -> void:
         _apply_stat_to_weapon(new_weapon, bonus_stat, _accumulated_weapon_bonuses[bonus_stat])
     if new_weapon.has_method("on_modifier_applied"):
         new_weapon.on_modifier_applied()
+    # Пересчёт бонусов скорости атаки (магазин + пассивка героя) для нового оружия
+    _apply_attack_speed_bonus()
     
 
 func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_tag: String = "") -> void:
@@ -562,6 +579,8 @@ func apply_evolution(weapon_name: String, evolved_scene: PackedScene, evolved_ta
     # Only global passives (radius_weapons, damage_multiplier) apply via _setup_physics_auto
     if new_weapon.has_method("on_modifier_applied"):
         new_weapon.on_modifier_applied()
+    # Пересчёт бонусов скорости атаки (магазин + пассивка героя) для эволюционировавшего оружия
+    _apply_attack_speed_bonus()
     _play_evolution_fx()
 
 func _play_evolution_fx() -> void:
@@ -679,10 +698,15 @@ func _update_animations(input_vector: Vector2) -> void:
         if animated_sprite.sprite_frames.has_animation("Idle"):
             animated_sprite.play("Idle")
 
-func play_attack_animation(target_position: Vector2) -> void:
+func play_attack_animation(target_position: Vector2, melee: bool = true) -> void:
     if not is_instance_valid(animated_sprite):
         return
     var direction = (target_position - global_position).normalized()
+    animated_sprite.flip_h = (direction.x < 0)
+    # Дальнобойное оружие (лук, арбалет, SkyPiercer и т.п.): разворачиваем
+    # персонажа в сторону цели, но НЕ проигрываем рукопашный замах копья.
+    if not melee:
+        return
     var anim_name := _get_attack_animation_name(direction)
     # Нет подходящей анимации (например, у Монаха) — не блокируем движение.
     if anim_name == "":
@@ -691,7 +715,6 @@ func play_attack_animation(target_position: Vector2) -> void:
         return
     is_attacking = true
     animated_sprite.play(anim_name)
-    animated_sprite.flip_h = (direction.x < 0)
 
 func _get_attack_animation_name(dir: Vector2) -> String:
     # Spearman использует полный набор направленных атак (сценные спрайты).

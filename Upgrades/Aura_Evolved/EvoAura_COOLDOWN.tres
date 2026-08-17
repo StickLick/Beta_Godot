@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cevaucd001"]
 
+[ext_resource type="Texture2D" uid="uid://3mxc7medr2k" path="res://Texture/Separated Files/FHD (254).png" id="1_pe8pp"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "EvoAura_COOLDOWN"
+display_name = "Аура: Перезарядка"
+icon = ExtResource("1_pe8pp")
 description = "Aura: -0.12 сек кулдауна (Эво-Аура)"
 amount = -0.12
 modifiers = Array[Dictionary]([{

@@ -1,17 +1,18 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bannermarshalevo1"]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bqbjq1gg5314y"]
 
-[ext_resource type="PackedScene" uid="uid://bannermarshalw01" path="res://Assets/Scenes/Weapons/BannerGrandMarshalWeapon.tscn" id="1_marshal"]
+[ext_resource type="PackedScene" uid="uid://q6w0384hggoi" path="res://Assets/Scenes/Weapons/BannerGrandMarshalWeapon.tscn" id="1_marshal"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_upg")
 name = "Гранд-Маршал"
+display_name = "Гранд-Маршал"
+icon = ExtResource("ic_upg")
 description = "Эволюция Знамени: усиленный боевой клич и больше павнов в отряде"
 rarity = 3
 is_unique = true
-max_level_for_evo = 8
 required_passive_tag = "ProjectileAmount"
-required_passive_level = 1
 weapon_tag = "Banner"
 target_weapon_name = "Banner"
 evolved_weapon_tag = "BannerMarshal"

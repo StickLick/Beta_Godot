@@ -2,15 +2,17 @@
 
 [ext_resource type="PackedScene" uid="uid://dqxcuw1mt3kxa" path="res://Assets/Scenes/Weapons/SiegeCrossbow.tscn" id="1_xbow"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="2_upg"]
+[ext_resource type="Texture2D" uid="uid://dperigo5u4vvu" path="res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_12.png" id="ic_upg"]
 
 [resource]
 script = ExtResource("2_upg")
 name = "Осадный Арбалет"
+display_name = "Осадный Арбалет"
+icon = ExtResource("ic_upg")
 description = "Эволюция Лука: тяжёлые болты с AoE взрывом"
 rarity = 3
 is_unique = true
 required_passive_tag = "CritChance"
-required_passive_level = 1
 weapon_tag = "Bow"
 target_weapon_name = "Bow"
 evolved_weapon_tag = "SiegeCrossbow"

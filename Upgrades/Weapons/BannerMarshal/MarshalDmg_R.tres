@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Upgrade" format=3]
+[gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://bxr4wxjic4x17"]
 
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+[ext_resource type="Texture2D" uid="uid://b7g4avtvrvkq7" path="res://Texture/Separated Files/FHD (492).png" id="1_vui4d"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Marshal: DMG_R"
+display_name = "Маршал: Урон"
+icon = ExtResource("1_vui4d")
 description = "+12 damage"
+modifiers = Array[Dictionary]([{
+"amount": 12,
+"stat": "base_damage"
+}])
 rarity = 1
 weapon_tag = "BannerMarshal"
-modifiers = [{"amount": 12, "stat": "base_damage"}]

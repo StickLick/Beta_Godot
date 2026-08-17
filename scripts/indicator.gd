@@ -5,6 +5,7 @@ extends Control
 @export var military_icon: Texture2D
 @export var boss_icon: Texture2D
 @export var safe_zone_icon: Texture2D
+@export var courier_icon: Texture2D
 
 @onready var icon: Sprite2D = $Icon
 @onready var distance_label: Label = $Distance
@@ -44,10 +45,15 @@ func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
     
     var dist = cam_pos.distance_to(target_pos)
     distance_label.text = str(int(dist / 100.0)) + "m"
+    # Для курьера подпись дистанции скрывается — только золотая пульсирующая иконка.
+    if is_instance_valid(distance_label):
+        distance_label.visible = not (target is Courier)
     
     # Логика пульсации
     if target.is_in_group("safe_zone"):
         _start_pulse() # Зона всегда мигает синим
+    elif target is Courier:
+        _start_pulse()
     elif target is Camp and target.alignment == 1 and target.get("is_under_attack"):
         _start_pulse()
     elif target is Mine and target.get("is_under_attack"):
@@ -58,9 +64,17 @@ func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
 func _update_visual_state() -> void:
     if not is_instance_valid(target): return
     
+    # Иконка курьера — в 2 раза меньше остальных (золотой слиток крупнее стрелки).
+    icon.scale = Vector2(0.5, 0.5) if target is Courier else Vector2.ONE
+    
     if target.is_in_group("safe_zone"):
         modulate = Color.CYAN
         if safe_zone_icon: icon.texture = safe_zone_icon
+        return
+
+    if target is Courier:
+        if not _is_pulsing: modulate = Color(1.0, 0.84, 0.0, 1.0)  # золотой
+        if courier_icon: icon.texture = courier_icon
         return
 
     if target is RivalBoss:
@@ -85,9 +99,12 @@ func _start_pulse() -> void:
     if _is_pulsing: return
     _is_pulsing = true
     if _tween: _tween.kill()
+    var pulse_color := Color.CYAN
+    if target is Courier: pulse_color = Color(1.0, 0.84, 0.0, 1.0)
+    elif not target.is_in_group("safe_zone"): pulse_color = Color.RED
     _tween = create_tween().set_loops()
     _tween.tween_property(self, "modulate", Color.WHITE, 0.2)
-    _tween.tween_property(self, "modulate", Color.CYAN if target.is_in_group("safe_zone") else Color.RED, 0.2)
+    _tween.tween_property(self, "modulate", pulse_color, 0.2)
 
 func _stop_pulse() -> void:
     if not _is_pulsing: return

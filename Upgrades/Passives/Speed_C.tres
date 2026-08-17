@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://51oa5okmpybp"]
 
+[ext_resource type="Texture2D" uid="uid://jihwhhagjrwc" path="res://Texture/Separated Files/FHD (211).png" id="1_qmv72"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "MoveSpeed_C"
+display_name = "Скорость передвижения"
+icon = ExtResource("1_qmv72")
 description = "+15 к скорости"
 modifiers = Array[Dictionary]([{
 "amount": 15,

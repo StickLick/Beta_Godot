@@ -26,12 +26,52 @@ func _ready() -> void:
     body_entered.connect(_on_body_entered)
     body_exited.connect(_on_body_exited)
     _setup_capture_label()
+    _setup_capture_ring()
 
 
 func _process(delta: float) -> void:
     if alignment != Alignment.NEUTRAL:
         return
     _handle_capture(delta)
+
+
+## Создаёт дочерний Node2D «CaptureRing» с z_index = 0. Окружность рисует
+## только этот узел: кольцо лежит на уровне земли (выше травы/воды, которые
+## тоже z=0, но идут в дереве раньше руды) и НЕ перекрывает игрока (z=1).
+func _setup_capture_ring() -> void:
+    var ring := CaptureRing.new()
+    ring.name = "CaptureRing"
+    ring.z_index = 0
+    add_child(ring)
+    ring.queue_redraw()
+
+
+## Дочерний узел, рисующий окружность зоны захвата поверх тайлов.
+## Радиус читается из CollisionShape2D родителя (OreNode).
+class CaptureRing extends Node2D:
+    func _draw() -> void:
+        var ore := get_parent() as OreNode
+        if ore == null:
+            return
+        if ore.alignment != OreNode.Alignment.NEUTRAL:
+            return
+        var shape_node := ore.get_node_or_null("CollisionShape2D") as CollisionShape2D
+        if shape_node == null:
+            return
+        var circle := shape_node.shape as CircleShape2D
+        if circle == null:
+            return
+        var col := Color(1, 0.95, 0.7, 0.35)
+        # Обводка круга из 64 сегментов (заметное кольцо).
+        var segments := 64
+        var step := TAU / float(segments)
+        var pts := PackedVector2Array()
+        for i in range(segments):
+            var a := step * float(i)
+            pts.append(Vector2(cos(a), sin(a)) * circle.radius)
+        # Замкнуть контур.
+        pts.append(pts[0])
+        draw_polyline(pts, col, 3.0, true)
 
 
 func _setup_capture_label() -> void:

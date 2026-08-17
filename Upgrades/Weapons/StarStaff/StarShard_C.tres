@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="Upgrade" format=3 uid="uid://cor7vl1x4q0ed"]
 
+[ext_resource type="Texture2D" uid="uid://cebxnfsggycwj" path="res://Texture/Separated Files/FHD (535).png" id="1_3c3to"]
 [ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
 
 [resource]
 script = ExtResource("1_upg")
 name = "Star Shards: +shards count"
+display_name = "Звёздные осколки: Осколки"
+icon = ExtResource("1_3c3to")
 description = "+shards count"
 modifiers = Array[Dictionary]([{
 "amount": 1,
