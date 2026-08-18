@@ -22,6 +22,7 @@ GameManager="*uid://bsi4k05gbhmdr"
 MetaProgress="*res://scripts/meta_progress.gd"
 GachaManager="*res://scripts/gacha_manager.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+SoundManager="*res://scenes/sound_manager.tscn"
 
 [display]
 

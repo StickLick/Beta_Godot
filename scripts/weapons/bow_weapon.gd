@@ -53,6 +53,7 @@ func _spawn_arrow(angle: float) -> void:
     root.add_child(arrow)
     arrow.global_position = global_position
     arrow.rotation = angle
+    SoundManager.play(SoundManager.shoot_bow_sound, SoundManager.shoot_bow_volume_db, SoundManager.shoot_bow_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

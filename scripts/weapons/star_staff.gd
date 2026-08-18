@@ -41,6 +41,7 @@ func _spawn_shard_base(enemy_target: Area2D, shard_count: int) -> void:
     shard.target_pos = predicted_pos
     shard.shard_count = 5 + shard_count
     shard.damage = final_damage
+    SoundManager.play(SoundManager.shoot_magic_sound, SoundManager.shoot_magic_volume_db, SoundManager.shoot_magic_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

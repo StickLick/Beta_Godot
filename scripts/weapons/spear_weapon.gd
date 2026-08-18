@@ -32,6 +32,7 @@ func _perform_glitch_strike(target_dist: float) -> void:
     if is_instance_valid(hitbox):
         hitbox.damage = final_damage
         _set_hitbox_active(true)
+    SoundManager.play(SoundManager.shoot_spear_sound, SoundManager.shoot_spear_volume_db, SoundManager.shoot_spear_pitch * randf_range(0.96, 1.04))
     
     # Визуал — только если есть canvas-элемент
     if is_instance_valid(spear_visual):

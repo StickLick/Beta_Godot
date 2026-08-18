@@ -60,6 +60,13 @@ func _ready() -> void:
     super._ready()
     if leash_visual:
         leash_visual.position = -position
+    war_cry_triggered.connect(_on_war_cry_sfx)
+
+
+func _on_war_cry_sfx(is_active: bool) -> void:
+    if not is_active:
+        return
+    SoundManager.play(SoundManager.war_cry_sound, SoundManager.war_cry_volume_db, SoundManager.war_cry_pitch)
 
 
 func _exit_tree() -> void:

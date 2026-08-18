@@ -37,6 +37,7 @@ func _on_animation_finished() -> void:
 
 func _play_sequential_attack(_target: Node2D = null, _banner: WarBanner = null) -> void:
     is_attacking = true
+    SoundManager.play(SoundManager.shoot_infantry_sound, SoundManager.shoot_infantry_volume_db, SoundManager.shoot_infantry_pitch * randf_range(0.96, 1.04))
     if animated_sprite.sprite_frames.has_animation("Attack"):
         animated_sprite.play("Attack")
     elif animated_sprite.sprite_frames.has_animation("Attack1"):

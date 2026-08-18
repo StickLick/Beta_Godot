@@ -97,6 +97,7 @@ func _on_impact() -> void:
 
 
 func _spawn_explosion() -> void:
+    SoundManager.play(SoundManager.explosion_sound, SoundManager.explosion_volume_db, SoundManager.explosion_pitch * randf_range(0.96, 1.04))
     var explosion = EXPLOSION_SCENE.instantiate()
     if not explosion:
         return

@@ -132,6 +132,7 @@ func _trigger_pulse() -> void:
     burst_particles.amount = randi_range(15, 30) if not heavy else randi_range(40, 60)
     burst_particles.restart()
     burst_particles.emitting = true
+    SoundManager.play(SoundManager.shoot_magic_sound, SoundManager.shoot_magic_volume_db, SoundManager.shoot_magic_pitch * randf_range(0.96, 1.04))
     if space_state != null:
         var query = PhysicsShapeQueryParameters2D.new()
         var rect = RectangleShape2D.new()

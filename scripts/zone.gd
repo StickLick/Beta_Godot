@@ -62,6 +62,7 @@ func _check_for_evolution(delta: float) -> void:
         if _settling_timer >= SETTLING_TIME:
             _is_evolving = true
             evolved.emit(global_position, zone_type, dominance)
+            SoundManager.play(SoundManager.zone_evolved_sound, SoundManager.zone_evolved_volume_db, SoundManager.zone_evolved_pitch)
             _transition_to(ZoneState.DESPAWN)
 
 func _update_lifecycle(delta: float) -> void:

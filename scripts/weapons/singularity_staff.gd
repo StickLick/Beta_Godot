@@ -35,6 +35,7 @@ func _spawn_orb(direction: Vector2) -> void:
     orb.damage = final_damage
     orb.pull_strength = pull_strength
     orb.pull_radius = pull_radius
+    SoundManager.play(SoundManager.shoot_magic_sound, SoundManager.shoot_magic_volume_db, SoundManager.shoot_magic_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

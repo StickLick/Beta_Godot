@@ -132,6 +132,7 @@ func _on_collapse() -> void:
                 collider._apply_damage(damage * 1.5)
     
     # ── VISUAL: Implosion → Explosion ──
+    SoundManager.play(SoundManager.explosion_sound, SoundManager.explosion_volume_db, SoundManager.explosion_pitch * randf_range(0.96, 1.04))
     var explosion = EXPLOSION_SCENE.instantiate()
     if explosion:
         var root = get_tree().current_scene

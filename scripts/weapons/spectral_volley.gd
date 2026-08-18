@@ -56,6 +56,7 @@ func _spawn_arrow(angle: float) -> void:
     arrow.damage = final_damage
     arrow.bounce_limit = bounce_limit
     arrow.bounce_radius = bounce_radius
+    SoundManager.play(SoundManager.shoot_bow_sound, SoundManager.shoot_bow_volume_db, SoundManager.shoot_bow_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

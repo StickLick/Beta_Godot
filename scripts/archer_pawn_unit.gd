@@ -55,3 +55,4 @@ func _spawn_arrow(angle: float, banner: WarBanner) -> void:
     arrow.global_position = global_position
     arrow.rotation = angle
     get_tree().current_scene.add_child(arrow)
+    SoundManager.play(SoundManager.shoot_bow_sound, SoundManager.shoot_bow_volume_db, SoundManager.shoot_bow_pitch * randf_range(0.96, 1.04))

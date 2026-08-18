@@ -32,6 +32,7 @@ func _process(delta: float) -> void:
 
 func _on_player_hit_received(damage: float) -> void:
     _shake_strength = clamp(damage * 0.1, 0.3, 1.0)
+    SoundManager.play(SoundManager.player_hit_sound, SoundManager.player_hit_volume_db, SoundManager.player_hit_pitch)
 
 func death_zoom(target_pos: Vector2) -> void:
     var current_global_pos = global_position

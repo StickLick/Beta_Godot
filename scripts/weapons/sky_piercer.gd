@@ -143,6 +143,7 @@ func _spawn_arrow(target_pos: Vector2) -> void:
     world_root.add_child(arrow)
     arrow.damage = final_damage
     arrow.aoe_radius = aoe_radius
+    SoundManager.play(SoundManager.shoot_bow_sound, SoundManager.shoot_bow_volume_db, SoundManager.shoot_bow_pitch * randf_range(0.96, 1.04))
 
 
 func _predict_impact(enemy: Area2D) -> Vector2:

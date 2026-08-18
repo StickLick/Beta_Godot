@@ -32,6 +32,7 @@ func _spawn_tether() -> void:
     
     var root = get_tree().current_scene
     root.add_child(tether)
+    SoundManager.play(SoundManager.shoot_lightning_sound, SoundManager.shoot_lightning_volume_db, SoundManager.shoot_lightning_pitch * randf_range(0.96, 1.04))
 
 
 func _get_all_enemies_sorted() -> Array[Area2D]:

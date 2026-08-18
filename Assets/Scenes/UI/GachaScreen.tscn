@@ -34,7 +34,7 @@ texture_margin_right = 13.0
 texture_margin_bottom = 13.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
-bg_color = Color(0.05, 0.05, 0.08, 0.999)
+bg_color = Color(0.05, 0.05, 0.08, 0.9)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -44,6 +44,38 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buy_normal"]
+bg_color = Color(0.12, 0.13, 0.19, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buy_hover"]
+bg_color = Color(0.17, 0.18, 0.26, 0.65)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
 
 [node name="GachaScreen" type="Control" unique_id=711574927]
 layout_mode = 3
@@ -97,12 +129,14 @@ text = "?"
 
 [node name="CurrencyDisplay" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1117887310]
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_constants/separation = 6
 alignment = 1
 
 [node name="CoinIcon" type="TextureRect" parent="CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=524005716]
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 4
 texture = ExtResource("2_coin")
 expand_mode = 1
@@ -111,6 +145,7 @@ stretch_mode = 5
 [node name="CurrencyLabel" type="Label" parent="CenterContainer/VBoxContainer/CurrencyDisplay" unique_id=299244544]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 22
 text = "0"
 horizontal_alignment = 1
@@ -123,17 +158,21 @@ theme_override_constants/separation = 10
 
 [node name="ComboPreviewLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=325701761]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 72)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="ResultLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1556136]
+[node name="ResultLabel" type="RichTextLabel" parent="CenterContainer/VBoxContainer" unique_id=1556136]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 220)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
+bbcode_enabled = true
 horizontal_alignment = 1
 autowrap_mode = 2
+scroll_active = false
 
 [node name="SpinButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1650814273]
 unique_name_in_owner = true
@@ -176,9 +215,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -210.0
-offset_top = -175.0
+offset_top = -265.0
 offset_right = 210.0
-offset_bottom = 175.0
+offset_bottom = 265.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
@@ -191,29 +230,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 24
 
 [node name="VBoxContainer" type="VBoxContainer" parent="RulesPopup/MarginContainer" unique_id=448933218]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="HeaderRow" type="HBoxContainer" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=1867800063]
+[node name="HeaderLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=225346057]
 layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="HeaderLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow" unique_id=225346057]
-layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 20
 text = "ПРАВИЛА"
-
-[node name="CloseXButton" type="Button" parent="RulesPopup/MarginContainer/VBoxContainer/HeaderRow" unique_id=1474003987]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-text = "X"
+horizontal_alignment = 1
 
 [node name="RulesLabel" type="Label" parent="RulesPopup/MarginContainer/VBoxContainer" unique_id=142545963]
 unique_name_in_owner = true
@@ -227,6 +256,10 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_buy_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_buy_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_buy_hover")
 text = "Понятно"
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/TitleRow/InfoButton" to="." method="_on_info_pressed"]
@@ -234,5 +267,4 @@ text = "Понятно"
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/CollectButton" to="." method="_on_collect_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/CloseButton" to="." method="_on_close_pressed"]
-[connection signal="pressed" from="RulesPopup/MarginContainer/VBoxContainer/HeaderRow/CloseXButton" to="." method="_on_close_rules_pressed"]
 [connection signal="pressed" from="RulesPopup/MarginContainer/VBoxContainer/CloseRulesButton" to="." method="_on_close_rules_pressed"]

@@ -7,8 +7,36 @@ extends Control
 const GACHA_DATA := preload("res://scripts/gacha_data.gd")
 const REEL_COUNT: int = GACHA_DATA.REEL_COUNT
 
+# Иконка фрагмента для блока "Открыто:" (резервная, если контент не имеет своей иконки).
+const FRAGMENT_ICON: String = "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Icons/Icon_04.png"
+
+# Пути к иконкам контента (те же, что в коллекции collection_screen.gd).
+# Герои — прямые PNG; оружия/пассивки — ресурсы Upgrade, из которых берётся поле icon.
+const CONTENT_ICON_PATHS: Dictionary = {
+    # --- ГЕРОИ ---
+    "hero_archer": "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Archer.png",
+    "hero_monk": "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Monk.png",
+    # --- ОРУЖИЯ ---
+    "weapon_aura": "res://Upgrades/Weapons/Aura/BaseAura.tres",
+    "weapon_bow": "res://Upgrades/Weapons/Bow/BaseBow.tres",
+    "weapon_staff": "res://Upgrades/Weapons/Staff/BaseStaff.tres",
+    "weapon_banner": "res://Upgrades/Weapons/Banner/BaseBanner.tres",
+    # --- ПАССИВКИ ---
+    "passive_damage": "res://Upgrades/Passives/Damage_C.tres",
+    "passive_max_hp": "res://Upgrades/Passives/Stone_HP_C.tres",
+    "passive_hp_regen": "res://Upgrades/Passives/HPRegen_C.tres",
+    "passive_attack_speed": "res://Upgrades/Passives/AttackSpeed_C.tres",
+    "passive_move_speed": "res://Upgrades/Passives/Speed_C.tres",
+    "passive_attack_range": "res://Upgrades/Passives/Book_RAD_C.tres",
+    "passive_amount": "res://Upgrades/Passives/Amount/Amount_C.tres",
+    "passive_crit_chance": "res://Upgrades/Passives/CritChance_C.tres",
+    "passive_luck": "res://Upgrades/Passives/Luck_C.tres",
+    "passive_experience": "res://Upgrades/Passives/ExperienceGain_C.tres",
+    "passive_gold": "res://Upgrades/Passives/GoldGain_C.tres",
+}
+
 @onready var currency_label: Label = %CurrencyLabel
-@onready var result_label: Label = %ResultLabel
+@onready var result_label: RichTextLabel = %ResultLabel
 @onready var combo_preview_label: Label = %ComboPreviewLabel
 @onready var spin_button: Button = %SpinButton
 @onready var continue_button: Button = %ContinueButton
@@ -56,8 +84,8 @@ func _build_rules_text() -> void:
     lines.append("РЕДКОСТИ И НАГРАДЫ:")
     for rar in [GACHA_DATA.RARITY_COMMON, GACHA_DATA.RARITY_RARE, GACHA_DATA.RARITY_EPIC, GACHA_DATA.RARITY_LEGENDARY]:
         var sym: String = String(GACHA_DATA.COLOR_SYMBOLS.get(rar, "?"))
-        var name: String = String(GACHA_DATA.RARITY_NAMES.get(rar, "?"))
-        lines.append("%s %s — %d фрагмент(ов)" % [sym, name.to_upper(), GACHA_DATA.COLOR_FRAGMENTS[rar]])
+        var display_name: String = String(GACHA_DATA.COLOR_DISPLAY_NAMES.get(rar, "?"))
+        lines.append("%s %s — %d фрагмент(ов)" % [sym, display_name, GACHA_DATA.COLOR_FRAGMENTS[rar]])
     lines.append("")
     lines.append("КОМБО:")
     lines.append("3+ символа одного цвета = бонус: 3=x2, 4=x3, 5=x5")
@@ -153,6 +181,8 @@ func _on_collect_pressed() -> void:
     if not gacha:
         return
     var was_failed: bool = bool(_session.get("failed", false))
+    # Собираем текст кружков ДО _reset_reels (который очищает _session).
+    var color_counts_text: String = "" if was_failed else _build_color_counts_text()
     _session = gacha.settle_spin(_session)
     if was_failed:
         # Компенсация выдана: информация о предыдущей попытке исчезает.
@@ -160,6 +190,9 @@ func _on_collect_pressed() -> void:
     else:
         _show_final_result()
     _reset_reels()
+    # Строка собранных кружков остаётся под барабанами (после очистки в _reset_reels).
+    # При провале кружки не показываем — combo_preview_label остаётся пустым.
+    combo_preview_label.text = color_counts_text
     refresh()
 
 
@@ -247,30 +280,23 @@ func _update_combo_preview() -> void:
         var cnt: int = int(counts.get(rar, 0))
         if cnt <= 0:
             continue
-        var name: String = String(GACHA_DATA.RARITY_NAMES.get(rar, "?")).to_upper()
-        if cnt >= 3:
-            var mult: float = float(GACHA_DATA.COMBO_MULTIPLIERS.get(cnt, 1.0))
-            lines.append("%s: %d/3 → БОНУС x%s ГОТОВ" % [name, cnt, str(mult)])
+        var sym: String = String(GACHA_DATA.COLOR_SYMBOLS.get(rar, "?"))
+        if cnt >= 3 and GACHA_DATA.COMBO_MULTIPLIERS.has(cnt):
+            var mult: float = float(GACHA_DATA.COMBO_MULTIPLIERS[cnt])
+            lines.append("%s %d/3 ×%s" % [sym, cnt, _fmt_mult(mult)])
         else:
-            var need: int = 3 - cnt
-            lines.append("%s: %d/3 → нужно ещё %d" % [name, cnt, need])
+            lines.append("%s %d/3" % [sym, cnt])
 
     combo_preview_label.text = "\n".join(lines)
 
 
 ## Промежуточное состояние после реала (не финал).
 func _show_current_state() -> void:
-    var spins: Array = _session.get("spins", [])
     var failed: bool = bool(_session.get("failed", false))
     var finished: bool = bool(_session.get("finished", false))
     var next: int = int(_session.get("next_reel", 0))
 
     var lines: Array[String] = []
-    lines.append("Текущие символы:")
-    var syms: Array[String] = []
-    for spin: Dictionary in spins:
-        syms.append(String(GACHA_DATA.COLOR_SYMBOLS.get(int(spin["rarity"]), "?")))
-    lines.append(" ".join(syms))
 
     if failed:
         var comp: int = int(_session.get("compensation", 0))
@@ -299,50 +325,81 @@ func _show_current_state() -> void:
         continue_button.disabled = (meta == null) or (not meta.can_afford(cost))
 
 
+## Возвращает путь к ресурсу иконки контента по content_id.
+## Оружия/пассивки — ресурсы Upgrade (поле icon), герои — прямые PNG.
+## Пустая строка, если иконки нет.
+func _get_content_icon_path(content_id: String) -> String:
+    return String(CONTENT_ICON_PATHS.get(content_id, ""))
+
+
+## Возвращает путь к ЗАГРУЖАЕМОЙ текстуре иконки контента для [img].
+## Если путь ведёт на Upgrade .tres — берётся resource_path его поля icon.
+## Если иконки нет — резервный FRAGMENT_ICON.
+func _get_content_icon_image_path(content_id: String) -> String:
+    var path: String = _get_content_icon_path(content_id)
+    if path == "":
+        return FRAGMENT_ICON
+    var res := load(path)
+    if res is Texture2D:
+        return path
+    if res != null and "icon" in res and res.get("icon") != null:
+        var tex: Texture2D = res.get("icon")
+        if tex != null and tex.resource_path != "":
+            return tex.resource_path
+    return FRAGMENT_ICON
+
+
+## Строит строку собранных кружков по цветам: «⚪ x2   🔵 x1»
+## (символы из COLOR_SYMBOLS, счётчик из _session["color_counts"], порядок от COMMON к LEGENDARY).
+func _build_color_counts_text() -> String:
+    var counts: Dictionary = _session.get("color_counts", {})
+    var parts: Array[String] = []
+    for rar in [GACHA_DATA.RARITY_COMMON, GACHA_DATA.RARITY_RARE, GACHA_DATA.RARITY_EPIC, GACHA_DATA.RARITY_LEGENDARY]:
+        var cnt: int = int(counts.get(rar, 0))
+        if cnt <= 0:
+            continue
+        var sym: String = String(GACHA_DATA.COLOR_SYMBOLS.get(rar, "?"))
+        parts.append("%s x%d" % [sym, cnt])
+    if parts.is_empty():
+        return ""
+    return "   ".join(parts)
+
+
 ## Финальный итог (после settle). Игрок видит чётко:
-## редкость (с множителем комбо), сколько фрагментов получено, и что открыто.
+## сколько фрагментов получено (СОБРАНО) и что открыто (ОТКРЫТО).
+## Две смысловые части разделены заголовками и строкой-разделителем.
 func _show_final_result() -> void:
     var lines: Array[String] = []
-
-    # 1) Редкость финального результата (лучшая выпавшая) + множитель комбо.
-    var final_rarity: String = String(_session.get("rarity", "common")).to_upper()
-    var bonus_mult: float = 1.0
-    var bonuses: Dictionary = _session.get("bonuses", {})
-    if not bonuses.is_empty():
-        for rar: int in bonuses:
-            bonus_mult = max(bonus_mult, float(bonuses[rar]))
-    if bonus_mult > 1.0:
-        lines.append("%s x%s" % [final_rarity, _fmt_mult(bonus_mult)])
-    else:
-        lines.append(final_rarity)
-    lines.append("")
-
-    # 2) Суммарные фрагменты за попытку.
     var rewards: Dictionary = _session.get("rewards", {})
+
+    # Часть 1: СОБРАНО — суммарные фрагменты за попытку.
     var total_frags: int = 0
     for cid in rewards:
         total_frags += int(rewards[cid])
-    if total_frags > 0:
-        lines.append("+%d фрагмент(ов)" % total_frags)
+    var gold: String = Color(1.0, 0.85, 0.4).to_html(false)
+    var dim: String = "555a66"
+    var has_collected: bool = total_frags > 0
+    if has_collected:
+        lines.append("[color=%s]СОБРАНО:[/color]" % gold)
+        lines.append("[font_size=20]+%d фрагмент(ов)[/font_size]" % total_frags)
+        lines.append("[color=%s]%s[/color]" % [dim, "─".repeat(20)])
+        lines.append("")
     else:
         lines.append("Фрагментов не получено")
-    lines.append("")
 
-    # 3) Контент: что открыто/разблокировано (или "нет доступных открытий").
+    # Часть 2: ОТКРЫТО — что открыто/разблокировано.
     var content_lines: Array[String] = []
     for cid in rewards:
         if cid.is_empty():
             continue
         var entry: Variant = GACHA_DATA.CONTENT.get(cid)
-        var name: String = String(entry.get("display_name", cid)) if typeof(entry) == TYPE_DICTIONARY else cid
-        var rarity_name: String = String(GACHA_DATA.RARITY_NAMES.get(int(entry.get("rarity", GACHA_DATA.RARITY_COMMON)), "?")) if typeof(entry) == TYPE_DICTIONARY else "?"
-        content_lines.append("%s [%s]: +%d фрагмент(ов)" % [name, rarity_name.to_upper(), int(rewards[cid])])
-    if content_lines.is_empty():
-        lines.append("Контент:")
-        lines.append("нет доступных открытий")
-    else:
-        lines.append("Открыто:")
+        var display_name: String = String(entry.get("display_name", cid)) if typeof(entry) == TYPE_DICTIONARY else cid
+        content_lines.append("[img=22x22]%s[/img] %s: +%d фрагмент(ов)" % [_get_content_icon_image_path(cid), display_name, int(rewards[cid])])
+    if not content_lines.is_empty():
+        lines.append("[color=%s]ОТКРЫТО:[/color]" % gold)
         lines.append_array(content_lines)
+    else:
+        lines.append("нет доступных открытий")
 
     # Компенсация (при провале — отдельный случай; тут только информативно).
     var comp: int = int(_session.get("compensation", 0))

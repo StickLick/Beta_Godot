@@ -28,9 +28,10 @@ func _generate_ores() -> void:
     var avail_h := _map_rect.size.y - 2.0 * map_margin
     if avail_w <= 0.0 or avail_h <= 0.0:
         push_warning(
-			"OreGenerator: карта слишком мала для размещения узлов — доступная область "
+            ("OreGenerator: карта слишком мала для размещения узлов — доступная область "
             + "равна %.0fx%.0f (map_rect=%s, map_margin=%.0f). Узлы не спавнятся. "
-            + "Увеличь map_rect или уменьши map_margin." % [avail_w, avail_h, str(_map_rect), map_margin]
+            + "Увеличь map_rect или уменьши map_margin.")
+            % [avail_w, avail_h, str(_map_rect), map_margin]
         )
         return
 
@@ -41,10 +42,10 @@ func _generate_ores() -> void:
             _spawn_ore_node(pos, i)
         else:
             push_warning(
-				"OreGenerator: не удалось разместить узел %d/%d за %d попыток. "
+                ("OreGenerator: не удалось разместить узел %d/%d за %d попыток. "
                 + "Причина: rejection sampling не нашёл свободную точку с дистанцией > %.0f "
                 + "до уже размещённых %d узлов в области %.0fx%.0f (map_rect=%s, map_margin=%.0f). "
-                + "Уменьши ore_count, уменьши min_distance, либо увеличь max_placement_attempts / map_rect."
+                + "Уменьши ore_count, уменьши min_distance, либо увеличь max_placement_attempts / map_rect.")
                 % [i + 1, ore_count, max_placement_attempts, min_distance, _placed_positions.size(),
                    avail_w, avail_h, str(_map_rect), map_margin]
             )

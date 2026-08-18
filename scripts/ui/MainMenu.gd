@@ -73,6 +73,7 @@ func _ready() -> void:
     for s in [shop_panel, gacha_screen, hero_select_screen, collection_screen]:
         if is_instance_valid(s) and not s.visibility_changed.is_connected(_on_sub_screen_visibility_changed):
             s.visibility_changed.connect(_on_sub_screen_visibility_changed)
+    SoundManager.set_music_state("menu")
 
 
 func _meta() -> Node:
@@ -90,6 +91,7 @@ func _on_sub_screen_visibility_changed() -> void:
     elif is_instance_valid(hero_select_screen) and hero_select_screen.visible: any_open = true
     elif is_instance_valid(collection_screen) and collection_screen.visible: any_open = true
     main_menu_ui.visible = not any_open
+    SoundManager.set_music_state("sub_menus" if any_open else "menu")
 
 
 func _on_start_pressed() -> void:

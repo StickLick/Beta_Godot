@@ -100,6 +100,7 @@ func _ready() -> void:
 
     body_entered.connect(_on_body_entered)
     body_exited.connect(_on_body_exited)
+    upgrade_ready.connect(_on_upgrade_ready_sfx)
 
     # Здоровье зависит ТОЛЬКО от military_level (через get_max_health).
     var initial_health := get_max_health()
@@ -110,6 +111,10 @@ func _ready() -> void:
     _update_visuals()
     _update_faction()
     _ownership_ready = true
+
+
+func _on_upgrade_ready_sfx(_mine: Mine) -> void:
+    SoundManager.play(SoundManager.mine_ready_sound, SoundManager.mine_ready_volume_db, SoundManager.mine_ready_pitch)
 
 
 func _process(delta: float) -> void:

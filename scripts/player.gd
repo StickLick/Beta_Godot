@@ -80,6 +80,7 @@ func _ready() -> void:
     _load_meta_slots()
     if animated_sprite: 
         animated_sprite.animation_finished.connect(_on_animation_finished)
+        animated_sprite.frame_changed.connect(_on_frame_changed)
     if is_instance_valid(health_component):
         health_component.update_max_health(max_health)
         health_component.health_depleted.connect(_on_death)
@@ -158,6 +159,25 @@ func _update_modulate_from_state() -> void:
 
 # --- ИНВЕНТАРЬ И УЛУЧШЕНИЯ ---
 
+## Представительные ресурсы иконок эволюций (для слотов HUD оружия).
+## В Upgrades/Evolutions/*.tres у всех эволюций один и тот же icon (Icon_12.png),
+## поэтому иконка берётся из ресурса улучшения соответствующей эволюции
+## (тот же источник, что в collection_screen.gd / evolution_collection_view.gd).
+const EVOLUTION_ICON_RESOURCES: Dictionary = {
+    "Spear_Evolved": "res://Upgrades/Spear_Evolved/EvoSpear_DMG_C.tres",
+    "Aura_Evolved": "res://Upgrades/Aura_Evolved/EvoAura_DMG_C.tres",
+    "SiegeCrossbow": "res://Upgrades/Weapons/SiegeCrossbow/SiegeDMG_C.tres",
+    "SkyPiercer": "res://Upgrades/Weapons/SkyPiercer/SkyDMG_C.tres",
+    "SpectralVolley": "res://Upgrades/Weapons/SpectralVolley/SpectralDMG_C.tres",
+    "Banner_Evolved": "res://Upgrades/Weapons/Banner/BannerDMG_C.tres",
+    "BannerArcher": "res://Upgrades/Weapons/BannerArcher/ArcherDmg_C.tres",
+    "BannerMarshal": "res://Upgrades/Weapons/BannerMarshal/MarshalDmg_C.tres",
+    "BannerTank": "res://Upgrades/Weapons/BannerTank/TankDmg_C.tres",
+    "LightningStaff": "res://Upgrades/Weapons/LightningStaff/LtngDMG_C.tres",
+    "SingularityStaff": "res://Upgrades/Weapons/SingularityStaff/SingDMG_C.tres",
+    "StarStaff": "res://Upgrades/Weapons/StarStaff/StarDMG_C.tres",
+}
+
 func apply_custom_upgrade(upgrade: Upgrade) -> void:
     # 1. Трекинг тегов и уровней
     var tag = upgrade.weapon_tag
@@ -211,6 +231,18 @@ func apply_custom_upgrade(upgrade: Upgrade) -> void:
             var evo_entry = Upgrade.new()
             evo_entry.weapon_tag = evo_tag
             evo_entry.name = evo_tag + "_Base"
+            # Иконка эволюции: берём из представительного ресурса семейства улучшений
+            # (res://Upgrades/Weapons/ и эволюционных папок), т.к. в Evolutions/*.tres
+            # у всех эволюций одна и та же иконка (Icon_12.png).
+            var evo_icon_path: String = String(EVOLUTION_ICON_RESOURCES.get(evo_tag, ""))
+            if evo_icon_path != "":
+                var evo_icon_upg: Upgrade = load(evo_icon_path) as Upgrade
+                if evo_icon_upg != null and evo_icon_upg.icon != null:
+                    evo_entry.icon = evo_icon_upg.icon
+                else:
+                    evo_entry.icon = upgrade.icon
+            else:
+                evo_entry.icon = upgrade.icon
             evo_entry.is_weapon = true
             active_weapons.append(evo_entry)
             # 3c. Новая прогрессия с 1 уровня
@@ -740,6 +772,11 @@ func _on_animation_finished() -> void:
     var attack_anims = ["RightAttack", "DownRightAttack", "DownAttack", "UpAttack", "UpRightAttack", "Attack"]
     if animated_sprite.animation in attack_anims: is_attacking = false
 
+
+func _on_frame_changed() -> void:
+    if animated_sprite.animation == "Run" and (animated_sprite.frame == 0 or animated_sprite.frame == 2):
+        SoundManager.play_footstep()
+
 func collect_xp(amount: int) -> void:
     var total_gain = int(amount * xp_gain * GameManager.get_meta("xp_mult", 1.0))
     current_xp += total_gain
@@ -748,8 +785,10 @@ func collect_xp(amount: int) -> void:
         current_xp -= xp_to_next_level; current_level += 1
         _recalc_hero_passive()
         xp_to_next_level = int(xp_to_next_level * 1.2); level_up.emit(current_level)
+        SoundManager.play(SoundManager.level_up_sound, SoundManager.level_up_volume_db, SoundManager.level_up_pitch)
         inventory_updated.emit()
     xp_changed.emit(current_xp, xp_to_next_level)
+    SoundManager.play(SoundManager.xp_pickup_sound, SoundManager.xp_pickup_volume_db, randf_range(0.97, 1.03) * SoundManager.xp_pickup_pitch)
 
 func spend_mass(amount: float) -> bool:
     if mass > (base_mass + 1.0):
@@ -778,6 +817,7 @@ func collect_gold(amount: int) -> void:
     if amount <= 0:
         return
     gold += amount
+    SoundManager.play(SoundManager.gold_pickup_sound, SoundManager.gold_pickup_volume_db, SoundManager.gold_pickup_pitch)
     if GameManager.has_method("log_event"):
         GameManager.log_event("gold_collected", amount)
 
@@ -794,6 +834,7 @@ func _update_visual_scale() -> void:
     scale = scale.lerp(Vector2.ONE * (1.0 + ((mass / base_mass) - 1.0) * 0.7), 0.15)
 
 func _on_death() -> void:
+    SoundManager.play(SoundManager.player_death_sound, SoundManager.player_death_volume_db, SoundManager.player_death_pitch)
     call_deferred("_deferred_restart")
 
 func _deferred_restart() -> void:

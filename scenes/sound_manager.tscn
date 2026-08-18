@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://bxrnnel3ya660"]
+
+[ext_resource type="Script" uid="uid://bql0aay1k6bc" path="res://scripts/sound_manager.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://b7clrt2e60te2" path="res://Assets/Audio/UI/ui-interface-click-epic-stock-media-1-00-00.mp3" id="2_s6peo"]
+[ext_resource type="AudioStream" uid="uid://dvuu7mjuai1jw" path="res://Assets/Audio/Player/hurt.wav" id="3_shlr6"]
+[ext_resource type="AudioStream" uid="uid://dlkm65h1cdq3k" path="res://Assets/Audio/Player/lvlup.mp3" id="4_5lwbd"]
+[ext_resource type="AudioStream" uid="uid://bj2jt3i4qshqy" path="res://Assets/Audio/Player/coin_jingle_small.wav" id="5_ro3ww"]
+[ext_resource type="AudioStream" uid="uid://tuc0ka4sdi8r" path="res://Assets/Audio/Player/coins_gather_medium.wav" id="6_v1pt3"]
+[ext_resource type="AudioStream" uid="uid://dyfl2a0p0ip0e" path="res://Assets/Audio/Weapons/Bow/crossbow-firing-bolt-gamemaster-audio-3-3-00-00.mp3" id="7_mpi5b"]
+[ext_resource type="AudioStream" uid="uid://cu3401kmvgpad" path="res://Assets/Audio/Weapons/Staff/EM_LIGHT_LAUNCH_01.wav" id="8_aa63w"]
+[ext_resource type="AudioStream" uid="uid://d0ywohgcog12t" path="res://Assets/Audio/Weapons/Bow/Bow Attack 2.wav" id="9_k1d7a"]
+[ext_resource type="AudioStream" uid="uid://5in31cu3h6sk" path="res://Assets/Audio/Weapons/Spear/Sword Attack 3.wav" id="10_gb18h"]
+[ext_resource type="AudioStream" uid="uid://76xmjm5i31o1" path="res://Assets/Audio/Weapons/Spear/Sword Attack 1.wav" id="11_hf51r"]
+[ext_resource type="AudioStream" uid="uid://b2ngk7j3fgd8y" path="res://Assets/Audio/Enemy/Sword Impact Hit 1.wav" id="11_wwv6j"]
+[ext_resource type="AudioStream" uid="uid://13uxs4dlhst7" path="res://Assets/Audio/Weapons/Fireball 2.wav" id="12_55or6"]
+[ext_resource type="AudioStream" uid="uid://de8ttr8tr6ycx" path="res://Assets/Audio/Weapons/Lightning/EM_LIGHT_CAST_01_L.wav" id="12_m0knx"]
+[ext_resource type="AudioStream" uid="uid://dpt5me3yqbun3" path="res://Assets/Audio/Weapons/EM_LIGHT_LAUNCH_01.wav" id="13_74mgu"]
+[ext_resource type="AudioStream" uid="uid://cqmpq8jjbfony" path="res://Assets/Audio/Footstep/Dirt/Dirt Walk 2.wav" id="14_s8vuo"]
+[ext_resource type="AudioStream" uid="uid://clo4yj1md2x5l" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_01.wav" id="15_a7nyy"]
+[ext_resource type="AudioStream" uid="uid://df4dhwc6owj2k" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_02.wav" id="16_hf51r"]
+[ext_resource type="AudioStream" uid="uid://de647gdku14v4" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_03.wav" id="17_m0knx"]
+[ext_resource type="AudioStream" uid="uid://bpt4he2tbucpy" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_04.wav" id="18_s2wtd"]
+[ext_resource type="AudioStream" uid="uid://6gyawsgdl5ks" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_05.wav" id="19_qydo7"]
+[ext_resource type="AudioStream" uid="uid://co41o116yqol8" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_06.wav" id="20_v1uil"]
+[ext_resource type="AudioStream" uid="uid://bpikrt5wc5qfr" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_07.wav" id="21_ubpkc"]
+[ext_resource type="AudioStream" uid="uid://dyrf063k8of2j" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_08.wav" id="22_eswfn"]
+[ext_resource type="AudioStream" uid="uid://c27k115opc2vw" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_09.wav" id="23_fx0j5"]
+[ext_resource type="AudioStream" uid="uid://6cmqmii6nq33" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_10.wav" id="24_r480t"]
+[ext_resource type="AudioStream" uid="uid://dm5x4vlpocesx" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_11.wav" id="25_jdcvv"]
+[ext_resource type="AudioStream" uid="uid://bbahhquwkowhb" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_12.wav" id="26_xsko0"]
+[ext_resource type="AudioStream" uid="uid://bg74ffwvokmiy" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_13.wav" id="27_x2qt3"]
+[ext_resource type="AudioStream" uid="uid://ppoufmjxlrn8" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_14.wav" id="28_f1jmg"]
+[ext_resource type="AudioStream" uid="uid://ch22asj264a17" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_15.wav" id="29_3jvyj"]
+
+[node name="SoundManager" type="Node" unique_id=2014376491]
+script = ExtResource("1_sound")
+click_sound = ExtResource("2_s6peo")
+click_volume_db = -10.0
+player_hit_sound = ExtResource("3_shlr6")
+player_hit_volume_db = -30.0
+player_death_pitch = -10.0
+level_up_sound = ExtResource("4_5lwbd")
+level_up_volume_db = -20.0
+xp_pickup_sound = ExtResource("5_ro3ww")
+xp_pickup_volume_db = -10.0
+gold_pickup_sound = ExtResource("6_v1pt3")
+gold_pickup_volume_db = -10.0
+shoot_bow_sound = ExtResource("7_mpi5b")
+shoot_bow_volume_db = -20.0
+shoot_magic_sound = ExtResource("8_aa63w")
+shoot_magic_volume_db = -20.0
+shoot_heavy_sound = ExtResource("9_k1d7a")
+shoot_heavy_volume_db = -15.0
+shoot_spear_sound = ExtResource("10_gb18h")
+shoot_spear_volume_db = -10.0
+shoot_infantry_sound = ExtResource("11_hf51r")
+shoot_infantry_volume_db = -20.0
+shoot_lightning_sound = ExtResource("12_m0knx")
+shoot_lightning_volume_db = -25.0
+enemy_hit_sound = ExtResource("11_wwv6j")
+enemy_hit_volume_db = -20.0
+explosion_sound = ExtResource("12_55or6")
+explosion_volume_db = -15.0
+war_cry_sound = ExtResource("13_74mgu")
+war_cry_volume_db = -20.0
+footstep_sound = ExtResource("14_s8vuo")
+footstep_sounds = Array[AudioStream]([ExtResource("15_a7nyy"), ExtResource("16_hf51r"), ExtResource("17_m0knx"), ExtResource("18_s2wtd"), ExtResource("19_qydo7"), ExtResource("20_v1uil"), ExtResource("21_ubpkc"), ExtResource("22_eswfn"), ExtResource("23_fx0j5"), ExtResource("24_r480t"), ExtResource("25_jdcvv"), ExtResource("26_xsko0"), ExtResource("27_x2qt3"), ExtResource("28_f1jmg"), ExtResource("29_3jvyj")])
+footstep_volume_db = -25.0
+footstep_pitch = 2.0

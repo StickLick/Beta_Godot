@@ -38,6 +38,7 @@ func _spawn_bolt(angle: float) -> void:
     bolt.damage = final_damage
     bolt.pierce_limit = final_pierce
     bolt.aoe_radius = aoe_radius
+    SoundManager.play(SoundManager.shoot_heavy_sound, SoundManager.shoot_heavy_volume_db, SoundManager.shoot_heavy_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

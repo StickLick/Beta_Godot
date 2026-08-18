@@ -54,6 +54,7 @@ func _spawn_bolt(angle: float, target: Node2D) -> void:
     bolt.direction = Vector2.RIGHT.rotated(angle)
     bolt.target = target
     bolt.damage = final_damage
+    SoundManager.play(SoundManager.shoot_magic_sound, SoundManager.shoot_magic_volume_db, SoundManager.shoot_magic_pitch * randf_range(0.96, 1.04))
 
 
 func _get_closest_enemy() -> Area2D:

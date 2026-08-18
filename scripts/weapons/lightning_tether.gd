@@ -55,6 +55,7 @@ func _build_chain() -> void:
     
     # Initialize line points
     _update_line_points()
+    SoundManager.play(SoundManager.shoot_lightning_sound, SoundManager.shoot_lightning_volume_db, SoundManager.shoot_lightning_pitch * randf_range(0.96, 1.04))
 
 
 func _find_nearest_enemy(origin_pos: Vector2, exclude_ids: Array) -> Node2D:

@@ -21,6 +21,7 @@ var time_left: float = 0.0     # для HUD
 
 func _ready() -> void:
     add_to_group("courier_hunt_event")
+    hunt_ended.connect(_on_hunt_ended_sfx)
     _current_chance = initial_chance
     _check_timer = Timer.new()
     _check_timer.one_shot = true
@@ -28,6 +29,10 @@ func _ready() -> void:
     _check_timer.timeout.connect(_on_check)
     add_child(_check_timer)
     _check_timer.start()
+
+
+func _on_hunt_ended_sfx() -> void:
+    SoundManager.play(SoundManager.courier_end_sound, SoundManager.courier_end_volume_db, SoundManager.courier_end_pitch)
 
 
 func _process(_delta: float) -> void:
@@ -85,6 +90,7 @@ func _spawn_courier() -> void:
     _event_timer.start()
 
     hunt_started.emit(event_duration)
+    SoundManager.play(SoundManager.courier_sound, SoundManager.courier_volume_db, SoundManager.courier_pitch)
     print("[COURIER HUNT] started | chance now=", _current_chance)
 
 

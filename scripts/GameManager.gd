@@ -107,10 +107,12 @@ func trigger_anomaly() -> void:
     
     var display_name = ANOMALY_NAMES.get(current_anomaly, current_anomaly)
     anomaly_started.emit(display_name, ANOMALY_DURATION)
+    SoundManager.play(SoundManager.anomaly_start_sound, SoundManager.anomaly_start_volume_db, SoundManager.anomaly_start_pitch)
     
     var tree = get_tree()
     if tree:
         tree.create_timer(ANOMALY_DURATION - WARNING_TIME).timeout.connect(func():
+            SoundManager.play(SoundManager.anomaly_warning_sound, SoundManager.anomaly_warning_volume_db, SoundManager.anomaly_warning_pitch)
             anomaly_warning.emit(WARNING_TIME)
         )
         tree.create_timer(ANOMALY_DURATION).timeout.connect(_end_anomaly)
@@ -256,6 +258,10 @@ func end_run(victory: bool) -> void:
     var reward: int = int(breakdown.get("total", 0))
     # Начисляем награду за забег в мета-валюту (сохраняется через SaveManager).
     add_meta_currency(reward)
+    if victory:
+        SoundManager.play(SoundManager.victory_sound, SoundManager.victory_volume_db, SoundManager.victory_pitch)
+    else:
+        SoundManager.play(SoundManager.defeat_sound, SoundManager.defeat_volume_db, SoundManager.defeat_pitch)
     run_ended.emit(victory, reward, breakdown)
 
 func stop_game() -> void: is_game_over = true
@@ -270,8 +276,10 @@ func reset_game() -> void:
 
 func start_new_game() -> void:
     reset_game()
+    SoundManager.set_music_state("run")
     get_tree().change_scene_to_file("res://Assets/Scenes/Main.tscn")
 
 func return_to_menu() -> void:
     stop_game()
+    SoundManager.set_music_state("menu")
     get_tree().change_scene_to_file("res://Assets/Scenes/MainMenu.tscn")

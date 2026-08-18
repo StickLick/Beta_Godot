@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Texture2D" uid="uid://bpdvn5m5eq07h" path="res://Texture/Separated Files/FHD (536).png" id="1_icon"]
+[ext_resource type="Script" uid="uid://dshfc0npo0r8o" path="res://scripts/Upgrade.gd" id="1_upg"]
+
+[resource]
+script = ExtResource("1_upg")
+name = "StaffRCH_L"
+display_name = "Посох: Дальность IV"
+icon = ExtResource("1_icon")
+description = "+100 дальности, +10 урона"
+modifiers = Array[Dictionary]([{
+"amount": 100,
+"stat": "max_attack_distance"
+}, {
+"amount": 10,
+"stat": "base_damage"
+}])
+weapon_tag = "Staff"
+rarity = 3

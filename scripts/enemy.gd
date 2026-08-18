@@ -238,6 +238,7 @@ func _shoot() -> void:
     arrow.damage = 5.0
     arrow.pierce_limit = 1
     get_tree().current_scene.add_child(arrow)
+    SoundManager.play(SoundManager.shoot_bow_sound, SoundManager.shoot_bow_volume_db, SoundManager.shoot_bow_pitch * randf_range(0.96, 1.04))
     animated_sprite.play("Attack1")
 
 func _play_sequential_melee() -> void:
@@ -266,8 +267,10 @@ func _disable_shape(shape: CollisionShape2D, dmg: float) -> void:
 func _on_hit_received(_damage: float) -> void:
     var t = create_tween(); modulate = Color.RED
     t.tween_property(self, "modulate", Color.WHITE, 0.1)
+    SoundManager.play(SoundManager.enemy_hit_sound, SoundManager.enemy_hit_volume_db, SoundManager.enemy_hit_pitch)
 
 func _on_death() -> void:
+    SoundManager.play(SoundManager.enemy_death_sound, SoundManager.enemy_death_volume_db, SoundManager.enemy_death_pitch * randf_range(0.95, 1.05))
     if GameManager.has_method("log_event"): GameManager.log_event("enemy_killed", 1)
     var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
