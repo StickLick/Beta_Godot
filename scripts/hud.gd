@@ -65,6 +65,15 @@ var _pending_target: Node2D = null
 var _active_anomaly_key: String = ""
 var _current_anomaly_visual = null
 
+# --- ВИНЬЕТКА СМЕРТИ (эффект гибели игрока; создаётся кодом) ---
+const DEATH_VIGNETTE_COLOR := Color(0.5, 0, 0, 0.8)
+const DEATH_VIGNETTE_FLASH_IN: float = 0.2
+const DEATH_VIGNETTE_HOLD: float = 0.9
+const DEATH_VIGNETTE_FADE_OUT: float = 0.4
+var _death_vignette: ColorRect = null
+var _death_vignette_start_ms: int = 0
+var _death_vignette_active: bool = false
+
 # --- ОХОТА НА КУРЬЕРА ---
 var courier_event: Node = null
 var courier_banner: Label = null
@@ -149,6 +158,8 @@ func _ready() -> void:
     if is_instance_valid(anomaly_overlay):
         anomaly_overlay.show()
         _update_overlay_shader(0.0, 5.0, Color(0,0,0,0), 0.1)
+    
+    _create_death_vignette()
             
     update_inventory_ui()
 
@@ -225,6 +236,51 @@ func _update_overlay_shader(radius, _soft, color, duration):
         var tw = create_tween().set_parallel(true)
         tw.tween_method(func(v): mat.set_shader_parameter("radius_px", v), 0, radius, duration)
         tw.tween_method(func(c): mat.set_shader_parameter("fog_color", c), Color(0,0,0,0), color, duration)
+
+# --- ВИНЬЕТКА СМЕРТИ ---
+func _create_death_vignette() -> void:
+    if _death_vignette != null:
+        return
+    var vr := ColorRect.new()
+    vr.name = "DeathVignette"
+    vr.color = DEATH_VIGNETTE_COLOR
+    vr.color.a = 0.0
+    vr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    vr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    vr.hide()
+    add_child(vr)
+    _death_vignette = vr
+
+
+func _update_death_vignette() -> void:
+    if _death_vignette == null:
+        return
+    # Надёжное отслеживание смерти игрока через группу (не зависит от порядка инициализации).
+    var player := get_tree().get_first_node_in_group("player")
+    var dying: bool = is_instance_valid(player) and bool(player.get("_is_dying"))
+    if dying and not _death_vignette_active:
+        _death_vignette_active = true
+        _death_vignette_start_ms = Time.get_ticks_msec()
+        _death_vignette.show()
+    if not _death_vignette_active:
+        return
+    var t := (Time.get_ticks_msec() - _death_vignette_start_ms) / 1000.0
+    var total := DEATH_VIGNETTE_FLASH_IN + DEATH_VIGNETTE_HOLD + DEATH_VIGNETTE_FADE_OUT
+    var alpha: float = 0.0
+    if t < DEATH_VIGNETTE_FLASH_IN:
+        # Вспышка: быстрый fade-in.
+        alpha = DEATH_VIGNETTE_COLOR.a * (t / DEATH_VIGNETTE_FLASH_IN)
+    elif t < DEATH_VIGNETTE_FLASH_IN + DEATH_VIGNETTE_HOLD:
+        # Держим виньетку на максимуме.
+        alpha = DEATH_VIGNETTE_COLOR.a
+    elif t < total:
+        # Плавный fade-out к моменту появления панели результатов.
+        alpha = DEATH_VIGNETTE_COLOR.a * (1.0 - (t - DEATH_VIGNETTE_FLASH_IN - DEATH_VIGNETTE_HOLD) / DEATH_VIGNETTE_FADE_OUT)
+    else:
+        _death_vignette_active = false
+        _death_vignette.hide()
+        return
+    _death_vignette.color.a = alpha
 
 func _unhandled_input(event: InputEvent) -> void:
     if not event.is_action_pressed("ui_cancel"):
@@ -350,6 +406,8 @@ func _on_courier_hunt_ended() -> void:
 
 
 func _process(_delta: float) -> void:
+    _update_death_vignette()
+    
     if "time_elapsed" in GameManager:
         timer_label.text = _format_time(GameManager.time_elapsed)
 
@@ -522,7 +580,20 @@ func show_results(victory: bool = false, reward: int = 0, breakdown: Dictionary 
     get_tree().paused = true
     if not is_instance_valid(results_panel):
         return
+    # Панель результатов появляется поверх виньетки: гасим виньетку сразу,
+    # т.к. после паузы _process перестанет обновлять её fade-out.
+    _death_vignette_active = false
+    if is_instance_valid(_death_vignette):
+        _death_vignette.hide()
     results_panel.show(); results_panel.move_to_front()
+    # Плавное появление панели. Пауза уже стоит, поэтому tween создаём на самой
+    # панели (её process_mode = ALWAYS в сцене) и явно задаём TWEEN_PAUSE_PROCESS,
+    # чтобы анимация шла даже при get_tree().paused == true.
+    results_panel.modulate.a = 0.0
+    var results_tween := results_panel.create_tween()
+    results_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+    results_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+    results_tween.tween_property(results_panel, "modulate:a", 1.0, 0.35)
 
     var player = get_tree().get_first_node_in_group("player") as Player
     var final_lvl = player.current_level if player else 0
@@ -548,35 +619,32 @@ func show_results(victory: bool = false, reward: int = 0, breakdown: Dictionary 
         xp_row.text = "Всего опыта: %d" % GameManager.total_xp_collected
     if is_instance_valid(time_row):
         time_row.text = "Время: %s" % _format_time(GameManager.time_elapsed)
-    # --- Разбивка металла за забег (данные посчитаны в GameManager.calculate_run_reward) ---
-    var carried_gold: int = int(breakdown.get("carried_gold", 0))
+    # --- Разбивка золота за забег (данные посчитаны в GameManager.calculate_run_reward) ---
+    var mine_gold: int = int(breakdown.get("mine_gold", 0))
     var mine_remaining_gold: int = int(breakdown.get("mine_remaining_gold", 0))
-    var enemy_kill_gold: int = int(breakdown.get("enemy_kill_gold", 0))
+    var enemy_kill_gold_total: int = int(breakdown.get("enemy_kill_gold_total", 0))
     var gold_gain_bonus: int = int(breakdown.get("gold_gain_bonus", 0))
     var victory_bonus_amount: int = int(breakdown.get("victory_bonus", 0))
+    var total_gold: int = int(breakdown.get("total_gold", 0))
     var total_reward: int = int(breakdown.get("total", reward))
 
     if is_instance_valid(carried_gold_row):
-        carried_gold_row.text = "Собрано во время забега: %d" % carried_gold
+        carried_gold_row.text = "Золото с шахт: %d" % mine_gold
         carried_gold_row.visible = true
     if is_instance_valid(mine_gold_row):
         mine_gold_row.text = "Остаток из шахт: %d" % mine_remaining_gold
         mine_gold_row.visible = victory
     if is_instance_valid(kill_gold_row):
-        kill_gold_row.text = "Убийства врагов: %d" % enemy_kill_gold
+        kill_gold_row.text = "Золото с врагов: %d" % enemy_kill_gold_total
         kill_gold_row.visible = true
     if is_instance_valid(gold_gain_row):
-        var gold_gain_mult: float = 1.0
-        if player:
-            gold_gain_mult = player.gold_gain
-        var percent: int = int(round((gold_gain_mult - 1.0) * 100.0))
-        gold_gain_row.text = "Пассивка \"Золото\" (+%d%%): +%d" % [percent, gold_gain_bonus]
+        gold_gain_row.text = "Пассивка \"Золото\": +%d" % gold_gain_bonus
         gold_gain_row.visible = gold_gain_bonus > 0
     if is_instance_valid(victory_bonus_row):
         victory_bonus_row.text = "Победа: %d" % victory_bonus_amount
         victory_bonus_row.visible = victory
     if is_instance_valid(total_reward_row):
-        total_reward_row.text = "Всего получено: %d" % total_reward
+        total_reward_row.text = "Всего получено золота: %d" % total_gold
         total_reward_row.visible = true
 
     if is_instance_valid(reward_row):
@@ -595,19 +663,15 @@ func _get_hero_display_name() -> String:
     return str(HERO_DATA.get_hero(hero_id).get("display_name", hero_id))
 
 
-## Иконка героя (первый кадр Idle из visual SpriteFrames) — как в HeroSelectScreen.
+## Иконка героя из portrait (единый источник — как в HeroSelectScreen).
 func _get_hero_icon_texture() -> Texture2D:
     var hero_id: String = GameManager.selected_hero_id if GameManager.get("selected_hero_id") != "" else ""
     if hero_id == "":
         hero_id = HERO_DATA.DEFAULT_HERO_ID
-    var hero: Dictionary = HERO_DATA.get_hero(hero_id)
-    var visual: String = str(hero.get("visual", ""))
-    if visual == "":
+    var portrait: String = str(HERO_DATA.get_hero(hero_id).get("portrait", ""))
+    if portrait == "":
         return null
-    var frames: SpriteFrames = load(visual) as SpriteFrames
-    if frames and frames.get_frame_count("Idle") > 0:
-        return frames.get_frame_texture("Idle", 0)
-    return null
+    return load(portrait) as Texture2D
 
 func _on_restart_pressed() -> void:
     get_tree().paused = false

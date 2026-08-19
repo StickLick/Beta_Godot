@@ -78,10 +78,12 @@ func _setup_capture_label() -> void:
     ## Временный debug-лейбл прогресса захвата. Создаётся в рантайме.
     _capture_label = Label.new()
     _capture_label.name = "CaptureDebugLabel"
-    _capture_label.position = Vector2(-60, -90)
+    _capture_label.position = Vector2(-100, -90)
+    _capture_label.size = Vector2(200, 30)
+    _capture_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _capture_label.add_theme_font_size_override("font_size", 14)
     _capture_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.4))
-    _capture_label.text = "CAPTURE: 0%"
+    _capture_label.text = "Захват: 0%"
     add_child(_capture_label)
 
 
@@ -89,7 +91,7 @@ func _refresh_capture_label() -> void:
     if not is_instance_valid(_capture_label):
         return
     var pct := int(round(clampf(capture_progress / capture_threshold, 0.0, 1.0) * 100.0))
-    _capture_label.text = "CAPTURE: %d%%" % pct
+    _capture_label.text = "Захват: %d%%" % pct
 
 
 func _handle_capture(delta: float) -> void:

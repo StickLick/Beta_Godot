@@ -24,6 +24,7 @@
 [ext_resource type="Script" uid="uid://dovtksk8u4l7y" path="res://scripts/Rival_manager.gd" id="21_wim1k"]
 [ext_resource type="Texture2D" uid="uid://deammeqwj3dy7" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree3.png" id="22_c16tw"]
 [ext_resource type="Texture2D" uid="uid://sukscdd0bg2r" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock2.png" id="23_fq3cg"]
+[ext_resource type="Script" uid="uid://c43uhtwyeclim" path="res://scripts/tree_fade.gd" id="24_fqjcf"]
 [ext_resource type="Texture2D" uid="uid://dtdchxlej8wdj" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree1.png" id="24_gtkb7"]
 [ext_resource type="Texture2D" uid="uid://dw5b2v3w2r1j5" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock1.png" id="24_qxp8c"]
 [ext_resource type="Texture2D" uid="uid://5u77kq0lt1hq" path="res://Texture/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock3.png" id="25_h5qsp"]
@@ -1091,27 +1092,28 @@ script = ExtResource("11_una2h")
 script = ExtResource("21_wim1k")
 
 [node name="Trees" type="Node2D" parent="." unique_id=2111094854]
+script = ExtResource("24_fqjcf")
 
 [node name="Trees3" type="TileMapLayer" parent="Trees" unique_id=1094622879]
-z_index = 2
+z_index = 6
 position = Vector2(-383, 137)
 scale = Vector2(1.5, 1.5)
 tile_map_data = PackedByteArray("AACb/7b/AAACAAEAAACb/zkAAAACAAEAAACf//b/AAACAAEAAACh/5D/AAACAAEAAACk/8//AAACAAEAAACp/2cAAAACAAEAAACr/wwAAAACAAEAAAC7/4z/AAACAAEAAAC+/7z/AAACAAEAAADK/9//AAACAAEAAADL/0IAAAACAAEAAADU/28AAAACAAEAAADY/5L/AAACAAEAAADa/xAAAAACAAEAAADc/6X/AAACAAEAAADh/83/AAACAAEAAADn/18AAAACAAEAAADo/4H/AAACAAEAAAD0/9b/AAACAAEAAAD8/0UAAAACAAEAAAAAAJ//AAACAAEAAAABANH/AAACAAEAAAAIAGsAAAACAAEAAAAOAEoAAAACAAEAAAAQALP/AAACAAEAAAAUAKb/AAACAAEAAAAaANv/AAACAAEAAAAfAPn/AAACAAEAAAAwAKr/AAACAAEAAAAwAF0AAAACAAEAAAAzABAAAAACAAEAAAA2AM7/AAACAAEAAAA3ACgAAAACAAEAAAA5AEkAAAACAAEAAAA8AIv/AAACAAEAAABBAPT/AAACAAEAAABKAMf/AAACAAEAAABLADYAAAACAAEAAABPAAkAAAACAAEAAABSAFUAAAACAAEAAABYAOj/AAACAAEAAABgABYAAAACAAEAAABkAFAAAAACAAEAAABoAGIAAAACAAEAAABrAO7/AAACAAEAAABuAPv/AAACAAEAAABxACYAAAACAAEAAAByAEoAAAACAAEAAAB4AML/AAACAAEAAAB4AHIAAAACAAEAAAB9ANT/AAACAAEAAACCAD8AAAACAAEAAAA=")
 tile_set = SubResource("TileSet_gd7ey")
 
 [node name="Trees4" type="TileMapLayer" parent="Trees" unique_id=218004047]
-z_index = 2
+z_index = 6
 scale = Vector2(1.5, 1.5)
 tile_map_data = PackedByteArray("AADS/53/AAADAAIAAABVAOz/AAADAAIAAABIABUAAAADAAIAAADl/yoAAAADAAIAAAA4AE8AAAADAAIAAAC4//v/AAADAAIAAACT/ygAAAADAAIAAACh/6j/AAADAAIAAAAlAKD/AAADAAIAAAA=")
 tile_set = SubResource("TileSet_4hmx1")
 
 [node name="Trees1" type="TileMapLayer" parent="Trees" unique_id=1056682291]
-z_index = 2
+z_index = 6
 tile_map_data = PackedByteArray("AABWAEz/AAACAAIAAABuAFn/AAACAAIAAACUAFL/AAACAAIAAACxAEz/AAACAAIAAACnAGn/AAACAAIAAABhAHj/AAACAAIAAACHAJT/AAACAAIAAACxAIr/AAACAAIAAACsACX/AAACAAIAAACqADD/AAACAAIAAACiACf/AAACAAIAAAA=")
 tile_set = SubResource("TileSet_1grfv")
 
 [node name="Trees2" type="TileMapLayer" parent="Trees" unique_id=834718443]
-z_index = 2
+z_index = 6
 tile_map_data = PackedByteArray("AABpAG//AAACAAAAAACEAGL/AAACAAAAAACmAFf/AAACAAAAAACRAH3/AAACAAAAAAB2AEb/AAACAAAAAABVAF7/AAACAAAAAAClACP/AAACAAAAAAA=")
 tile_set = SubResource("TileSet_vmf00")
 

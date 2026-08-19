@@ -211,21 +211,25 @@ func add_meta_currency(amount: int) -> void:
 # --- ОКОНЧАНИЕ ЗАБЕГА И НАГРАДА ---
 
 func calculate_run_reward(victory: bool) -> Dictionary:
-    # Реальная награда за забег в металле (run gold) с разбивкой для экрана результатов.
-    # 1. Металл, уже собранный игроком за забег (Player.gold) — всегда сохраняется.
-    # 2. Металл за убийства врагов — враги не дропают золото в игре,
-    #    конвертация происходит только здесь. Gold Gain влияет ТОЛЬКО на этот источник.
+    # Реальная награда за забег золотом (run gold) с разбивкой для экрана результатов.
+    # 1. Золото с врагов: база (без пассивки) и фактически начисленное (с пассивкой).
+    #    Gold Gain влияет ТОЛЬКО на этот источник.
+    # 2. Золото с шахт = всё собранное золото минус фактически начисленное с врагов.
     # 3. Победа: не собранные ресурсы READY-шахт игрока + настраиваемый бонус победы.
     #    Поражение: не собранные ресурсы шахт и бонус победы НЕ включаются.
     var player := get_tree().get_first_node_in_group("player") as Player
-
-    var carried_gold: int = player.gold if player else 0
     var gold_gain_mult: float = player.gold_gain if player else 1.0
 
-    # База за убийства до пассивки и бонус от пассивки (только к убийствам).
-    var enemy_kill_gold: int = int(enemies_killed * kill_gold_value)
-    var gold_gain_bonus: int = int(enemy_kill_gold * (gold_gain_mult - 1.0))
+    # Золото с врагов: база (без пассивки) и фактически начисленное (с пассивкой).
+    var enemy_kill_gold_base: int = int(enemies_killed * kill_gold_value)
+    var enemy_kill_gold_total: int = int(enemies_killed * kill_gold_value * gold_gain_mult)
+    var gold_gain_bonus: int = enemy_kill_gold_total - enemy_kill_gold_base
 
+    # Золото с шахт = всё собранное золото минус фактическое с врагов.
+    var mine_gold: int = max(0, gold_collected - enemy_kill_gold_total)
+    var total_gold: int = gold_collected
+
+    var carried_gold: int = player.gold if player else 0
     var mine_remaining_gold: int = 0
     var victory_bonus_amount: int = 0
     if victory:
@@ -237,13 +241,17 @@ func calculate_run_reward(victory: bool) -> Dictionary:
                 mine_remaining_gold += int(mine.get("resources_accumulated"))
         victory_bonus_amount = victory_bonus
 
-    var total: int = carried_gold + enemy_kill_gold + gold_gain_bonus + mine_remaining_gold + victory_bonus_amount
+    # Итог = золото с шахт + золото с врагов (с пассивкой) + бонусы победы.
+    var total: int = mine_gold + enemy_kill_gold_total + mine_remaining_gold + victory_bonus_amount
 
     return {
         "carried_gold": carried_gold,
+        "mine_gold": mine_gold,
         "mine_remaining_gold": mine_remaining_gold,
-        "enemy_kill_gold": enemy_kill_gold,
+        "enemy_kill_gold": enemy_kill_gold_base,
+        "enemy_kill_gold_total": enemy_kill_gold_total,
         "gold_gain_bonus": gold_gain_bonus,
+        "total_gold": total_gold,
         "victory_bonus": victory_bonus_amount,
         "total": max(1, total),
     }

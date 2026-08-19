@@ -14,6 +14,7 @@ const DEFAULT_HERO_ID: String = "hero_spearman"
 ##   weapon_tag       — оружейный тег (для tag_levels и фильтрации UpgradeMenu)
 ##   stat_modifiers   — аддитивные бонусы к статам персонажа
 ##   visual           — res:// путь к SpriteFrames визуала героя
+##   portrait         — res:// путь к портрету героя (иконка в UI, единый источник)
 ##   hero_passive     — пассивка героя: stat + percent_per_level
 ##   passive_name     — название пассивки для UI
 ##   passive_description — описание пассивки для UI
@@ -38,6 +39,7 @@ const HEROES: Dictionary = {
 		"passive_name": "Воинская подготовка",
 		"passive_description": "+1% к урону всех оружий за уровень героя.",
 		"visual": "res://Assets/SpriteFrames/SpearmanFrames.tres",
+		"portrait": "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Lancer.png",
 	},
 	"hero_archer": {
 		"display_name": "Лучник",
@@ -59,6 +61,7 @@ const HEROES: Dictionary = {
 		"passive_name": "Меткость",
 		"passive_description": "+0.5% к шансу критического удара за уровень героя.",
 		"visual": "res://Assets/SpriteFrames/ArcherFrames.tres",
+		"portrait": "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Archer.png",
 	},
 	"hero_monk": {
 		"display_name": "Монах",
@@ -80,6 +83,7 @@ const HEROES: Dictionary = {
 		"passive_name": "Расширение сознания",
 		"passive_description": "+1% к размеру области оружия за уровень героя.",
 		"visual": "res://Assets/SpriteFrames/MonkFrames.tres",
+		"portrait": "res://Texture/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_Monk.png",
 	},
 }
 

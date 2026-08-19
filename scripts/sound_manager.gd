@@ -115,8 +115,6 @@ extends Node
 # --- МУЗЫКА (отдельный плеер, шина Music) ---
 ## Главное меню. Однократный трек, зацикливается по finished.
 @export var menu_music: AudioStream
-## Колесо удачи / магазин / коллекция / выбор героя. Однократный трек, зацикливается.
-@export var sub_menus_music: AudioStream
 ## Плейлист забега. Элементы играют по кругу в порядке массива.
 @export var run_music_playlist: Array[AudioStream] = []
 
@@ -124,6 +122,10 @@ const POOL_SIZE := 16
 const BUS_SFX := "SFX"
 const BUS_MUSIC := "Music"
 const BUS_MASTER := "Master"
+## Длительность плавного затухания/нарастания музыки при смене состояния (секунды).
+const MUSIC_FADE_TIME := 0.8
+## Уровень громкости, считающийся практической тишиной при фейде.
+const MUSIC_SILENCE_DB := -60.0
 
 var _players: Array[AudioStreamPlayer] = []
 
@@ -131,6 +133,8 @@ var _players: Array[AudioStreamPlayer] = []
 var _music_player: AudioStreamPlayer
 var _current_music_state: String = ""
 var _playlist_index: int = 0
+## Активный твин фейда музыки (kill при новом переключении состояния).
+var _fade_tween: Tween = null
 
 
 func _ready() -> void:
@@ -154,6 +158,9 @@ func _ready() -> void:
     _music_player = AudioStreamPlayer.new()
     _music_player.name = "MusicPlayer"
     _music_player.bus = BUS_MUSIC
+    # Музыка не замирает при get_tree().paused (левел-ап, пауза, экран результатов).
+    # В Godot 4 вместо ignore_paused (Godot 3) используется process_mode.
+    _music_player.process_mode = Node.PROCESS_MODE_ALWAYS
     _music_player.finished.connect(_on_music_finished)
     add_child(_music_player)
 
@@ -217,38 +224,63 @@ func _play_click() -> void:
 
 # --- ФОНОВАЯ МУЗЫКА ---
 
-## Переключает состояние фоновой музыки.
-## state: "menu" | "sub_menus" | "run".
+## Переключает состояние фоновой музыки с плавным фейдом.
+## state: "menu" | "run".
 ## Повторный вызов того же состояния не перезапускает трек.
 func set_music_state(state: String) -> void:
     if state == _current_music_state:
         return
     _current_music_state = state
-    _music_player.stop()
+    _playlist_index = 0
+    if _fade_tween != null and _fade_tween.is_valid():
+        _fade_tween.kill()
+    if _music_player.playing:
+        # Плавно затухаем текущий трек, затем запускаем новый с нарастанием.
+        _fade_tween = create_tween()
+        _fade_tween.tween_property(_music_player, "volume_db", MUSIC_SILENCE_DB, MUSIC_FADE_TIME)
+        _fade_tween.tween_callback(_on_fade_out_finished)
+    else:
+        # Плеер молчит — просто стартуем новый трек с плавным нарастанием.
+        _start_music()
+        _fade_in()
+
+
+## По завершении затухания старого трека запускает новый и плавно наращивает громкость.
+func _on_fade_out_finished() -> void:
     _playlist_index = 0
     _start_music()
+    _fade_in()
+
+
+## Плавно поднимает громкость нового трека от тишины до 0 дБ.
+func _fade_in() -> void:
+    _music_player.volume_db = MUSIC_SILENCE_DB
+    _fade_tween = create_tween()
+    _fade_tween.tween_property(_music_player, "volume_db", 0.0, MUSIC_FADE_TIME)
 
 
 ## Запускает музыку для текущего состояния.
+## ВАЖНО: не сбрасывает volume_db — при фейдах громкость управляется твинами.
 func _start_music() -> void:
     var stream: AudioStream = null
     match _current_music_state:
         "menu":
             stream = menu_music
-        "sub_menus":
-            stream = sub_menus_music
         "run":
             if not run_music_playlist.is_empty():
                 stream = run_music_playlist[_playlist_index % run_music_playlist.size()]
             # Пустой плейлист -> тишина.
     if stream == null:
         # Тишина: без ошибок, просто молчим.
+        _music_player.stop()
         return
     _music_player.stream = stream
     _music_player.play()
 
 
 ## Обработка окончания текущего трека.
+## Здесь фейд НЕ нужен: треки меню и плейлиста сменяются без зазоров.
+## volume_db возвращается на 0.0 на случай, если до этого шёл фейд.
 func _on_music_finished() -> void:
     match _current_music_state:
         "run":
@@ -256,11 +288,10 @@ func _on_music_finished() -> void:
                 return
             _playlist_index = (_playlist_index + 1) % run_music_playlist.size()
             _start_music()
-        "menu", "sub_menus":
-            var stream: AudioStream = menu_music
-            if _current_music_state == "sub_menus":
-                stream = sub_menus_music
-            if stream != null:
+            _music_player.volume_db = 0.0
+        "menu":
+            if menu_music != null:
                 # Зацикливаем трек.
-                _music_player.stream = stream
+                _music_player.stream = menu_music
+                _music_player.volume_db = 0.0
                 _music_player.play()

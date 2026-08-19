@@ -44,6 +44,8 @@ func _update_indicators_logic() -> void:
     
     # 4. ШАХТЫ ИГРОКА
     # Группа player_mines ведётся самим Mine (_update_groups) — сюда попадают только свои шахты.
+    # На своих шахтах за экраном маркер ставится в любом состоянии (для позиции и метки дистанции),
+    # но иконка на нём появляется только когда склад заполнен (state == READY) — см. indicator.gd.
     var player_mines = get_tree().get_nodes_in_group("player_mines").filter(func(m): return is_instance_valid(m))
     all_targets.append_array(player_mines)
     

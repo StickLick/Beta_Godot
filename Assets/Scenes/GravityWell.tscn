@@ -7,7 +7,6 @@ radius = 400.0
 
 [node name="GravityWell" type="Area2D" unique_id=1186793353 groups=["gravity_well"]]
 script = ExtResource("1_kpmvu")
-influence_radius = 1500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=726201731]
 shape = SubResource("CircleShape2D_gd7ey")

@@ -52,9 +52,12 @@ var applied_zone_speed_modifier: float = 1.0
 var active_zones: Array[Area2D] = []
 var mass: float = 100.0
 const MAX_MASS: float = 500.0
+const DEATH_SLOWMO_SCALE: float = 0.3
+const DEATH_SLOWMO_REAL_SECONDS: float = 1.5
 var camp_buffs = {"speed": 0.0, "damage": 0.0, "stability": 0.0, "regen": 0.0}
 
 var is_attacking: bool = false
+var _is_dying: bool = false
 var _disruptor_debuff_timer: float = 0.0
 var current_level: int = 1
 var current_xp: int = 0
@@ -100,6 +103,9 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(health_component) and health_component.current_health <= 0:
         _on_death()
         return
+    # Во время сцены смерти (slow-mo + виньетка) игрок не управляется.
+    if _is_dying:
+        return
 
     _process_zone_influences(delta)
     _process_anomalies_damage(delta)
@@ -136,6 +142,14 @@ func _physics_process(delta: float) -> void:
 
 func get_final_damage_multiplier() -> float:
     return damage_multiplier * (1.0 + camp_buffs.damage)
+
+
+## Централизованный крит-ролл для урона игрока (и его юнитов).
+## Возвращает true, если сработал крит. Статы берутся из Player.
+static func roll_crit(player: Player) -> bool:
+    if player == null:
+        return false
+    return randf() < player.crit_chance
 
 func apply_complex_camp_buffs(data: Dictionary) -> void:
     camp_buffs = data
@@ -709,13 +723,14 @@ func _apply_gravity_logic(delta: float) -> void:
         if well.current_state == 1: active_radius = well.influence_radius
         if d < active_radius:
             var dir = vec.normalized()
-            var f = clamp(1.1 - (d / active_radius), 0.2, 1.0)
+            var f = clamp(1.2 - (d / active_radius), 0.0, 1.0)
+            f = f * f  # Резкое спадание силы к краю зоны притяжения
             if well.current_state == 2:
                 velocity -= dir * (well.push_strength * f * delta)
             else:
                 var power = well.pull_strength
                 if well.current_state == 1:
-                    power *= 4.5
+                    power *= 2.2
                     if d > well.pull_radius: power *= 0.8
                 velocity += dir * (power * f * delta)
 
@@ -812,12 +827,13 @@ func collect_mine_resources(amount: float) -> void:
     if GameManager.has_method("log_event"):
         GameManager.log_event("resources_collected", int(amount))
 
-func collect_gold(amount: int) -> void:
+func collect_gold(amount: int, play_sound: bool = true) -> void:
     ## Получение run-золота. Не влияет на размер/скорость игрока.
     if amount <= 0:
         return
     gold += amount
-    SoundManager.play(SoundManager.gold_pickup_sound, SoundManager.gold_pickup_volume_db, SoundManager.gold_pickup_pitch)
+    if play_sound:
+        SoundManager.play(SoundManager.gold_pickup_sound, SoundManager.gold_pickup_volume_db, SoundManager.gold_pickup_pitch)
     if GameManager.has_method("log_event"):
         GameManager.log_event("gold_collected", amount)
 
@@ -834,8 +850,18 @@ func _update_visual_scale() -> void:
     scale = scale.lerp(Vector2.ONE * (1.0 + ((mass / base_mass) - 1.0) * 0.7), 0.15)
 
 func _on_death() -> void:
+    # Защита от повторных вызовов (например, из _physics_process в следующие кадры).
+    if _is_dying:
+        return
+    _is_dying = true
     SoundManager.play(SoundManager.player_death_sound, SoundManager.player_death_volume_db, SoundManager.player_death_pitch)
-    call_deferred("_deferred_restart")
+    # Кинематографическая пауза: slow-mo + таймер до панели результатов.
+    Engine.time_scale = DEATH_SLOWMO_SCALE
+    # SceneTreeTimer по умолчанию (process_always=false) идёт в игровом времени,
+    # которое масштабируется Engine.time_scale. Чтобы реальная пауза составила
+    # ~1.5 секунды, задержка в игровых секундах = реальных * time_scale.
+    var timer := get_tree().create_timer(DEATH_SLOWMO_REAL_SECONDS * Engine.time_scale)
+    timer.timeout.connect(_finish_death)
 
-func _deferred_restart() -> void:
+func _finish_death() -> void:
     GameManager.end_run(false)

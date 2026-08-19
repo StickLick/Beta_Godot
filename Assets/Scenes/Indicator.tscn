@@ -12,6 +12,7 @@ anchors_preset = 0
 custom_minimum_size = Vector2(40, 23)
 script = ExtResource("1_offd1")
 default_icon = ExtResource("2_4twrb")
+mine_icon = ExtResource("5_gold")
 industry_icon = ExtResource("3_t1mr5")
 military_icon = ExtResource("4_fqa30")
 boss_icon = ExtResource("2_4twrb")
@@ -20,6 +21,10 @@ courier_icon = ExtResource("5_gold")
 [node name="Arrow" type="Sprite2D" parent="." unique_id=871309189]
 
 [node name="Icon" type="Sprite2D" parent="." unique_id=1999569737]
+
+[node name="MineIcon" type="Sprite2D" parent="." unique_id=1999569738]
+visible = false
+texture = ExtResource("5_gold")
 
 [node name="Distance" type="Label" parent="." unique_id=1748116588]
 layout_mode = 0

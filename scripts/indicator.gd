@@ -1,6 +1,7 @@
 extends Control
 
 @export var default_icon: Texture2D
+@export var mine_icon: Texture2D
 @export var industry_icon: Texture2D
 @export var military_icon: Texture2D
 @export var boss_icon: Texture2D
@@ -8,6 +9,7 @@ extends Control
 @export var courier_icon: Texture2D
 
 @onready var icon: Sprite2D = $Icon
+@onready var mine_icon_sprite: Sprite2D = $MineIcon
 @onready var distance_label: Label = $Distance
 
 var target: Node2D = null
@@ -16,10 +18,17 @@ var _tween: Tween
 
 func setup(new_target: Node2D) -> void:
     if target == new_target: return
-    _stop_pulse(); target = new_target; _update_visual_state()
+    _stop_pulse(); target = new_target
+    # Маркер шахты: иконка и метка дистанции в одну строку, вплотную друг к другу.
+    size = Vector2(112, 64) if target is Mine else Vector2(40, 23)
+    _update_visual_state()
 
 func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
     if not is_instance_valid(target): hide(); return
+
+    # Маркер шахты — с отступом 10px от края экрана.
+    if target is Mine:
+        margin = 10.0
 
     _update_visual_state()
     var cam = get_viewport().get_camera_2d()
@@ -37,17 +46,30 @@ func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
     # global_position — левый верхний угол Control, а не центр.
     # При целях справа/снизу сдвигаем на размер Control, чтобы внешняя кромка была
     # ровно на margin от края экрана (симметрия с левой/верхней стороной).
-    if screen_direction.x > 0.0:
-        global_position.x -= size.x
-    if screen_direction.y > 0.0:
-        global_position.y -= size.y
+    # Для шахты содержимое (иконка 32×32 / метка дистанции) центрировано внутри
+    # Control 112×64. Чтобы у края была именно видимая часть, сдвигаем Control на
+    # центр иконки ± её полуразмер, в зависимости от стороны:
+    #   справа/снизу -> вычитаем (центр + пол-иконки),
+    #   слева/сверху -> вычитаем (центр - пол-иконки), уводя невидимый Control за экран.
+    if target is Mine:
+        var icon_half: float = 16.0
+        if screen_direction.x > 0.0:
+            global_position.x -= size.x * 0.5 + icon_half
+        else:
+            global_position.x -= size.x * 0.5 - icon_half
+        if screen_direction.y > 0.0:
+            global_position.y -= size.y * 0.5 + icon_half
+        else:
+            global_position.y -= size.y * 0.5 - icon_half
+    else:
+        if screen_direction.x > 0.0:
+            global_position.x -= size.x
+        if screen_direction.y > 0.0:
+            global_position.y -= size.y
     if is_instance_valid(icon): icon.rotation = world_direction.angle()
     
     var dist = cam_pos.distance_to(target_pos)
     distance_label.text = str(int(dist / 100.0)) + "m"
-    # Для курьера подпись дистанции скрывается — только золотая пульсирующая иконка.
-    if is_instance_valid(distance_label):
-        distance_label.visible = not (target is Courier)
     
     # Логика пульсации
     if target.is_in_group("safe_zone"):
@@ -56,13 +78,21 @@ func update_indicator(screen_rect: Rect2, margin: float = 24.0) -> void:
         _start_pulse()
     elif target is Camp and target.alignment == 1 and target.get("is_under_attack"):
         _start_pulse()
-    elif target is Mine and target.get("is_under_attack"):
-        _start_pulse()
     else:
         _stop_pulse()
 
 func _update_visual_state() -> void:
     if not is_instance_valid(target): return
+    
+    # Слой золотой иконки шахты по умолчанию скрыт — включается только для READY-шахт ниже.
+    mine_icon_sprite.visible = false
+    
+    # Стандартный layout метки дистанции (левый верхний угол). Для шахт переопределяется ниже.
+    distance_label.position = Vector2.ZERO
+    distance_label.size = Vector2(40, 23)
+    distance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+    distance_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+    distance_label.visible = true
     
     # Иконка курьера — в 2 раза меньше остальных (золотой слиток крупнее стрелки).
     icon.scale = Vector2(0.5, 0.5) if target is Courier else Vector2.ONE
@@ -73,6 +103,7 @@ func _update_visual_state() -> void:
         return
 
     if target is Courier:
+        distance_label.visible = false
         if not _is_pulsing: modulate = Color(1.0, 0.84, 0.0, 1.0)  # золотой
         if courier_icon: icon.texture = courier_icon
         return
@@ -81,9 +112,29 @@ func _update_visual_state() -> void:
         if not _is_pulsing: modulate = Color.YELLOW
         if boss_icon: icon.texture = boss_icon
     elif target is Mine:
-        # Шахты игрока — дружественный стиль как у своих лагерей.
+        # Маркер шахты — только позиция на краю экрана.
+        # Когда склад НЕ заполнен — показывается только дистанция.
+        # Когда склад заполнен (state == READY) — дистанция ЗАМЕНЯЕТСЯ золотой иконкой.
+        # Никакой стрелки и ничего лишнего.
         # Вражеские/нейтральные шахты сюда не попадают (фильтр по группе player_mines в IndicatorManager).
-        if not _is_pulsing: modulate = Color.CORNFLOWER_BLUE
+        # Явно сбрасываем текстуру: из-за пула индикаторов не должна остаться чужая иконка.
+        icon.texture = null
+        modulate = Color.WHITE
+        var is_ready: bool = target.get("state") == target.MineState.READY
+        # Метка дистанции — по центру маркера, видна только пока склад не заполнен.
+        distance_label.position = Vector2.ZERO
+        distance_label.size = Vector2(112, 64)
+        distance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        distance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        distance_label.visible = not is_ready
+        # Золотая иконка вместо дистанции — только когда склад заполнен.
+        # Уменьшена в 2 раза (128 → 64 px), отцентрирована по маркеру (112×64).
+        if mine_icon and is_ready:
+            mine_icon_sprite.texture = mine_icon
+            mine_icon_sprite.scale = Vector2(0.5, 0.5)
+            mine_icon_sprite.position = Vector2(56.0, 32.0)
+            mine_icon_sprite.modulate = Color.WHITE
+            mine_icon_sprite.visible = true
     elif target is Camp:
         match target.specialty:
             1: if industry_icon: icon.texture = industry_icon

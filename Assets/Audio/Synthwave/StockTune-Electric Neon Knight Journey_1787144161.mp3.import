@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bocw48rgqxui"
+path="res://.godot/imported/StockTune-Electric Neon Knight Journey_1787144161.mp3-0db887d1976a33c350a0a99ab9be05fa.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Synthwave/StockTune-Electric Neon Knight Journey_1787144161.mp3"
+dest_files=["res://.godot/imported/StockTune-Electric Neon Knight Journey_1787144161.mp3-0db887d1976a33c350a0a99ab9be05fa.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

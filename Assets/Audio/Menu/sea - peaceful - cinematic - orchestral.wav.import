@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bqu5y5kw5r1a5"
+path="res://.godot/imported/sea - peaceful - cinematic - orchestral.wav-f864188a0b78f7dd35ed15af6407fce1.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Menu/sea - peaceful - cinematic - orchestral.wav"
+dest_files=["res://.godot/imported/sea - peaceful - cinematic - orchestral.wav-f864188a0b78f7dd35ed15af6407fce1.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

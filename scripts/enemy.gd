@@ -24,6 +24,8 @@ var is_attacking: bool = false
 var attack_index: int = 0
 var attack_cooldown_timer: float = 0.0
 var target_node: Node2D = null
+# Твин вспышки урона (kill'ится при крите, чтобы эффекты не конфликтовали)
+var _hit_tween: Tween = null
 # --- Обход препятствий: счётчик застревания и таймер «расталкивания» ---
 var _stuck_frames: int = 0
 var _unstick_timer: float = 0.0
@@ -34,6 +36,7 @@ func _ready() -> void:
     if health_component: health_component.health_depleted.connect(_on_death)
     if hurtbox:
         hurtbox.hit_received.connect(_on_hit_received)
+        hurtbox.crit_received.connect(_on_crit_received)
         hurtbox.faction = "enemy"
         hurtbox.collision_layer = 8
     if hitbox: 
@@ -49,17 +52,17 @@ func setup_archetype(type: Archetype) -> void:
     current_archetype = type
     match current_archetype:
         Archetype.SWARMER:
-            speed = 160.0; xp_value = 5; scale = Vector2(0.8, 0.8)
+            speed = 160.0; xp_value = 5; scale = Vector2(0.8, 0.8); self.z_index = 0
             if animated_sprite:
                 animated_sprite.sprite_frames = SWARMER_FRAMES
                 animated_sprite.play("Run")
         Archetype.BREAKER:
-            speed = 65.0; xp_value = 50; scale = Vector2(2.2, 2.2); modulate = Color.WHITE
+            speed = 65.0; xp_value = 50; scale = Vector2(2.2, 2.2); modulate = Color.WHITE; self.z_index = 5
             if animated_sprite:
                 animated_sprite.sprite_frames = BREAKER_FRAMES
                 animated_sprite.play("Run")
         Archetype.DISRUPTOR:
-            speed = 130.0; xp_value = 35; scale = Vector2(1.1, 1.1); modulate = Color.WHITE
+            speed = 130.0; xp_value = 35; scale = Vector2(1.1, 1.1); modulate = Color.WHITE; self.z_index = 0
             if animated_sprite:
                 animated_sprite.sprite_frames = DISRUPTOR_FRAMES
                 animated_sprite.play("Run")
@@ -166,13 +169,14 @@ func _apply_gravity_logic(delta: float) -> void:
         if well.current_state == 1: active_radius = well.influence_radius
         if d < active_radius:
             var dir = vec.normalized()
-            var f = clamp(1.1 - (d / active_radius), 0.2, 1.0)
+            var f = clamp(1.2 - (d / active_radius), 0.0, 1.0)
+            f = f * f  # Резкое спадание силы к краю зоны притяжения
             if well.current_state == 2:
                 velocity -= dir * (well.push_strength * f * delta)
             else:
                 var power = well.pull_strength
                 if well.current_state == 1:
-                    power *= 4.5
+                    power *= 2.2
                     if d > well.pull_radius: power *= 0.8
                 velocity += dir * (power * f * delta)
 
@@ -269,9 +273,58 @@ func _on_hit_received(_damage: float) -> void:
     t.tween_property(self, "modulate", Color.WHITE, 0.1)
     SoundManager.play(SoundManager.enemy_hit_sound, SoundManager.enemy_hit_volume_db, SoundManager.enemy_hit_pitch)
 
+func _on_crit_received(_damage: float) -> void:
+    # ── Эффекты на самом враге ──
+    # Белая вспышка (ярче обычного хита, чуть дольше). Убиваем текущий твин,
+    # чтобы крит не конфликтовал с красной вспышкой от hit_received.
+    if is_instance_valid(_hit_tween):
+        _hit_tween.kill()
+    _hit_tween = create_tween()
+    _hit_tween.tween_property(self, "modulate", Color(2.0, 2.0, 2.0), 0.05)
+    _hit_tween.tween_property(self, "modulate", Color.WHITE, 0.25)
+
+    # Всплывающая надпись «КРИТ!» над врагом.
+    if is_inside_tree():
+        _spawn_crit_label()
+
+    # ── Глобальные эффекты, один раз за крит-событие ──
+    # Защита от спама: если заморозка времени уже активна (время замедлено
+    # другим эффектом), новую не запускаем, чтобы таймлайн не дёргался.
+    if Engine.time_scale < 1.0:
+        return
+    var camera = get_viewport().get_camera_2d()
+    if camera and camera.has_method("apply_shake"):
+        camera.apply_shake(8.0)
+    Engine.time_scale = 0.05
+    get_tree().create_timer(0.08, true, false, true).timeout.connect(func():
+        Engine.time_scale = 1.0
+    )
+
+func _spawn_crit_label() -> void:
+    var label := Label.new()
+    label.text = "КРИТ!"
+    label.add_theme_font_size_override("font_size", 30)
+    label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0))
+    label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0))
+    label.add_theme_constant_override("outline_size", 8)
+    label.z_index = 100
+    label.global_position = global_position + Vector2(-40, -30)
+    get_tree().current_scene.add_child(label)
+    var tw := label.create_tween()
+    tw.set_parallel(true)
+    tw.tween_property(label, "global_position", label.global_position + Vector2(0, -40), 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+    tw.tween_property(label, "modulate:a", 0.0, 0.8).set_delay(0.15)
+    tw.chain().tween_callback(label.queue_free)
+
 func _on_death() -> void:
     SoundManager.play(SoundManager.enemy_death_sound, SoundManager.enemy_death_volume_db, SoundManager.enemy_death_pitch * randf_range(0.95, 1.05))
     if GameManager.has_method("log_event"): GameManager.log_event("enemy_killed", 1)
+    # Золото за убийство начисляется инстантно в run-золото игрока
+    # (player.collect_gold увеличивает player.gold → HUD обновляется автоматически).
+    var player := get_tree().get_first_node_in_group("player") as Player
+    if player:
+        # Динамический вызов: обходит статическую проверку сигнатуры collect_gold
+        player.call("collect_gold", int(GameManager.kill_gold_value * player.gold_gain), false)
     var gem: XPGem = XP_GEM_SCENE.instantiate() as XPGem
     var rect = GameManager.get_meta("map_rect") if GameManager.has_meta("map_rect") else Rect2(-2000,-2000,4000,4000)
     var pos = global_position

@@ -96,7 +96,7 @@ func _ready() -> void:
     _mine_ui = MINE_UI_SCENE.instantiate()
     add_child(_mine_ui)
     # Позиция над шахтой: центр блока (90x62) сдвинут выше шахты.
-    _mine_ui.position = Vector2(-45, -190)
+    _mine_ui.position = Vector2(-45, -150)
 
     body_entered.connect(_on_body_entered)
     body_exited.connect(_on_body_exited)

@@ -6,6 +6,7 @@ extends Camera2D
 var _shake_strength: float = 0.0
 var _random_generator: RandomNumberGenerator = RandomNumberGenerator.new()
 var _hurtbox_component: HurtboxComponent = null
+var _hit_flash_tween: Tween = null
 
 func _ready() -> void:
     position_smoothing_enabled = true
@@ -31,6 +32,15 @@ func _process(delta: float) -> void:
         offset = Vector2.ZERO
 
 func _on_player_hit_received(damage: float) -> void:
+    if _hit_flash_tween and _hit_flash_tween.is_valid():
+        _hit_flash_tween.kill()
+
+    var sprite := get_parent().get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+    if sprite != null:
+        sprite.self_modulate = Color(2.0, 0.35, 0.35, 1.0)
+        _hit_flash_tween = create_tween()
+        _hit_flash_tween.tween_property(sprite, "self_modulate", Color.WHITE, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
     _shake_strength = clamp(damage * 0.1, 0.3, 1.0)
     SoundManager.play(SoundManager.player_hit_sound, SoundManager.player_hit_volume_db, SoundManager.player_hit_pitch)
 

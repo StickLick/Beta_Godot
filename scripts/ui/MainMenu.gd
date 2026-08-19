@@ -91,7 +91,6 @@ func _on_sub_screen_visibility_changed() -> void:
     elif is_instance_valid(hero_select_screen) and hero_select_screen.visible: any_open = true
     elif is_instance_valid(collection_screen) and collection_screen.visible: any_open = true
     main_menu_ui.visible = not any_open
-    SoundManager.set_music_state("sub_menus" if any_open else "menu")
 
 
 func _on_start_pressed() -> void:

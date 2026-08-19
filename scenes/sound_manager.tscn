@@ -31,6 +31,11 @@
 [ext_resource type="AudioStream" uid="uid://bg74ffwvokmiy" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_13.wav" id="27_x2qt3"]
 [ext_resource type="AudioStream" uid="uid://ppoufmjxlrn8" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_14.wav" id="28_f1jmg"]
 [ext_resource type="AudioStream" uid="uid://ch22asj264a17" path="res://Assets/Audio/Footstep/Grass/Run/Footsteps_Grass_Run_15.wav" id="29_3jvyj"]
+[ext_resource type="AudioStream" uid="uid://bgpm0222sqwyi" path="res://Assets/Audio/Menu/mystical-glade_94962.wav" id="32_s2wtd"]
+[ext_resource type="AudioStream" uid="uid://bocw48rgqxui" path="res://Assets/Audio/Synthwave/StockTune-Electric Neon Knight Journey_1787144161.mp3" id="33_eswfn"]
+[ext_resource type="AudioStream" uid="uid://cvwsfobr4sulv" path="res://Assets/Audio/Synthwave/DavidKBD - Pink Bloom Pack - 01 - Pink Bloom.ogg" id="34_fx0j5"]
+[ext_resource type="AudioStream" uid="uid://b5bvcc0qaw4vw" path="res://Assets/Audio/Synthwave/DavidKBD - Pink Bloom Pack - 02 - Portal to Underworld.ogg" id="35_r480t"]
+[ext_resource type="AudioStream" uid="uid://cindm3tanaeci" path="res://Assets/Audio/Synthwave/DavidKBD - Pink Bloom Pack - 09 - Lightyear City.ogg" id="36_jdcvv"]
 
 [node name="SoundManager" type="Node" unique_id=2014376491]
 script = ExtResource("1_sound")
@@ -52,7 +57,7 @@ shoot_magic_volume_db = -20.0
 shoot_heavy_sound = ExtResource("9_k1d7a")
 shoot_heavy_volume_db = -15.0
 shoot_spear_sound = ExtResource("10_gb18h")
-shoot_spear_volume_db = -10.0
+shoot_spear_volume_db = -15.0
 shoot_infantry_sound = ExtResource("11_hf51r")
 shoot_infantry_volume_db = -20.0
 shoot_lightning_sound = ExtResource("12_m0knx")
@@ -67,3 +72,6 @@ footstep_sound = ExtResource("14_s8vuo")
 footstep_sounds = Array[AudioStream]([ExtResource("15_a7nyy"), ExtResource("16_hf51r"), ExtResource("17_m0knx"), ExtResource("18_s2wtd"), ExtResource("19_qydo7"), ExtResource("20_v1uil"), ExtResource("21_ubpkc"), ExtResource("22_eswfn"), ExtResource("23_fx0j5"), ExtResource("24_r480t"), ExtResource("25_jdcvv"), ExtResource("26_xsko0"), ExtResource("27_x2qt3"), ExtResource("28_f1jmg"), ExtResource("29_3jvyj")])
 footstep_volume_db = -25.0
 footstep_pitch = 2.0
+music_volume_db = -25.0
+menu_music = ExtResource("32_s2wtd")
+run_music_playlist = Array[AudioStream]([ExtResource("36_jdcvv"), ExtResource("33_eswfn"), ExtResource("35_r480t"), ExtResource("34_fx0j5")])
