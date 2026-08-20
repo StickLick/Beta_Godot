@@ -111,12 +111,12 @@ func _build_cards() -> void:
         vbox.size_flags_vertical = Control.SIZE_SHRINK_CENTER
         card.add_child(vbox)
 
-        # Иконка 32x32 строго в оригинальном размере (KEEP_CENTERED).
+        # Иконка 32x32 — масштабирование с сохранением пропорций (весь арбалет виден целиком).
         var icon_rect := TextureRect.new()
         icon_rect.name = "EvoIcon"
         icon_rect.custom_minimum_size = ICON_SIZE
         icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-        icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+        icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
         icon_rect.texture = _load_evo_icon(path, up)
         icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
         vbox.add_child(icon_rect)
